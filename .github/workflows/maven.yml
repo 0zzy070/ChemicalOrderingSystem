@@ -14,7 +14,7 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build -t chemical-ordering-system-dev .
+        docker build -t chemical-ordering-system-dev -f /home/ubuntu/Dockerfile .
 
     - name: Stop and Remove Old Container
       run: |
