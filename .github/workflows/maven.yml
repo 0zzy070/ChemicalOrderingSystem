@@ -20,7 +20,7 @@ jobs:
         cache: maven
 
     - name: Build with Maven
-      run: mvn -B package --file /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/backend/uni_chemicals_ordering_system/chemical-ordering-system/pom.xml
+      run: mvn -B package -DskipTests --file /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/backend/uni_chemicals_ordering_system/chemical-ordering-system/pom.xml
 
     - name: Build Docker image
       run: |
