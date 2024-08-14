@@ -22,9 +22,12 @@ jobs:
     - name: Build with Maven
       run: mvn -B package -DskipTests --file /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/backend/uni_chemicals_ordering_system/chemical-ordering-system/pom.xml
 
+    - name: Move JAR file to $HOME
+      run: mv /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/backend/uni_chemicals_ordering_system/chemical-ordering-system/target/chemical-ordering-system-0.0.1-SNAPSHOT.jar /home/ubuntu/
+
     - name: Build Docker image
       run: |
-        docker build -t chemical-ordering-system-dev -f /home/ubuntu/Dockerfile .
+        docker build -t chemical-ordering-system-dev -f /home/ubuntu/Dockerfile /home/ubuntu/
 
     - name: Stop and Remove Old Container
       run: |
