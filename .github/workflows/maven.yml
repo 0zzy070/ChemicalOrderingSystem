@@ -31,9 +31,8 @@ jobs:
 
     - name: Stop and Remove Old Container
       run: |
-        docker stop chemical-ordering-system-dev || true
-        docker rm chemical-ordering-system-dev || true
+        docker-compose -f /home/ubuntu/docker-compose.yml down
 
     - name: Run New Container
       run: |
-        docker run -d --name chemical-ordering-system-dev -p 8080:8080 chemical-ordering-system-dev
+        docker-compose -f /home/ubuntu/docker-compose.yml up -d
