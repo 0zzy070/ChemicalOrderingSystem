@@ -1,9 +1,8 @@
 package chemical_ordering_system.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+import java.util.UUID;
 
 @Entity
 @Table(name = "chemical_org_unit")
@@ -26,6 +25,13 @@ public class ChemicalOrgUnit {
     private Long expireDate;
 
     public ChemicalOrgUnit() {}
+
+    @PrePersist
+    public void generateId() {
+        if (this.id == null || this.id.isEmpty()) {
+            this.id = UUID.randomUUID().toString();
+        }
+    }
 
     // Getters and Setters
     public String getId() {

@@ -44,14 +44,33 @@ public class OrganizationalUnitController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<OrganizationalUnit>> createOrganizationalUnit(
+            @RequestParam("user_type") Integer userType,
             @Valid @RequestBody OrganizationalUnit unit) {
+        if (userType == null || userType != 0) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(
+                            new ApiResponse<>(
+                                    403,
+                                    "You are not authorized to create an organizational unit",
+                                    null));
+        }
         OrganizationalUnit savedUnit = organizationalUnitRepository.save(unit);
         return ResponseEntity.ok(new ApiResponse<>(200, "Success", savedUnit));
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<OrganizationalUnit>> updateOrganizationalUnit(
-            @PathVariable String id, @Valid @RequestBody OrganizationalUnit unit) {
+            @RequestParam("user_type") Integer userType,
+            @PathVariable String id,
+            @Valid @RequestBody OrganizationalUnit unit) {
+        if (userType == null || userType != 0) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(
+                            new ApiResponse<>(
+                                    403,
+                                    "You are not authorized to update this organizational unit",
+                                    null));
+        }
         if (!organizationalUnitRepository.existsById(id)) {
             ApiResponse<OrganizationalUnit> response =
                     new ApiResponse<>(404, "OrganizationalUnit with ID " + id + " not found", null);
@@ -63,7 +82,16 @@ public class OrganizationalUnitController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteOrganizationalUnit(@PathVariable String id) {
+    public ResponseEntity<ApiResponse<Void>> deleteOrganizationalUnit(
+            @RequestParam("user_type") Integer userType, @PathVariable String id) {
+        if (userType == null || userType != 0) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(
+                            new ApiResponse<>(
+                                    403,
+                                    "You are not authorized to delete this organizational unit",
+                                    null));
+        }
         if (!organizationalUnitRepository.existsById(id)) {
             ApiResponse<Void> response =
                     new ApiResponse<>(404, "OrganizationalUnit with ID " + id + " not found", null);

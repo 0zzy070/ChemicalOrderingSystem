@@ -1,9 +1,8 @@
 package chemical_ordering_system.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+import java.util.UUID;
 
 @Entity
 @Table(name = "experiment")
@@ -22,7 +21,7 @@ public class Experiment {
     @Column(columnDefinition = "bigint")
     private Long staffSubmitTime;
 
-    @Column(columnDefinition = "bit(1)")
+    @Column(columnDefinition = "boolean")
     private Boolean supervisorApproveStatus;
 
     @Column(columnDefinition = "character varying(256)")
@@ -31,7 +30,7 @@ public class Experiment {
     @Column(columnDefinition = "bigint")
     private Long supervisorApproveTime;
 
-    @Column(columnDefinition = "bit(1)")
+    @Column(columnDefinition = "boolean")
     private Boolean higherApproveStatus;
 
     @Column(columnDefinition = "character varying(256)")
@@ -43,7 +42,7 @@ public class Experiment {
     @Column(columnDefinition = "smallint NOT NULL")
     private Short status;
 
-    @Column(columnDefinition = "bit(1)")
+    @Column(columnDefinition = "boolean")
     private Boolean orderApproveStatus;
 
     @Column(columnDefinition = "character varying(256)")
@@ -68,6 +67,13 @@ public class Experiment {
     private String unit;
 
     public Experiment() {}
+
+    @PrePersist
+    public void generateId() {
+        if (this.id == null || this.id.isEmpty()) {
+            this.id = UUID.randomUUID().toString();
+        }
+    }
 
     // Getters and Setters
     public String getId() {
@@ -220,5 +226,47 @@ public class Experiment {
 
     public void setUnit(String unit) {
         this.unit = unit;
+    }
+
+    public void updateSupervisorFields(Experiment updatedExperiment) {
+        if (updatedExperiment.getSupervisorApproveStatus() != null) {
+            this.supervisorApproveStatus = updatedExperiment.getSupervisorApproveStatus();
+        }
+        if (updatedExperiment.getSupervisorComment() != null) {
+            this.supervisorComment = updatedExperiment.getSupervisorComment();
+        }
+        if (updatedExperiment.getSupervisorApproveTime() != null) {
+            this.supervisorApproveTime = updatedExperiment.getSupervisorApproveTime();
+        }
+    }
+
+    public void updateHigherApproveFields(Experiment updatedExperiment) {
+        if (updatedExperiment.getHigherApproveStatus() != null) {
+            this.higherApproveStatus = updatedExperiment.getHigherApproveStatus();
+        }
+        if (updatedExperiment.getHigherApproveComment() != null) {
+            this.higherApproveComment = updatedExperiment.getHigherApproveComment();
+        }
+        if (updatedExperiment.getHigherApproveTime() != null) {
+            this.higherApproveTime = updatedExperiment.getHigherApproveTime();
+        }
+    }
+
+    public void updateOrderFields(Experiment updatedExperiment) {
+        if (updatedExperiment.getOrderApproveStatus() != null) {
+            this.orderApproveStatus = updatedExperiment.getOrderApproveStatus();
+        }
+        if (updatedExperiment.getOrderComment() != null) {
+            this.orderComment = updatedExperiment.getOrderComment();
+        }
+        if (updatedExperiment.getOrderApproveTime() != null) {
+            this.orderApproveTime = updatedExperiment.getOrderApproveTime();
+        }
+        if (updatedExperiment.getOrderReceiveTime() != null) {
+            this.orderReceiveTime = updatedExperiment.getOrderReceiveTime();
+        }
+        if (updatedExperiment.getOrderPlacedTime() != null) {
+            this.orderPlacedTime = updatedExperiment.getOrderPlacedTime();
+        }
     }
 }
