@@ -23,40 +23,37 @@ CREATE TABLE public.chemical_org_unit (
 );
 
 
-CREATE TABLE public.experiment (
-    id character varying(64) NOT NULL,
-    name character varying(128) NOT NULL,
-    risk_assessment character varying(256),
-    supervisor_approve_status bit(1),
-    supervisor_comment character varying(256),
-    higher_approve_status bit(1),
-    higher_approve_comment character varying(256),
+CREATE TABLE IF NOT EXISTS public.experiment
+(
+    id character varying(64) COLLATE pg_catalog."default" NOT NULL,
+    name character varying(128) COLLATE pg_catalog."default" NOT NULL,
+    risk_assessment character varying(256) COLLATE pg_catalog."default",
+    supervisor_comment character varying(256) COLLATE pg_catalog."default",
+    higher_approve_comment character varying(256) COLLATE pg_catalog."default",
     status smallint NOT NULL,
-    order_approve_status bit(1),
-    order_comment character varying(256),
-    chemical_id character varying(16),
+    order_comment character varying(256) COLLATE pg_catalog."default",
+    chemical_id character varying(16) COLLATE pg_catalog."default",
     amount smallint,
-    unit character(16),
+    unit character(16) COLLATE pg_catalog."default",
     staff_submit_time bigint,
     higher_approve_time bigint,
     order_approve_time bigint,
     order_receive_time bigint,
     order_placed_time bigint,
-    supervisor_approve_time bigint
+    supervisor_approve_time bigint,
+    supervisor_approve_status boolean,
+    higher_approve_status boolean,
+    order_approve_status boolean,
+    CONSTRAINT experiment_pkey PRIMARY KEY (id)
 );
 
-COMMENT ON COLUMN public.experiment.supervisor_approve_status IS '0:reject    1:pass';
-
-COMMENT ON COLUMN public.experiment.higher_approve_status IS '0:reject    1:pass';
-
-COMMENT ON COLUMN public.experiment.status IS '0: wait for supervisor approve
+COMMENT ON COLUMN public.experiment.status
+    IS '0: wait for supervisor approve
 1: wait for higher approver approve
 2: wait for order confirm
-3: Ordered 
+3: Ordered
 4: received
 5: placed(order finished)';
-
-COMMENT ON COLUMN public.experiment.order_approve_status IS '0:reject    1:pass';
 
 CREATE TABLE public.organizational_unit (
     id character varying(64) NOT NULL,
