@@ -4,7 +4,6 @@ import chemical_ordering_system.dto.orgazation.OrganizationalUnitAddDTO;
 import chemical_ordering_system.exception.BusinessException;
 import chemical_ordering_system.model.ApiResponse;
 import chemical_ordering_system.model.OrganizationalUnit;
-import chemical_ordering_system.repository.OrganizationalUnitRepository;
 import chemical_ordering_system.server.IOrganizationalUnitService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +15,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/organizational-units")
 public class OrganizationalUnitController {
-
-    @Autowired
-    private OrganizationalUnitRepository organizationalUnitRepository;
 
     @Autowired
     private IOrganizationalUnitService organizationalUnitService;
