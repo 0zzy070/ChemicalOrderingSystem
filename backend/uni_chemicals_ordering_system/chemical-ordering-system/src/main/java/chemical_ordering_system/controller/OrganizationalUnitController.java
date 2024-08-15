@@ -1,13 +1,13 @@
 package chemical_ordering_system.controller;
 
+import chemical_ordering_system.dto.orgazation.OrganizationalUnitAddDTO;
+import chemical_ordering_system.exception.BusinessException;
 import chemical_ordering_system.model.ApiResponse;
 import chemical_ordering_system.model.OrganizationalUnit;
 import chemical_ordering_system.repository.OrganizationalUnitRepository;
-
+import chemical_ordering_system.server.IOrganizationalUnitService;
 import jakarta.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,88 +17,50 @@ import java.util.List;
 @RequestMapping("/api/organizational-units")
 public class OrganizationalUnitController {
 
-    @Autowired private OrganizationalUnitRepository organizationalUnitRepository;
+    @Autowired
+    private OrganizationalUnitRepository organizationalUnitRepository;
 
-    @GetMapping
-    public ApiResponse<List<OrganizationalUnit>> getAllOrganizationalUnits() {
-        List<OrganizationalUnit> units = organizationalUnitRepository.findAll();
-        return new ApiResponse<>(200, "Success", units);
-    }
+    @Autowired
+    private IOrganizationalUnitService organizationalUnitService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<OrganizationalUnit>> getOrganizationalUnitById(
-            @PathVariable String id) {
-        return organizationalUnitRepository
-                .findById(id)
-                .map(unit -> ResponseEntity.ok(new ApiResponse<>(200, "Success", unit)))
-                .orElseGet(
-                        () -> {
-                            ApiResponse<OrganizationalUnit> response =
-                                    new ApiResponse<>(
-                                            404,
-                                            "OrganizationalUnit with ID " + id + " not found",
-                                            null);
-                            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-                        });
-    }
-
+    /**
+     * Create OrganizationalUnit
+     *
+     * @param unit
+     * @return
+     * @throws BusinessException
+     */
     @PostMapping
     public ResponseEntity<ApiResponse<OrganizationalUnit>> createOrganizationalUnit(
-            @RequestParam("user_type") Integer userType,
-            @Valid @RequestBody OrganizationalUnit unit) {
-        if (userType == null || userType != 0) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(
-                            new ApiResponse<>(
-                                    403,
-                                    "You are not authorized to create an organizational unit",
-                                    null));
-        }
-        OrganizationalUnit savedUnit = organizationalUnitRepository.save(unit);
-        return ResponseEntity.ok(new ApiResponse<>(200, "Success", savedUnit));
+            @Valid @RequestBody OrganizationalUnitAddDTO unit) throws BusinessException {
+        organizationalUnitService.addOrganizationalUnit(unit);
+        return ResponseEntity.ok(new ApiResponse<>(200, "Success", null));
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse<OrganizationalUnit>> updateOrganizationalUnit(
-            @RequestParam("user_type") Integer userType,
-            @PathVariable String id,
-            @Valid @RequestBody OrganizationalUnit unit) {
-        if (userType == null || userType != 0) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(
-                            new ApiResponse<>(
-                                    403,
-                                    "You are not authorized to update this organizational unit",
-                                    null));
-        }
-        if (!organizationalUnitRepository.existsById(id)) {
-            ApiResponse<OrganizationalUnit> response =
-                    new ApiResponse<>(404, "OrganizationalUnit with ID " + id + " not found", null);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-        unit.setId(id);
-        OrganizationalUnit updatedUnit = organizationalUnitRepository.save(unit);
-        return ResponseEntity.ok(new ApiResponse<>(200, "Success", updatedUnit));
-    }
-
+    /**
+     * This will delete the organization and all of its direct and indirect children
+     *
+     * @param id
+     * @return
+     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteOrganizationalUnit(
-            @RequestParam("user_type") Integer userType, @PathVariable String id) {
-        if (userType == null || userType != 0) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(
-                            new ApiResponse<>(
-                                    403,
-                                    "You are not authorized to delete this organizational unit",
-                                    null));
-        }
-        if (!organizationalUnitRepository.existsById(id)) {
-            ApiResponse<Void> response =
-                    new ApiResponse<>(404, "OrganizationalUnit with ID " + id + " not found", null);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-        organizationalUnitRepository.deleteById(id);
+    public ResponseEntity<ApiResponse<Void>> deleteOrganizationalUnit(@PathVariable String id) throws BusinessException {
+        organizationalUnitService.deleteOrganizationalUnitById(id);
         ApiResponse<Void> response = new ApiResponse<>(200, "Success", null);
         return ResponseEntity.ok(response);
     }
+
+    /**
+     * Query all direct sub-institutions under the current institution
+     *
+     * @param id
+     * @param childOrgType the orgType of direct sub-institutions.List all type of direct sub-institutions when childOrgType is -1
+     * @return
+     */
+    @GetMapping("/{id}/{childOrgType}")
+    public ApiResponse<List<OrganizationalUnit>> listDirectChildren(@PathVariable String id, @PathVariable Integer childOrgType) throws BusinessException {
+        List<OrganizationalUnit> units = organizationalUnitService.listDirectChildren(id, childOrgType);
+        return new ApiResponse<>(200, "Success", units);
+    }
+
 }
