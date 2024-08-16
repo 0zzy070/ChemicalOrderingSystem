@@ -1,4 +1,4 @@
-package chemical_ordering_system.server;
+package chemical_ordering_system.service;
 
 import chemical_ordering_system.dto.orgazation.OrganizationalUnitAddDTO;
 import chemical_ordering_system.dto.orgazation.OrganizationalUnitUpdateDTO;

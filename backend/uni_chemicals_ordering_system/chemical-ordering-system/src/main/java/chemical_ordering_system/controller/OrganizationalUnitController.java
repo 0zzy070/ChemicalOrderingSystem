@@ -5,7 +5,7 @@ import chemical_ordering_system.dto.orgazation.OrganizationalUnitUpdateDTO;
 import chemical_ordering_system.exception.BusinessException;
 import chemical_ordering_system.model.ApiResponse;
 import chemical_ordering_system.model.OrganizationalUnit;
-import chemical_ordering_system.server.IOrganizationalUnitService;
+import chemical_ordering_system.service.IOrganizationalUnitService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

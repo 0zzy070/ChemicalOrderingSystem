@@ -1,4 +1,4 @@
-package chemical_ordering_system.server.impl;
+package chemical_ordering_system.service.impl;
 
 import chemical_ordering_system.dto.orgazation.OrganizationalUnitAddDTO;
 import chemical_ordering_system.dto.orgazation.OrganizationalUnitUpdateDTO;
@@ -8,7 +8,7 @@ import chemical_ordering_system.enums.OrganizationalUnitTypeEnum;
 import chemical_ordering_system.exception.BusinessException;
 import chemical_ordering_system.model.OrganizationalUnit;
 import chemical_ordering_system.repository.OrganizationalUnitRepository;
-import chemical_ordering_system.server.IOrganizationalUnitService;
+import chemical_ordering_system.service.IOrganizationalUnitService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
