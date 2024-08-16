@@ -1,12 +1,12 @@
 package chemical_ordering_system.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "chemical")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Chemical {
 
     @Id
@@ -32,6 +32,20 @@ public class Chemical {
     private Short storagePeriod;
 
     public Chemical() {}
+
+    // Automatically set createTime and updateTime before the entity is persisted
+    @PrePersist
+    protected void onCreate() {
+        long timestamp = System.currentTimeMillis();
+        this.createTime = timestamp;
+        this.updateTime = timestamp;
+    }
+
+    // Automatically update updateTime before the entity is updated
+    @PreUpdate
+    protected void onUpdate() {
+        this.updateTime = System.currentTimeMillis();
+    }
 
     // Getters and Setters
     public String getId() {
