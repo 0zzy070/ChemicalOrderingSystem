@@ -10,21 +10,17 @@ import org.hibernate.validator.constraints.Length;
 @Data
 public class OrganizationalUnitAddDTO {
 
-    @Column(columnDefinition = "character varying(64)")
     @NotBlank
     @Length(max = 64)
     private String pid;
 
     @NotBlank
     @Length(max = 64)
-    @Column(columnDefinition = "character varying(64)")
     private String orgName;
 
-    @Column(columnDefinition = "smallint")
     @Max(4)
     @Min(2)
     private Integer orgType;
 
-    @Column(columnDefinition = "boolean")
     private Boolean hasSpecialEquipment;
 }

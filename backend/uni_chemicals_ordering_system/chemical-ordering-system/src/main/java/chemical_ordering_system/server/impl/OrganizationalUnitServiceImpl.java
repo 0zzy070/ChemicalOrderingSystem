@@ -1,6 +1,7 @@
 package chemical_ordering_system.server.impl;
 
 import chemical_ordering_system.dto.orgazation.OrganizationalUnitAddDTO;
+import chemical_ordering_system.dto.orgazation.OrganizationalUnitUpdateDTO;
 import chemical_ordering_system.enums.ErrorEnum;
 import chemical_ordering_system.enums.OrganizationalUnitAvailableEnum;
 import chemical_ordering_system.enums.OrganizationalUnitTypeEnum;
@@ -83,7 +84,29 @@ public class OrganizationalUnitServiceImpl implements IOrganizationalUnitService
             probe.setOrgType(childOrgType);
         }
         Example<OrganizationalUnit> example = Example.of(probe);
-        List<OrganizationalUnit> list = organizationalUnitRepository.findAll(example);
-        return list;
+        return organizationalUnitRepository.findAll(example);
+    }
+
+    @Override
+    public List<OrganizationalUnit> listByType(Integer orgType) {
+        OrganizationalUnit probe = new OrganizationalUnit();
+        if (orgType != -1) {
+            probe.setOrgType(orgType);
+        }
+        return organizationalUnitRepository.findAll(Example.of(probe));
+    }
+
+    @Override
+    public void updateOrganizationalUnit(OrganizationalUnitUpdateDTO unit) throws BusinessException {
+        OrganizationalUnit oldUnit = organizationalUnitRepository.findById(unit.getId()).orElse(null);
+        if (null == oldUnit) {
+            throw new BusinessException(ErrorEnum.DATA_NOT_EXIST, "OrganizationalUnit with ID '" + unit.getId() + "' not found");
+        }
+        oldUnit.setOrgName(unit.getOrgName());
+        oldUnit.setUpdateTime(new Date().getTime());
+        if (unit.getHasSpecialEquipment() != null && OrganizationalUnitTypeEnum.isStorageLocation(oldUnit.getOrgType())) {
+            oldUnit.setHasSpecialEquipment(unit.getHasSpecialEquipment());
+        }
+        organizationalUnitRepository.saveAndFlush(oldUnit);
     }
 }
