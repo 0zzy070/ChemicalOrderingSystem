@@ -24,12 +24,23 @@ public class ExperimentController {
     @Autowired private ExperimentRepository experimentRepository;
     @Autowired private ChemicalRepository chemicalRepository;
 
+    /**
+     * Get a list of all experiments.
+     *
+     * @return A response with a list of all experiments.
+     */
     @GetMapping
     public ApiResponse<List<Experiment>> getAllExperiments() {
         List<Experiment> experiments = experimentRepository.findAll();
         return new ApiResponse<>(200, "Success", experiments);
     }
 
+    /**
+     * Get details of a specific experiment by its ID.
+     *
+     * @param id The ID of the experiment.
+     * @return A response with the experiment details or an error message if not found.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<Experiment>> getExperimentById(@PathVariable String id) {
         return experimentRepository
@@ -44,6 +55,13 @@ public class ExperimentController {
                         });
     }
 
+    /**
+     * Create a new experiment with the provided details.
+     *
+     * @param requestBody A map containing details of the experiment.
+     * @return A response with the created experiment or an error message if required fields are
+     *     missing.
+     */
     @PostMapping
     public ResponseEntity<ApiResponse<Experiment>> createExperiment(
             @RequestBody Map<String, Object> requestBody) {
@@ -73,6 +91,14 @@ public class ExperimentController {
         return ResponseEntity.ok(new ApiResponse<>(200, "Success", savedExperiment));
     }
 
+    /**
+     * Update an existing experiment based on the provided ID and data.
+     *
+     * @param id The ID of the experiment to update.
+     * @param experimentData A map containing fields to update and their new values.
+     * @return A response with the updated experiment or an error message if unauthorized or
+     *     invalid.
+     */
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<Experiment>> updateExperiment(
             @PathVariable String id, @Valid @RequestBody Map<String, Object> experimentData) {
@@ -241,6 +267,13 @@ public class ExperimentController {
         return ResponseEntity.ok(new ApiResponse<>(200, "Success", originalExperiment));
     }
 
+    /**
+     * Delete a specific experiment by its ID.
+     *
+     * @param id The ID of the experiment to delete.
+     * @return A response indicating whether the deletion was successful or an error message if not
+     *     found.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteExperiment(
             @RequestBody Map<String, Object> requestBody, @PathVariable String id) {

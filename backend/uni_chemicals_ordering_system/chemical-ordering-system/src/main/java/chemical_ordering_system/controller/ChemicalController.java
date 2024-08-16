@@ -20,12 +20,23 @@ public class ChemicalController {
 
     @Autowired private ChemicalRepository chemicalRepository;
 
+    /**
+     * Get all chemicals.
+     *
+     * @return A list of all chemicals.
+     */
     @GetMapping
     public ApiResponse<List<Chemical>> getAllChemicals() {
         List<Chemical> chemicals = chemicalRepository.findAll();
         return new ApiResponse<>(200, "Success", chemicals);
     }
 
+    /**
+     * Get a specific chemical by its ID.
+     *
+     * @param id The CAS Number of the chemical to retrieve.
+     * @return The chemical if found, otherwise a not found error.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<Chemical>> getChemicalById(@PathVariable String id) {
         return chemicalRepository
@@ -40,6 +51,12 @@ public class ChemicalController {
                         });
     }
 
+    /**
+     * Create a new chemical.
+     *
+     * @param requestBody The details of the chemical to create.
+     * @return The created chemical or an error if unauthorized or already exists.
+     */
     @PostMapping
     public ResponseEntity<ApiResponse<Chemical>> createChemical(
             @Valid @RequestBody Map<String, Object> requestBody) {
@@ -69,6 +86,13 @@ public class ChemicalController {
         return ResponseEntity.ok(new ApiResponse<>(200, "Success", savedChemical));
     }
 
+    /**
+     * Update an existing chemical.
+     *
+     * @param id The CAS Number of the chemical to update.
+     * @param requestBody The details to update.
+     * @return The updated chemical or an error if unauthorized or not found.
+     */
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<Chemical>> updateChemical(
             @PathVariable String id, @Valid @RequestBody Map<String, Object> requestBody) {
@@ -106,6 +130,13 @@ public class ChemicalController {
         return ResponseEntity.ok(new ApiResponse<>(200, "Success", updatedChemical));
     }
 
+    /**
+     * Delete a chemical by its ID.
+     *
+     * @param id The CAS Number of the chemical to delete.
+     * @param requestBody User details for authorization.
+     * @return Success message or an error if unauthorized or not found.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteChemical(
             @RequestBody Map<String, Object> requestBody, @PathVariable String id) {
