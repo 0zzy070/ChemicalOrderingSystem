@@ -26,7 +26,7 @@ public class OrganizationalUnitController {
      * @return
      * @throws BusinessException
      */
-    @PostMapping
+    @PostMapping("createOrganizationalUnit")
     public ResponseEntity<ApiResponse<OrganizationalUnit>> createOrganizationalUnit(
             @Valid @RequestBody OrganizationalUnitAddDTO unit) throws BusinessException {
         organizationalUnitService.addOrganizationalUnit(unit);
@@ -34,7 +34,7 @@ public class OrganizationalUnitController {
     }
 
     /**
-     * This will delete the organization and all of its direct and indirect children
+     * Delete this Organizational Unit,and it is not allowed if it has associated sub-organizations
      *
      * @param id
      * @return
@@ -53,7 +53,7 @@ public class OrganizationalUnitController {
      * @param childOrgType the orgType of direct sub-institutions.List all type of direct sub-institutions when childOrgType is -1
      * @return
      */
-    @GetMapping("/{id}/{childOrgType}")
+    @GetMapping("listDirectChildrenUnit/{id}/{childOrgType}")
     public ApiResponse<List<OrganizationalUnit>> listDirectChildren(@PathVariable String id, @PathVariable Integer childOrgType) throws BusinessException {
         List<OrganizationalUnit> units = organizationalUnitService.listDirectChildren(id, childOrgType);
         return new ApiResponse<>(200, "Success", units);
@@ -65,7 +65,7 @@ public class OrganizationalUnitController {
      * @return
      * @throws BusinessException
      */
-    @GetMapping("/{orgType}")
+    @GetMapping("listByOrgType/{orgType}")
     public ApiResponse<List<OrganizationalUnit>> listByOrgType(@PathVariable Integer orgType) throws BusinessException {
         List<OrganizationalUnit> units = organizationalUnitService.listByType(orgType);
         return new ApiResponse<>(200, "Success", units);
