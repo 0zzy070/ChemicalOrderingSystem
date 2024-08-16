@@ -2,8 +2,11 @@ package chemical_ordering_system.model;
 
 import jakarta.persistence.*;
 
+import lombok.Data;
+
 import java.util.UUID;
 
+@Data
 @Entity
 @Table(name = "chemical_org_unit")
 public class ChemicalOrgUnit {
@@ -31,46 +34,5 @@ public class ChemicalOrgUnit {
         if (this.id == null || this.id.isEmpty()) {
             this.id = UUID.randomUUID().toString();
         }
-    }
-
-    // Getters and Setters
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getExperimentId() {
-        return experimentId;
-    }
-
-    public void setExperimentId(String experimentId) {
-        this.experimentId = experimentId;
-    }
-
-    public String getChemicalId() {
-        return chemicalId;
-    }
-
-    public void setChemicalId(String chemicalId) {
-        this.chemicalId = chemicalId;
-    }
-
-    public String getStorageLocationId() {
-        return storageLocationId;
-    }
-
-    public void setStorageLocationId(String storageLocationId) {
-        this.storageLocationId = storageLocationId;
-    }
-
-    public Long getExpireDate() {
-        return expireDate;
-    }
-
-    public void setExpireDate(Long expireDate) {
-        this.expireDate = expireDate;
     }
 }
