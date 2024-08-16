@@ -18,4 +18,8 @@ public enum OrganizationalUnitTypeEnum {
         this.displayName = displayName;
         this.code = code;
     }
+
+    public static boolean  isStorageLocation(Integer orgType){
+        return STORAGE_LOCATIONS.getCode().equals(orgType);
+    }
 }
