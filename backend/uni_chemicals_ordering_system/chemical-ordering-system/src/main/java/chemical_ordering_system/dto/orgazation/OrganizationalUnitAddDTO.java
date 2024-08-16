@@ -1,6 +1,5 @@
 package chemical_ordering_system.dto.orgazation;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
