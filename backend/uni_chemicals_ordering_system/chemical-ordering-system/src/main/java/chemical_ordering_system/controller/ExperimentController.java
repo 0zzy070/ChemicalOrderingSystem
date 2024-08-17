@@ -95,15 +95,15 @@ public class ExperimentController {
      * Update an existing experiment based on the provided ID and data.
      *
      * @param id The ID of the experiment to update.
-     * @param experimentData A map containing fields to update and their new values.
+     * @param requestBody A map containing fields to update and their new values.
      * @return A response with the updated experiment or an error message if unauthorized or
      *     invalid.
      */
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<Experiment>> updateExperiment(
-            @PathVariable String id, @Valid @RequestBody Map<String, Object> experimentData) {
+            @PathVariable String id, @Valid @RequestBody Map<String, Object> requestBody) {
 
-        Integer userType = (Integer) experimentData.get("userType");
+        Integer userType = (Integer) requestBody.get("userType");
         if (userType == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ApiResponse<>(400, "Please provide a valid userType", null));
@@ -120,7 +120,7 @@ public class ExperimentController {
         // Update fields based on userType restrictions
         switch (userType) {
             case 0: // Admin user: Can modify all fields
-                experimentData.forEach(
+                requestBody.forEach(
                         (key, value) -> {
                             try {
                                 Field field = Experiment.class.getDeclaredField(key);
@@ -156,18 +156,18 @@ public class ExperimentController {
                         chemicalRepository
                                 .findById(originalExperiment.getChemicalId())
                                 .orElse(null);
-                int riskCategory = chemical.getRiskCategory();
+                short riskCategory = chemical.getRiskCategory();
                 Boolean supervisorApproveStatus =
-                        (Boolean) experimentData.get("supervisorApproveStatus");
+                        (Boolean) requestBody.get("supervisorApproveStatus");
                 if (supervisorApproveStatus != null) {
                     originalExperiment.setSupervisorApproveStatus(supervisorApproveStatus);
                     if (supervisorApproveStatus) {
                         originalExperiment.setSupervisorApproveTime(System.currentTimeMillis());
                         originalExperiment.setStatus(riskCategory > 0 ? (short) 1 : (short) 2);
                     } else {
-                        if (experimentData.get("supervisorComment") != null) {
+                        if (requestBody.get("supervisorComment") != null) {
                             originalExperiment.setSupervisorComment(
-                                    experimentData.get("supervisorComment").toString());
+                                    requestBody.get("supervisorComment").toString());
                         }
                     }
                 }
@@ -182,7 +182,7 @@ public class ExperimentController {
                                             "Invalid status, please follow the approval steps",
                                             null));
                 }
-                Boolean higherApproveStatus = (Boolean) experimentData.get("higherApproveStatus");
+                Boolean higherApproveStatus = (Boolean) requestBody.get("higherApproveStatus");
                 if (higherApproveStatus != null) {
                     originalExperiment.setHigherApproveStatus(higherApproveStatus);
                     if (higherApproveStatus) {
@@ -190,9 +190,9 @@ public class ExperimentController {
                                 System.currentTimeMillis()); // 当前时间的 Unix timestamp (毫秒)
                         originalExperiment.setStatus((short) 2);
                     } else {
-                        if (experimentData.get("higherApproveComment") != null) {
+                        if (requestBody.get("higherApproveComment") != null) {
                             originalExperiment.setHigherApproveComment(
-                                    experimentData.get("higherApproveComment").toString());
+                                    requestBody.get("higherApproveComment").toString());
                         }
                     }
                 }
@@ -209,16 +209,16 @@ public class ExperimentController {
                                                 null));
                     }
 
-                    Boolean orderApproveStatus = (Boolean) experimentData.get("orderApproveStatus");
+                    Boolean orderApproveStatus = (Boolean) requestBody.get("orderApproveStatus");
                     if (orderApproveStatus != null) {
                         originalExperiment.setOrderApproveStatus(orderApproveStatus);
                         if (orderApproveStatus) {
                             originalExperiment.setOrderApproveTime(System.currentTimeMillis());
                             originalExperiment.setStatus((short) 3);
                         } else {
-                            if (experimentData.get("orderComment") != null) {
+                            if (requestBody.get("orderComment") != null) {
                                 originalExperiment.setOrderComment(
-                                        experimentData.get("orderComment").toString());
+                                        requestBody.get("orderComment").toString());
                             }
                         }
                     }
@@ -233,9 +233,9 @@ public class ExperimentController {
                                                 "Invalid status, please follow the approval steps",
                                                 null));
                     }
-                    if (experimentData.get("orderReceiveTime") != null) {
+                    if (requestBody.get("orderReceiveTime") != null) {
                         originalExperiment.setOrderReceiveTime(
-                                (Long) experimentData.get("orderReceiveTime"));
+                                (Long) requestBody.get("orderReceiveTime"));
                         originalExperiment.setStatus((short) 4);
                     }
                 } else if (originalExperiment.getOrderApproveStatus()
@@ -250,9 +250,9 @@ public class ExperimentController {
                                                 "Invalid status, please follow the approval steps",
                                                 null));
                     }
-                    if (experimentData.get("orderPlacedTime") != null) {
+                    if (requestBody.get("orderPlacedTime") != null) {
                         originalExperiment.setOrderPlacedTime(
-                                (Long) experimentData.get("orderPlacedTime"));
+                                (Long) requestBody.get("orderPlacedTime"));
                         originalExperiment.setStatus((short) 5);
                     }
                 }
