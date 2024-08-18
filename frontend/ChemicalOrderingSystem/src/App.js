@@ -1,15 +1,9 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./Pages/Authentication/Login";
+import { RouterProvider } from "react-router-dom";
+import router from "./Router/Index";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />}></Route>
-      </Routes>
-    </BrowserRouter>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;

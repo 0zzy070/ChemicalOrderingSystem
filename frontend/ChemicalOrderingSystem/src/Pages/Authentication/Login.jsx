@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Login.css";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -8,6 +9,11 @@ const Login = () => {
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = "Please login to your account";
+  }, []);
 
   const validate = () => {
     const errors = {};
@@ -35,9 +41,13 @@ const Login = () => {
 
     if (Object.keys(validationErrors).length === 0) {
       setIsSubmitting(true);
-      // API call will go here
-      console.log("Form is valid, submit the form", formData);
-      // Example: axios.post('/api/login', formData)
+
+      setTimeout(() => {
+        // API call will go here
+        console.log("Form is valid, submit the form", formData);
+        // Example: axios.post('/api/login', formData)
+        navigate("/dashboard");
+      }, 1000);
     }
   };
 
@@ -59,13 +69,19 @@ const Login = () => {
       <div className="login-page d-flex justify-content-center align-items-center bg-transparent">
         <div
           className="card p-sm-4 shadow-lg"
-          style={{ maxWidth: "400px", width: "100%" }}
+          style={{
+            maxWidth: "400px",
+            width: "100%",
+          }}
         >
           <img
             src={require("../../Assets/Images/flinders-logo.png")}
             alt="Flinders University Logo"
             className="mx-auto mb-4"
-            style={{ width: "150px", height: "40px" }}
+            style={{
+              width: "130px",
+              height: "38px",
+            }}
           />
           <p className="text-center mb-3">
             Welcome! To obtain access, make sure you have an account created by
