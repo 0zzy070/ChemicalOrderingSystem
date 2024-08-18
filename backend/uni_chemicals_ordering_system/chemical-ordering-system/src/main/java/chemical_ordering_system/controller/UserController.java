@@ -1,8 +1,11 @@
 package chemical_ordering_system.controller;
 
+import chemical_ordering_system.config.UserPwdAuthenticationProvider;
 import chemical_ordering_system.model.ApiResponse;
 import chemical_ordering_system.model.User;
 import chemical_ordering_system.service.IUserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,8 @@ import java.util.List;
 @RequestMapping("/api/users")
 public class UserController {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserPwdAuthenticationProvider.class);
+
     @Autowired
     private IUserService userService;
 
@@ -24,6 +29,7 @@ public class UserController {
 
     @PostMapping (value = "/login")
     public ResponseEntity<ApiResponse<List<User>>> LoginController(){
+        logger.info("成功登录");
         return ResponseEntity.ok(new ApiResponse<>(200, "Success", null));
     }
 

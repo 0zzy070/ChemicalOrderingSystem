@@ -47,7 +47,7 @@ public class ProjectSecurityConfig {
                     @Override
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration config = new CorsConfiguration();
-                        config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+                        config.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
                         config.setAllowedMethods(Collections.singletonList("*"));
                         config.setAllowCredentials(true);
                         config.setAllowedHeaders(Collections.singletonList("*"));
@@ -65,13 +65,11 @@ public class ProjectSecurityConfig {
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 .authorizeHttpRequests((requests)->requests
                         //.requestMatchers("/api/users").permitAll()
-                        .requestMatchers("/api/users/login").permitAll()
+                        .requestMatchers("/api/users/login", "/login/**", "/resources/**").permitAll()
                         .anyRequest().authenticated())
-                .formLogin(formLogin ->
-                        formLogin
-                                .loginProcessingUrl("/api/users/login")
-                                .permitAll()
-                ) // 处理登录请求的 URL
+                //.formLogin(Customizer.withDefaults())
+                .formLogin(flc -> flc.loginPage("/login"))
+                // 处理登录请求的 URL
                 .httpBasic(Customizer.withDefaults());
         return http.build();
     }
