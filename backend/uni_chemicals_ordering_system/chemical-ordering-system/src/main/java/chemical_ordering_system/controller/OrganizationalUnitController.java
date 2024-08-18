@@ -9,7 +9,9 @@ import chemical_ordering_system.service.IOrganizationalUnitService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -26,6 +28,7 @@ public class OrganizationalUnitController {
      * @return
      * @throws BusinessException
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("createOrganizationalUnit")
     public ResponseEntity<ApiResponse<OrganizationalUnit>> createOrganizationalUnit(
             @Valid @RequestBody OrganizationalUnitAddDTO unit) throws BusinessException {
@@ -39,6 +42,7 @@ public class OrganizationalUnitController {
      * @param id
      * @return
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("deleteById/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteOrganizationalUnit(@PathVariable String id) throws BusinessException {
         organizationalUnitService.deleteOrganizationalUnitById(id);
@@ -53,6 +57,7 @@ public class OrganizationalUnitController {
      * @param childOrgType the orgType of direct sub-institutions.List all type of direct sub-institutions when childOrgType is -1
      * @return
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("listDirectChildrenUnit/{id}/{childOrgType}")
     public ApiResponse<List<OrganizationalUnit>> listDirectChildren(@PathVariable String id, @PathVariable Integer childOrgType) throws BusinessException {
         List<OrganizationalUnit> units = organizationalUnitService.listDirectChildren(id, childOrgType);
@@ -61,16 +66,19 @@ public class OrganizationalUnitController {
 
     /**
      * list OrganizationalUnit by orgType,list all if orgType=-1
+     *
      * @param orgType
      * @return
      * @throws BusinessException
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("listByOrgType/{orgType}")
     public ApiResponse<List<OrganizationalUnit>> listByOrgType(@PathVariable Integer orgType) throws BusinessException {
         List<OrganizationalUnit> units = organizationalUnitService.listByType(orgType);
         return new ApiResponse<>(200, "Success", units);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/updateUnitById")
     public ResponseEntity<ApiResponse<OrganizationalUnit>> updateUnitById(
             @Valid @RequestBody OrganizationalUnitUpdateDTO unit) throws BusinessException {
