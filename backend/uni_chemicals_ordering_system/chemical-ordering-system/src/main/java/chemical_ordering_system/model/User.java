@@ -14,10 +14,10 @@ public class User {
     private String id;
 
     @Column(columnDefinition = "character varying(32) NOT NULL")
-    private String userName;
+    private String username;
 
     @Column(columnDefinition = "character varying(128) NOT NULL")
-    private String pwd;
+    private String password;
 
     @Column(columnDefinition = "character varying(32) NOT NULL")
     private String employeeNumber;
