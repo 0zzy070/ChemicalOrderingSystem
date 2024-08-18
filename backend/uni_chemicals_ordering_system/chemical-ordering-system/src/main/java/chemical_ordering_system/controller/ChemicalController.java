@@ -2,12 +2,11 @@ package chemical_ordering_system.controller;
 
 import chemical_ordering_system.model.ApiResponse;
 import chemical_ordering_system.model.Chemical;
-import chemical_ordering_system.repository.ChemicalRepository;
+import chemical_ordering_system.service.IChemicalService;
 
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,145 +17,68 @@ import java.util.Map;
 @RequestMapping("/api/chemicals")
 public class ChemicalController {
 
-    @Autowired private ChemicalRepository chemicalRepository;
+    @Autowired private IChemicalService chemicalService;
 
     /**
-     * Get all chemicals.
+     * Get all chemicals from the database
      *
-     * @return A list of all chemicals.
+     * @return List of all chemicals
      */
     @GetMapping
     public ApiResponse<List<Chemical>> getAllChemicals() {
-        List<Chemical> chemicals = chemicalRepository.findAll();
-        return new ApiResponse<>(200, "Success", chemicals);
+        return chemicalService.getAllChemicals();
     }
 
     /**
-     * Get a specific chemical by its ID.
+     * Get a chemical by its ID
      *
-     * @param id The CAS Number of the chemical to retrieve.
-     * @return The chemical if found, otherwise a not found error.
+     * @param id The ID of the chemical
+     * @return The chemical with the specified ID, or an error message if not found
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<Chemical>> getChemicalById(@PathVariable String id) {
-        return chemicalRepository
-                .findById(id)
-                .map(chemical -> ResponseEntity.ok(new ApiResponse<>(200, "Success", chemical)))
-                .orElseGet(
-                        () -> {
-                            ApiResponse<Chemical> response =
-                                    new ApiResponse<>(
-                                            404, "Chemical with ID " + id + " not found", null);
-                            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-                        });
+        return ResponseEntity.status(chemicalService.getChemicalById(id).getCode())
+                .body(chemicalService.getChemicalById(id));
     }
 
     /**
-     * Create a new chemical.
+     * Create a new chemical in the database
      *
-     * @param requestBody The details of the chemical to create.
-     * @return The created chemical or an error if unauthorized or already exists.
+     * @param requestBody The chemical details from the request body
+     * @return The created chemical, or an error message if creation failed
      */
     @PostMapping
     public ResponseEntity<ApiResponse<Chemical>> createChemical(
             @Valid @RequestBody Map<String, Object> requestBody) {
-
-        Integer userType = (Integer) requestBody.get("userType");
-        if (userType == null || userType != 0) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(
-                            new ApiResponse<>(
-                                    403, "You are not authorized to create a chemical", null));
-        }
-
-        Chemical chemical = new Chemical();
-        chemical.setId((String) requestBody.get("id"));
-        chemical.setCommonName((String) requestBody.get("commonName"));
-        chemical.setSystematicName((String) requestBody.get("systematicName"));
-        chemical.setRiskCategory(((Integer) requestBody.get("riskCategory")).shortValue());
-        chemical.setStoragePeriod(((Integer) requestBody.get("storagePeriod")).shortValue());
-
-        if (chemicalRepository.existsById(chemical.getId())) {
-            ApiResponse<Chemical> response =
-                    new ApiResponse<>(
-                            400, "Chemical with ID " + chemical.getId() + " already exists", null);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
-        Chemical savedChemical = chemicalRepository.save(chemical);
-        return ResponseEntity.ok(new ApiResponse<>(200, "Success", savedChemical));
+        ApiResponse<Chemical> response = chemicalService.createChemical(requestBody);
+        return ResponseEntity.status(response.getCode()).body(response);
     }
 
     /**
-     * Update an existing chemical.
+     * Update an existing chemical in the database
      *
-     * @param id The CAS Number of the chemical to update.
-     * @param requestBody The details to update.
-     * @return The updated chemical or an error if unauthorized or not found.
+     * @param id The ID of the chemical to update
+     * @param requestBody The chemical details from the request body
+     * @return The updated chemical, or an error message if update failed
      */
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<Chemical>> updateChemical(
             @PathVariable String id, @Valid @RequestBody Map<String, Object> requestBody) {
-
-        Integer userType = (Integer) requestBody.get("userType");
-        if (userType == null || userType != 0) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(
-                            new ApiResponse<>(
-                                    403, "You are not authorized to update this chemical", null));
-        }
-
-        if (!chemicalRepository.existsById(id)) {
-            ApiResponse<Chemical> response =
-                    new ApiResponse<>(404, "Chemical with ID " + id + " not found", null);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-
-        Chemical chemical = chemicalRepository.findById(id).orElseThrow();
-
-        if (requestBody.containsKey("commonName")) {
-            chemical.setCommonName((String) requestBody.get("commonName"));
-        }
-        if (requestBody.containsKey("systematicName")) {
-            chemical.setSystematicName((String) requestBody.get("systematicName"));
-        }
-        if (requestBody.containsKey("riskCategory")) {
-            chemical.setRiskCategory(((Integer) requestBody.get("riskCategory")).shortValue());
-        }
-        if (requestBody.containsKey("storagePeriod")) {
-            chemical.setStoragePeriod(((Integer) requestBody.get("storagePeriod")).shortValue());
-        }
-
-        Chemical updatedChemical = chemicalRepository.save(chemical);
-        return ResponseEntity.ok(new ApiResponse<>(200, "Success", updatedChemical));
+        ApiResponse<Chemical> response = chemicalService.updateChemical(id, requestBody);
+        return ResponseEntity.status(response.getCode()).body(response);
     }
 
     /**
-     * Delete a chemical by its ID.
+     * Delete a chemical by its ID
      *
-     * @param id The CAS Number of the chemical to delete.
-     * @param requestBody User details for authorization.
-     * @return Success message or an error if unauthorized or not found.
+     * @param id The ID of the chemical to delete
+     * @param requestBody The request body containing additional parameters, such as user type
+     * @return A response indicating success or failure
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteChemical(
             @RequestBody Map<String, Object> requestBody, @PathVariable String id) {
-
-        Integer userType = (Integer) requestBody.get("userType");
-        if (userType == null || userType != 0) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(
-                            new ApiResponse<>(
-                                    403, "You are not authorized to delete this chemical", null));
-        }
-
-        if (!chemicalRepository.existsById(id)) {
-            ApiResponse<Void> response =
-                    new ApiResponse<>(404, "Chemical with ID " + id + " not found", null);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-
-        chemicalRepository.deleteById(id);
-        ApiResponse<Void> response = new ApiResponse<>(200, "Success", null);
-        return ResponseEntity.ok(response);
+        ApiResponse<Void> response = chemicalService.deleteChemical(id, requestBody);
+        return ResponseEntity.status(response.getCode()).body(response);
     }
 }
