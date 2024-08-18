@@ -1,6 +1,6 @@
 package chemical_ordering_system.service.impl;
 
-import chemical_ordering_system.model.User;
+import chemical_ordering_system.model.Users;
 import chemical_ordering_system.repository.UserRepository;
 import chemical_ordering_system.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,28 +19,28 @@ public class UserServiceImpl implements IUserService {
     private UserRepository userRepository;
 
     @Override
-    public List<User> findUserByUsername(String userName) {
-        return userRepository.findByUserName(userName);
+    public List<Users> findUserByUsername(String userName) {
+        return userRepository.findByUsername(userName);
     }
 
     @Override
-    public List<User> findAllUsers() {
+    public List<Users> findAllUsers() {
         return userRepository.findAll();
     }
 
     @Override
-    public Optional<User> findUserById(String id) {
+    public Optional<Users> findUserById(String id) {
         return userRepository.findById(id);
     }
 
     @Override
-    public User saveUser(User user) {
+    public Users saveUser(Users user) {
       //  user.setPwd(passwordEncoder.encode(user.getPwd()));
         return userRepository.save(user);
     }
 
     @Override
-    public Optional<User> updateUser(String id, User user) {
+    public Optional<Users> updateUser(String id, Users user) {
         if (userRepository.existsById(id)) {
             user.setId(id);
             //user.setPwd(passwordEncoder.encode(user.getPwd()));

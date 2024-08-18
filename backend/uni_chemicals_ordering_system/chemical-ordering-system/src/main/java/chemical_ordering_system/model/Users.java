@@ -3,11 +3,11 @@ package chemical_ordering_system.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.UUID;
-@Data
-@Entity
-@Table(name = "\"user\"")
 
-public class User {
+@Entity
+@Table(name = "users")
+@Data
+public class Users {
 
     @Id
     @Column(columnDefinition = "character varying(64) NOT NULL")
@@ -30,8 +30,6 @@ public class User {
 
     @Column(columnDefinition = "bigint")
     private Long updateTime;
-
-    public User() {}
 
     @PrePersist
     public void generateId() {
