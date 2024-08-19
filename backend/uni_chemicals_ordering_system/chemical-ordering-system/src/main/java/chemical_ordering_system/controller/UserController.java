@@ -2,6 +2,7 @@ package chemical_ordering_system.controller;
 
 import chemical_ordering_system.dto.User.LoginResponse;
 import chemical_ordering_system.dto.User.UserLoginDTO;
+import chemical_ordering_system.exception.BusinessException;
 import chemical_ordering_system.jwt.JwtUtils;
 import chemical_ordering_system.model.ApiResponse;
 import chemical_ordering_system.model.Users;
@@ -25,32 +26,15 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/users")
 public class UserController {
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private IUserService userService;
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtUtils jwtUtils;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> createUser(@Valid @RequestBody UserLoginDTO user) {
-        Authentication authentication;
-        try{
-            authentication=authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUserName(),user.getPassword()));
-        }catch (AuthenticationException exception){
-            return ResponseEntity.ok(new ApiResponse<>(403, "Authentication failed", null));
-        }
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserDetails userDetails=(UserDetails) authentication.getPrincipal();
-        String jwtToken=jwtUtils.generateJwtTokenFromUsername(userDetails);
-        List<String> roles=userDetails.getAuthorities().stream().map(item->item.getAuthority()).collect(Collectors.toList());
-        LoginResponse response=new LoginResponse(jwtToken,userDetails.getUsername(),roles);
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody UserLoginDTO user) throws BusinessException {
+        LoginResponse response=userService.login(user);
         return ResponseEntity.ok(new ApiResponse<>(200, "Success", response));
     }
 
