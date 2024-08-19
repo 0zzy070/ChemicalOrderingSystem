@@ -20,10 +20,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 import javax.sql.DataSource;
-import java.util.Arrays;
 import java.util.Collections;
 
 @Configuration
@@ -41,16 +38,6 @@ public class SecurityConfig {
     public AuthTokenFilter authenticationJwtTokenFilter(){
         return new AuthTokenFilter();
     }
-
-//    @Override
-//    protected void configure(HttpSecurity http) throws Exception {
-//        http.cors() // 启用 CORS
-//                .and()
-//                .authorizeRequests()
-//                .anyRequest().authenticated(); // 其他安全配置
-//    }
-//
-
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {

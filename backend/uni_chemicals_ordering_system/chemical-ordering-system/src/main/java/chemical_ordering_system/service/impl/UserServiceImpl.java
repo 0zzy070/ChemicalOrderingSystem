@@ -6,16 +6,19 @@ import chemical_ordering_system.enums.ErrorEnum;
 import chemical_ordering_system.exception.BusinessException;
 import chemical_ordering_system.jwt.JwtUtils;
 import chemical_ordering_system.model.ApiResponse;
+import chemical_ordering_system.model.OrganizationalUnit;
 import chemical_ordering_system.model.Users;
 import chemical_ordering_system.repository.UserRepository;
 import chemical_ordering_system.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -90,10 +93,8 @@ public class UserServiceImpl implements IUserService {
         UserDetails userDetails=(UserDetails) authentication.getPrincipal();
         String jwtToken=jwtUtils.generateJwtTokenFromUsername(userDetails);
         List<String> roles=userDetails.getAuthorities().stream().map(item->item.getAuthority()).collect(Collectors.toList());
-        String userName=userDetails.getUsername();
 
-        LoginResponse response=new LoginResponse(jwtToken,userDetails.getUsername(),roles);
-        return response;
-
+        Users users = userRepository.findByUsername(userDetails.getUsername()).get(0);
+        return new LoginResponse(jwtToken,userDetails.getUsername(),roles,users.getId(),users.getEmployeeNumber());
     }
 }
