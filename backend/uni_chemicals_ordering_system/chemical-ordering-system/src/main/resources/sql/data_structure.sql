@@ -1,3 +1,16 @@
+CREATE TABLE public.authorities (
+    username character varying(64) NOT NULL,
+    authority character varying(64) NOT NULL,
+    id character varying(64) NOT NULL
+);
+
+
+COMMENT ON COLUMN public.authorities.authority IS 'ROLE_ADMIN: Admin
+ROLE_RESEARCH: Research Staff
+ROLE_SUPERVISOR: Supervisor
+ROLE_HIGHER_APPROVER: Higher Approver';
+
+
 CREATE TABLE public.chemical (
     id character varying(64) NOT NULL,
     common_name character varying(128),
@@ -7,11 +20,11 @@ CREATE TABLE public.chemical (
     create_time bigint,
     update_time bigint
 );
+
+
 COMMENT ON COLUMN public.chemical.risk_category IS '0:low
 1:middle
 2:high';
-
-COMMENT ON COLUMN public.chemical.storage_period IS 'unit:day';
 
 
 CREATE TABLE public.chemical_org_unit (
@@ -23,18 +36,17 @@ CREATE TABLE public.chemical_org_unit (
 );
 
 
-CREATE TABLE IF NOT EXISTS public.experiment
-(
-    id character varying(64) COLLATE pg_catalog."default" NOT NULL,
-    name character varying(128) COLLATE pg_catalog."default" NOT NULL,
-    risk_assessment character varying(256) COLLATE pg_catalog."default",
-    supervisor_comment character varying(256) COLLATE pg_catalog."default",
-    higher_approve_comment character varying(256) COLLATE pg_catalog."default",
+CREATE TABLE public.experiment (
+    id character varying(64) NOT NULL,
+    name character varying(128) NOT NULL,
+    risk_assessment character varying(256),
+    supervisor_comment character varying(256),
+    higher_approve_comment character varying(256),
     status smallint NOT NULL,
-    order_comment character varying(256) COLLATE pg_catalog."default",
-    chemical_id character varying(16) COLLATE pg_catalog."default",
+    order_comment character varying(256),
+    chemical_id character varying(16),
     amount smallint,
-    unit character(16) COLLATE pg_catalog."default",
+    unit character(16),
     staff_submit_time bigint,
     higher_approve_time bigint,
     order_approve_time bigint,
@@ -43,17 +55,17 @@ CREATE TABLE IF NOT EXISTS public.experiment
     supervisor_approve_time bigint,
     supervisor_approve_status boolean,
     higher_approve_status boolean,
-    order_approve_status boolean,
-    CONSTRAINT experiment_pkey PRIMARY KEY (id)
+    order_approve_status boolean
 );
 
-COMMENT ON COLUMN public.experiment.status
-    IS '0: wait for supervisor approve
+
+COMMENT ON COLUMN public.experiment.status IS '0: wait for supervisor approve
 1: wait for higher approver approve
 2: wait for order confirm
 3: Ordered
 4: received
 5: placed(order finished)';
+
 
 CREATE TABLE public.organizational_unit (
     id character varying(64) NOT NULL,
@@ -66,7 +78,9 @@ CREATE TABLE public.organizational_unit (
     update_time bigint
 );
 
+
 COMMENT ON COLUMN public.organizational_unit.pid IS 'Institute''s pid is null';
+
 
 COMMENT ON COLUMN public.organizational_unit.org_type IS '1: Institutes
 2:Storage Locations
@@ -79,26 +93,24 @@ false: it can not store  dangers chemicals';
 COMMENT ON COLUMN public.organizational_unit.status IS '1: available     0:unavailable    ,mainly used for Storage Locations.others can set to -1';
 
 
-CREATE TABLE public."user" (
-    id character varying(64),
-    user_name character varying(32) NOT NULL,
-    pwd character varying(128) NOT NULL,
+CREATE TABLE public.users (
+    id character varying(64) NOT NULL,
     employee_number character varying(32) NOT NULL,
-    user_type smallint,
     create_time bigint,
-    update_time bigint
+    update_time bigint,
+    username character varying(64),
+    password character varying(128),
+    enabled boolean
 );
 
-COMMENT ON COLUMN public."user".user_type IS '0:administration
-1:research staff
-2:supervisor
-3:higher approver
-4:order manager
-';
+
+ALTER TABLE ONLY public.authorities
+    ADD CONSTRAINT authorities_pkey PRIMARY KEY (id);
 
 
 ALTER TABLE ONLY public.chemical_org_unit
     ADD CONSTRAINT chemical_org_unit_pkey PRIMARY KEY (id);
+
 
 ALTER TABLE ONLY public.chemical
     ADD CONSTRAINT chemical_pkey PRIMARY KEY (id);
@@ -106,6 +118,7 @@ ALTER TABLE ONLY public.chemical
 
 ALTER TABLE ONLY public.chemical
     ADD CONSTRAINT chemical_systematic_name_key UNIQUE (systematic_name);
+
 
 ALTER TABLE ONLY public.experiment
     ADD CONSTRAINT experiment_pkey PRIMARY KEY (id);
@@ -115,11 +128,25 @@ ALTER TABLE ONLY public.organizational_unit
     ADD CONSTRAINT organizational_unit_pkey PRIMARY KEY (id);
 
 
-ALTER TABLE ONLY public."user"
-    ADD CONSTRAINT uq_user_name UNIQUE (user_name);
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT uk_username UNIQUE (username);
 
 
-ALTER TABLE ONLY public."user"
-    ADD CONSTRAINT user_pkey PRIMARY KEY (employee_number);
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
 
 
+CREATE UNIQUE INDEX ix_auth_username ON public.authorities USING btree (username, authority);
+
+--init data
+INSERT INTO public.authorities(
+	username, authority, id)
+	VALUES ('admin', 'ROLE_ADMIN', '0');
+
+INSERT INTO public.users(
+	id, employee_number,username, password, enabled)
+	VALUES ('0', 'empoyNo001', 'admin1', '$2a$10$4rEUEA/mOQNbQqGYpX8rkuNXkopHBBl6QvkSCmbl0x2wpxcewoVBa', true);
+
+INSERT INTO public.organizational_unit(
+	id, pid, org_name, org_type, has_special_equipment, status)
+	VALUES ('0', null, 'Flinders University', 1, null, -1);
