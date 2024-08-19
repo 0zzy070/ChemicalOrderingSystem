@@ -12,6 +12,12 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Stop and Remove Old Container
+      run: |
+        docker stop chemical-ordering-system-dev || true
+        docker rm chemical-ordering-system-dev || true
+        docker-compose -f /home/ubuntu/chemical-ordering-system/dev/docker-compose.yml down
+
     - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
@@ -28,12 +34,6 @@ jobs:
     - name: Build Docker DEV image
       run: |
         docker build --memory=512m -t chemical-ordering-system-dev -f /home/ubuntu/chemical-ordering-system/dev/Dockerfile /home/ubuntu/chemical-ordering-system/dev/
-
-    - name: Stop and Remove Old Container
-      run: |
-        docker stop chemical-ordering-system-dev || true
-        docker rm chemical-ordering-system-dev || true
-        docker-compose -f /home/ubuntu/chemical-ordering-system/dev/docker-compose.yml down
 
     - name: Run New Container
       run: |
