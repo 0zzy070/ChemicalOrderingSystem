@@ -22,9 +22,6 @@ public class Users {
     @Column(columnDefinition = "character varying(32) NOT NULL")
     private String employeeNumber;
 
-    @Column(columnDefinition = "smallint")
-    private Integer userType;
-
     @Column(columnDefinition = "bigint")
     private Long createTime;
 
