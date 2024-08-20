@@ -1,6 +1,7 @@
 package chemical_ordering_system.controller;
 
 import chemical_ordering_system.dto.User.LoginResponse;
+import chemical_ordering_system.dto.User.UserDTO;
 import chemical_ordering_system.dto.User.UserLoginDTO;
 import chemical_ordering_system.exception.BusinessException;
 import chemical_ordering_system.model.ApiResponse;
@@ -9,6 +10,7 @@ import chemical_ordering_system.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
@@ -26,6 +28,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody UserLoginDTO user) throws BusinessException {
+        //user.setPassword(passwordEncoder.encode(user.getPassword()));
         LoginResponse response=userService.login(user);
         return ResponseEntity.ok(new ApiResponse<>(200, "Success", response));
     }
@@ -47,12 +50,11 @@ public class UserController {
                 );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<ApiResponse<Users>> createUser(@Valid @RequestBody Users user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        Users savedUser = userService.saveUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse<>(201, "User created successfully", savedUser));
+    public ResponseEntity<ApiResponse<Users>> createUser(@Valid @RequestBody UserDTO userDTO) throws BusinessException{
+        userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        return  userService.saveUser(userDTO);
     }
 
     @PutMapping("/{id}")

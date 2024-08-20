@@ -1,13 +1,16 @@
 package chemical_ordering_system.service.impl;
 
 import chemical_ordering_system.dto.User.LoginResponse;
+import chemical_ordering_system.dto.User.UserDTO;
 import chemical_ordering_system.dto.User.UserLoginDTO;
 import chemical_ordering_system.enums.ErrorEnum;
 import chemical_ordering_system.exception.BusinessException;
 import chemical_ordering_system.jwt.JwtUtils;
 import chemical_ordering_system.model.ApiResponse;
+import chemical_ordering_system.model.Authority;
 import chemical_ordering_system.model.OrganizationalUnit;
 import chemical_ordering_system.model.Users;
+import chemical_ordering_system.repository.AuthorityRepository;
 import chemical_ordering_system.repository.UserRepository;
 import chemical_ordering_system.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,6 +44,9 @@ public class UserServiceImpl implements IUserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private AuthorityRepository authorityRepository;
 
     @Override
     public List<Users> findUserByUsername(String userName) {
@@ -57,9 +64,31 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Users saveUser(Users user) {
-      //  user.setPwd(passwordEncoder.encode(user.getPwd()));
-        return userRepository.save(user);
+    public ResponseEntity<ApiResponse<Users>> saveUser(UserDTO userDTO) throws BusinessException{
+        if (userRepository.existsByUsername(userDTO.getUserName())) {
+            throw new BusinessException(ErrorEnum.INVALID_INPUT,"username: "+ userDTO.getUserName() + " already exists");
+        }
+
+        String id = UUID.randomUUID().toString();
+        Users users = new Users();
+        users.setId(id);
+        users.setUsername(userDTO.getUserName());
+        users.setPassword(userDTO.getPassword());
+        String newEmployeeNumber = generateEmployeeNumber();
+        users.setEmployeeNumber(newEmployeeNumber);
+        users.setCreateTime(System.currentTimeMillis());
+        users.setEnabled(true);
+
+        Users savedUser = userRepository.save(users);
+
+        //        return userRepository.save(user);
+        Authority authority = new Authority();
+        authority.setId(id);
+        authority.setAuthority(userDTO.getAuthority());
+        authority.setUsername(userDTO.getUserName());
+        authorityRepository.save(authority);
+
+        return ResponseEntity.ok(new ApiResponse<>(200, "success",savedUser));
     }
 
     @Override
@@ -96,5 +125,19 @@ public class UserServiceImpl implements IUserService {
 
         Users users = userRepository.findByUsername(userDetails.getUsername()).get(0);
         return new LoginResponse(jwtToken,userDetails.getUsername(),roles,users.getId(),users.getEmployeeNumber());
+    }
+
+    private String generateEmployeeNumber() {
+        // 获取当前最大编号
+        String maxEmployeeNumber = userRepository.findMaxEmployeeNumber();
+
+        // 将编号后缀部分转换为数字
+        int maxNumber = Integer.parseInt(maxEmployeeNumber.substring(6));
+
+        // 生成下一个编号
+        int newNumber = maxNumber + 1;
+
+        // 格式化为"empyNo"开头，三位数字的格式
+        return String.format("empyNo%03d", newNumber);
     }
 }

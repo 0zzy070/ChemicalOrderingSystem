@@ -28,10 +28,6 @@ public class Users {
     @Column(columnDefinition = "bigint")
     private Long updateTime;
 
-    @PrePersist
-    public void generateId() {
-        if (this.id == null || this.id.isEmpty()) {
-            this.id = UUID.randomUUID().toString();
-        }
-    }
+    @Column(columnDefinition = "boolean NOT NULL DEFAULT true")
+    private boolean enabled;
 }
