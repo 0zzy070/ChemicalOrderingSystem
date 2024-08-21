@@ -5,6 +5,8 @@ import chemical_ordering_system.model.Experiment;
 import chemical_ordering_system.service.IExperimentService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -55,10 +57,13 @@ public class ExperimentController {
      * @param requestBody the request body containing updated experiment details
      * @return ApiResponse containing the updated experiment details
      */
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'HIGHER_APPROVER', 'ORDER_MANAGER')")
     @PatchMapping("/{id}")
     public ApiResponse<Experiment> updateExperiment(
-            @PathVariable String id, @RequestBody Map<String, Object> requestBody) {
-        return experimentService.updateExperiment(id, requestBody);
+            Authentication authentication,
+            @PathVariable String id,
+            @RequestBody Map<String, Object> requestBody) {
+        return experimentService.updateExperiment(authentication, id, requestBody);
     }
 
     /**
@@ -68,6 +73,7 @@ public class ExperimentController {
      * @param requestBody the request body containing the user type
      * @return ApiResponse indicating the result of the deletion
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteExperiment(
             @PathVariable String id, @RequestBody Map<String, Object> requestBody) {

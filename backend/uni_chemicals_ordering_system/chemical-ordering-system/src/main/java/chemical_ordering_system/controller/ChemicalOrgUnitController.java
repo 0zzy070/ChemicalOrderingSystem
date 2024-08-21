@@ -5,6 +5,7 @@ import chemical_ordering_system.model.ChemicalOrgUnit;
 import chemical_ordering_system.service.IChemicalOrgUnitService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,6 +44,7 @@ public class ChemicalOrgUnitController {
      * @param requestBody Contains details for the new chemical organizational unit.
      * @return The created chemical organizational unit or an error message if unauthorized.
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ApiResponse<ChemicalOrgUnit> createChemicalOrgUnit(
             @RequestBody Map<String, Object> requestBody) {
@@ -57,6 +59,7 @@ public class ChemicalOrgUnitController {
      * @return The updated chemical organizational unit or an error message if unauthorized or not
      *     found.
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}")
     public ApiResponse<ChemicalOrgUnit> updateChemicalOrgUnit(
             @PathVariable String id, @RequestBody Map<String, Object> requestBody) {
@@ -70,6 +73,7 @@ public class ChemicalOrgUnitController {
      * @param requestBody User details for authorization.
      * @return Success message or an error message if unauthorized or not found.
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteChemicalOrgUnit(
             @PathVariable String id, @RequestBody Map<String, Object> requestBody) {

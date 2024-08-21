@@ -35,11 +35,6 @@ public class ChemicalServiceImpl implements IChemicalService {
 
     @Override
     public ApiResponse<Chemical> createChemical(Map<String, Object> requestBody) {
-        Integer userType = (Integer) requestBody.get("userType");
-        if (userType == null || userType != 0) {
-            return new ApiResponse<>(403, "You are not authorized to create a chemical", null);
-        }
-
         Chemical chemical = new Chemical();
         chemical.setId((String) requestBody.get("id"));
         chemical.setCommonName((String) requestBody.get("commonName"));
@@ -58,11 +53,6 @@ public class ChemicalServiceImpl implements IChemicalService {
 
     @Override
     public ApiResponse<Chemical> updateChemical(String id, Map<String, Object> requestBody) {
-        Integer userType = (Integer) requestBody.get("userType");
-        if (userType == null || userType != 0) {
-            return new ApiResponse<>(403, "You are not authorized to update this chemical", null);
-        }
-
         if (!chemicalRepository.existsById(id)) {
             return new ApiResponse<>(404, "Chemical with ID " + id + " not found", null);
         }
@@ -88,11 +78,6 @@ public class ChemicalServiceImpl implements IChemicalService {
 
     @Override
     public ApiResponse<Void> deleteChemical(String id, Map<String, Object> requestBody) {
-        Integer userType = (Integer) requestBody.get("userType");
-        if (userType == null || userType != 0) {
-            return new ApiResponse<>(403, "You are not authorized to delete this chemical", null);
-        }
-
         if (!chemicalRepository.existsById(id)) {
             return new ApiResponse<>(404, "Chemical with ID " + id + " not found", null);
         }
