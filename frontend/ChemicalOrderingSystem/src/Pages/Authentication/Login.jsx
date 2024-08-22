@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import "./Login.css";
 import { useNavigate } from "react-router-dom";
+import axios from "../../axiosConfig";
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    username: "",
+    userName: "",
     password: "",
   });
   const [errors, setErrors] = useState({});
@@ -17,8 +18,8 @@ const Login = () => {
 
   const validate = () => {
     const errors = {};
-    if (!formData.username) {
-      errors.username = "Username is required";
+    if (!formData.userName) {
+      errors.userName = "Username is required";
     }
     if (!formData.password) {
       errors.password = "Password is required";
@@ -43,10 +44,39 @@ const Login = () => {
       setIsSubmitting(true);
 
       setTimeout(() => {
-        // API call will go here
         console.log("Form is valid, submit the form", formData);
-        // Example: axios.post('/api/login', formData)
-        navigate("/dashboard");
+
+        // API call goes here
+        axios
+          .post("http://13.238.27.37:8080/api/users/login", formData)
+          .then((response) => {
+            // Handle success response
+            console.log("Login successful:", response.data);
+            navigate("/dashboard");
+          })
+          .catch((error) => {
+            // Handle error response
+            if (error.response) {
+              // Server responded with a status other than 2xx
+              console.error("Error response:", error.response.data);
+              setErrors({
+                apiError: error.response.data.message || "An error occurred",
+              });
+            } else if (error.request) {
+              // Request was made but no response received
+              console.error("No response:", error.request);
+              setErrors({
+                apiError: "No response from server. Please try again later.",
+              });
+            } else {
+              // Something else happened in setting up the request
+              console.error("Error:", error.message);
+              setErrors({ apiError: error.message });
+            }
+          })
+          .finally(() => {
+            setIsSubmitting(false);
+          });
       }, 1000);
     }
   };
@@ -55,14 +85,7 @@ const Login = () => {
     <div>
       <div>
         <header className="bg-light text-center">
-          <h4 className="heading">
-            Connecting to{" "}
-            <img
-              src={require("../../Assets/Images/canvas-logo.png")}
-              alt="Canvas Logo"
-              style={{ width: "35px", height: "27px" }}
-            />
-          </h4>
+          <h4 className="heading">Chemical Ordering System</h4>
           <p>Sign in with your account to access your Dashboard</p>
         </header>
       </div>
@@ -89,19 +112,19 @@ const Login = () => {
           </p>
           <form onSubmit={handleSubmit} noValidate>
             <div className="form-group mb-3">
-              <label htmlFor="username" className="fw-bold">
+              <label htmlFor="userName" className="fw-bold">
                 Username
               </label>
               <input
                 type="text"
-                id="username"
+                id="userName"
                 className="form-control"
                 placeholder="Username"
-                value={formData.username}
+                value={formData.userName}
                 onChange={handleChange}
               />
-              {errors.username && (
-                <small className="text-danger">{errors.username}</small>
+              {errors.userName && (
+                <small className="text-danger">{errors.userName}</small>
               )}
             </div>
             <div className="form-group mb-3">
