@@ -39,6 +39,19 @@ jobs:
       run: |
         docker-compose -f /home/ubuntu/chemical-ordering-system/dev/docker-compose.yml up -d
 
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '21'
+
+    - name: Install Node.js dependencies
+      working-directory: /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/frontend/ChemicalOrderingSystem
+      run: npm install
+
+    - name: Build React app
+      working-directory: /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/frontend/ChemicalOrderingSystem
+      run: npm run build
+
     - name: Clean up Docker
       run: |
         docker system prune -f
