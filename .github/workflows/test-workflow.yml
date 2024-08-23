@@ -1,0 +1,53 @@
+name: Java CI with Docker
+
+on:
+  push:
+    branches: [ "test" ]
+
+jobs:
+  build:
+
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Stop and Remove Old Container
+        run: |
+          docker stop $(docker ps -q) || true
+          docker rm chemical-ordering-system-test || true
+          docker-compose -f /home/ubuntu/chemical-ordering-system/test/docker-compose.yml down
+
+      - name: Remove build directory from Test directory
+        run: rm -rf /home/ubuntu/chemical-ordering-system/test/build
+
+      - name: Move build directory to Test directory
+        run: mv /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/frontend/ChemicalOrderingSystem/build /home/ubuntu/chemical-ordering-system/test/
+
+      - name: Reload nginx configuration
+        run: sudo nginx -s reload
+
+      - name: Build with Maven
+        run: mvn -B package -DskipTests -Dmaven.compiler.fork=true -Djava.util.Arrays.useLegacyMergeSort=true --file /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/backend/uni_chemicals_ordering_system/chemical-ordering-system/pom.xml
+
+      - name: Move JAR file to Test directory
+        run: mv /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/backend/uni_chemicals_ordering_system/chemical-ordering-system/target/chemical-ordering-system-0.0.1-SNAPSHOT.jar /home/ubuntu/chemical-ordering-system/test/
+
+      - name: Build Docker Test image
+        run: |
+          docker build --memory=512m -t chemical-ordering-system-test -f /home/ubuntu/chemical-ordering-system/test/Dockerfile /home/ubuntu/chemical-ordering-system/test/
+  deployed:
+    runs-on: self-hosted
+    needs: build
+    steps:
+      - name: Run New Container
+        run: |
+          docker-compose -f /home/ubuntu/chemical-ordering-system/test/docker-compose.yml up -d
+
+      - name: Restart all of the containers
+        run: |
+          docker ps -a -q -f status=exited | xargs -r docker start
+
+      - name: Clean up Docker
+        run: |
+          docker system prune -f
