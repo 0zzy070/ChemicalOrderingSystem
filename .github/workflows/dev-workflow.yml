@@ -17,7 +17,10 @@ jobs:
           docker stop $(docker ps -q) || true
           docker rm chemical-ordering-system-dev || true
           docker-compose -f /home/ubuntu/chemical-ordering-system/dev/docker-compose.yml down
-
+      
+      - name: Remove build directory from DEV directory
+        run: rm -rf /home/ubuntu/chemical-ordering-system/dev/build
+      
       - name: Move build directory to DEV directory
         run: mv /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/frontend/ChemicalOrderingSystem/build /home/ubuntu/chemical-ordering-system/dev/
 
