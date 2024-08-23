@@ -14,7 +14,7 @@ jobs:
 
       - name: Stop and Remove Old Container
         run: |
-          docker stop chemical-ordering-system-dev || true
+          docker stop $(docker ps -q) || true
           docker rm chemical-ordering-system-dev || true
           docker-compose -f /home/ubuntu/chemical-ordering-system/dev/docker-compose.yml down
 
@@ -40,6 +40,10 @@ jobs:
       - name: Run New Container
         run: |
           docker-compose -f /home/ubuntu/chemical-ordering-system/dev/docker-compose.yml up -d
+
+      - name: Restart all of the containers
+        run: |
+          docker restart $(docker ps -q)
 
       - name: Clean up Docker
         run: |
