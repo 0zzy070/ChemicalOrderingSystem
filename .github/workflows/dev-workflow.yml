@@ -46,7 +46,7 @@ jobs:
 
       - name: Restart all of the containers
         run: |
-          docker start $(docker ps -a -q -f status=exited)
+          docker ps -a -q -f status=exited | xargs -r docker start
 
       - name: Clean up Docker
         run: |
