@@ -6,8 +6,10 @@ on:
 
 jobs:
   build:
-
     runs-on: self-hosted
+    concurrency:
+      group: "build-${{ github.ref }}"
+      cancel-in-progress: true
 
     steps:
       - uses: actions/checkout@v4
@@ -37,6 +39,10 @@ jobs:
   deployed:
     runs-on: self-hosted
     needs: build
+    concurrency:
+      group: "deployed-${{ github.ref }}"
+      cancel-in-progress: true
+
     steps:
       - name: Run New Container
         run: |
