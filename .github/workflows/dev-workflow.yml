@@ -44,9 +44,9 @@ jobs:
         run: |
           docker-compose -f /home/ubuntu/chemical-ordering-system/dev/docker-compose.yml up -d
 
-      - name: Restart all of the containers
+      - name: Restart chemical-ordering-system-test
         run: |
-          docker ps -a -q -f status=exited | xargs -r docker start
+          docker start chemical-ordering-system-test
 
       - name: Clean up Docker
         run: |
