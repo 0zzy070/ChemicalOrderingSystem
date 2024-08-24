@@ -47,6 +47,3 @@ jobs:
       - name: Clean up Docker
         run: |
           docker system prune -f
-      - name: Restart GitHub Actions Runner
-        run: |
-          sudo systemctl restart actions.runner.service
