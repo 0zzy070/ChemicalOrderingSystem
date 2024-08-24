@@ -12,9 +12,12 @@ jobs:
       cancel-in-progress: true
 
     steps:
-      - name: Remove Old Containers and Networks
+      - name: Remove Old Containers
         run: |
-          docker-compose -f /home/ubuntu/chemical-ordering-system/docker-compose.yml down --remove-orphans || true
+          docker stop chemical-ordering-system-dev || true
+          docker rm chemical-ordering-system-dev || true
+          docker stop chemical-ordering-system-test || true
+          docker rm chemical-ordering-system-test || true
 
       - name: Clean Build Directory
         run: rm -rf /home/ubuntu/chemical-ordering-system/dev/build
@@ -40,9 +43,13 @@ jobs:
       cancel-in-progress: true
 
     steps:
-      - name: Start Containers
+      - name: Start Dev Container
         run: |
-          docker-compose -f /home/ubuntu/chemical-ordering-system/docker-compose.yml up -d --remove-orphans
+          docker run -d --name chemical-ordering-system-dev --cpus="0.5" --memory="450m" -p 8080:8080 chemical-ordering-system-dev
+
+      - name: Start Test Container
+        run: |
+          docker run -d --name chemical-ordering-system-test --cpus="0.5" --memory="450m" -p 9080:8080 chemical-ordering-system-test
 
       - name: Clean up Docker
         run: |
