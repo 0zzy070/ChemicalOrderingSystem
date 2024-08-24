@@ -3,6 +3,7 @@
   border-bottom: 1px solid #d7d7dc;
   background: #fff;
   border-bottom-width: thin;
+  z-index: 100;
 }
 
 .navbar-brand {

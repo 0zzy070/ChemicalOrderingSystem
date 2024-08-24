@@ -82,7 +82,7 @@ const Login = () => {
   };
 
   return (
-    <div>
+    <div className="bg-image">
       <div>
         <header className="bg-light text-center">
           <h4 className="heading">Chemical Ordering System</h4>
@@ -90,21 +90,11 @@ const Login = () => {
         </header>
       </div>
       <div className="login-page d-flex justify-content-center align-items-center bg-transparent">
-        <div
-          className="card p-sm-4 shadow-lg"
-          style={{
-            maxWidth: "400px",
-            width: "100%",
-          }}
-        >
+        <div className="card p-sm-4 shadow-lg">
           <img
             src={require("../../Assets/Images/flinders-logo.png")}
             alt="Flinders University Logo"
-            className="mx-auto mb-4"
-            style={{
-              width: "130px",
-              height: "38px",
-            }}
+            className="mx-auto mb-4 img-dimension"
           />
           <p className="text-center mb-3">
             Welcome! To obtain access, make sure you have an account created by

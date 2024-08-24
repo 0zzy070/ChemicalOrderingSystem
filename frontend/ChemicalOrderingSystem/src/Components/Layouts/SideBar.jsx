@@ -18,7 +18,7 @@ const SideBar = () => {
   };
 
   return (
-    <div className="sidebar-container">
+    <div className="">
       <div className="bg-light side-bar">
         <Nav defaultActiveKey="/home" className="flex-column">
           <Nav.Link href="" className="d-flex align-items-center">

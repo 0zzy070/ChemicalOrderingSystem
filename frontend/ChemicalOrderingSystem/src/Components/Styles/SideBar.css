@@ -34,7 +34,7 @@
   width: 400px; /* Same width as the sidebar */
   height: 100vh; /* Full viewport height */
   position: absolute;
-  top: 0;
+  top: 20;
   left: 230px; /* Align to the left edge of the container */
   background-color: #fff; /* Background color for the drawer */
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Optional shadow for better visibility */

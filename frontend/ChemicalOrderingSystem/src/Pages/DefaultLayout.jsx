@@ -7,7 +7,16 @@ const DefaultLayout = () => {
       <NavigationBar></NavigationBar>
 
       <main>
-        <SideBar></SideBar>
+        <div className="container-fluid">
+          <div className="row">
+            <div className="col-2">
+              <SideBar></SideBar>
+            </div>
+            <div className="col">
+              <div className="container-fluid">Hello</div>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
   );

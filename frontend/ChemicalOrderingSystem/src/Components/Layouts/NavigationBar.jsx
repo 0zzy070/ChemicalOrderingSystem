@@ -38,7 +38,10 @@ const NavigationBar = () => {
               id="dropdown-custom-components"
               align="end"
             >
-              <NavDropdown.Item as="div" className="d-flex align-items-center">
+              <NavDropdown.Item
+                as="div"
+                className="d-flex align-items-center check"
+              >
                 <img
                   className="rounded-circle"
                   src={blankUserImage}
