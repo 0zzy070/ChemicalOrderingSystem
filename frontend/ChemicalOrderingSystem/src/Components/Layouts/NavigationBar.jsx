@@ -1,20 +1,19 @@
 import { Navbar, Container, Nav, NavDropdown } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import IconUser from "../../Assets/Icon/IconUser.tsx";
-import IconMail from "../../Assets/Icon/IconMail.tsx";
-import IconLockDots from "../../Assets/Icon/IconLockDots.tsx";
+import IconSettings from "../../Assets/Icon/IconSettings.tsx";
 import IconLogout from "../../Assets/Icon/IconLogout.tsx";
+import "../Styles/NavBar.css";
 
-// Import images directly
 //import userProfileImage from "../../Assets/Images/canvas-logo.png";
 import blankUserImage from "../../Assets/Images/blank-profile.png";
 import brandLogo from "../../Assets/Images/flinders-logo.png";
 
 const NavigationBar = () => {
   return (
-    <Navbar bg="light" expand="lg" className="border-bottom">
+    <Navbar bg="light" expand="lg" className="navigation">
       <Container>
-        <Navbar.Brand href="#home">
+        <Navbar.Brand href="#home" className="navbar-brand">
           <img
             src={brandLogo}
             alt="Brand Logo"
@@ -60,11 +59,8 @@ const NavigationBar = () => {
               <NavDropdown.Item as={Link} to="/users/profile">
                 <IconUser className="me-2" /> Profile
               </NavDropdown.Item>
-              <NavDropdown.Item as={Link} to="/apps/mailbox">
-                <IconMail className="me-2" /> Inbox
-              </NavDropdown.Item>
-              <NavDropdown.Item as={Link} to="/auth/boxed-lockscreen">
-                <IconLockDots className="me-2" /> Lock Screen
+              <NavDropdown.Item as={Link} to="/settings">
+                <IconSettings className="me-2" /> Settings
               </NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item

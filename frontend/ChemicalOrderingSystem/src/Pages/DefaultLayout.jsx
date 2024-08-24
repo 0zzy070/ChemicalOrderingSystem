@@ -1,22 +1,14 @@
 import NavigationBar from "../Components/Layouts/NavigationBar";
+import SideBar from "../Components/Layouts/SideBar";
 
 const DefaultLayout = () => {
   return (
     <div>
-      <header>
-        <NavigationBar></NavigationBar>
-      </header>
+      <NavigationBar></NavigationBar>
 
       <main>
-        {/* This will render the child components (the routed pages) */}
+        <SideBar></SideBar>
       </main>
-
-      <footer className="footer">
-        <span className="text-muted small">Powered by Okta</span>
-        <a href="#privacy-policy" className="text-muted small">
-          Privacy Policy
-        </a>
-      </footer>
     </div>
   );
 };

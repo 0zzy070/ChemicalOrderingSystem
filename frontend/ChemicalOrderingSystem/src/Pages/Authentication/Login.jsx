@@ -48,7 +48,7 @@ const Login = () => {
 
         // API call goes here
         axios
-          .post("http://13.238.27.37:8080/api/users/login", formData)
+          .post("/api/users/login", formData)
           .then((response) => {
             // Handle success response
             console.log("Login successful:", response.data);
