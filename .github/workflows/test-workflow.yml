@@ -13,26 +13,24 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1  # Use shallow clone, only fetch the latest commit.
 
       - name: Remove Old Containers and Networks
         run: |
-          docker-compose -f /home/ubuntu/chemical-ordering-system/docker-compose.yml down || true
+          docker-compose -f /home/ubuntu/chemical-ordering-system/docker-compose.yml down --remove-orphans || true
 
-      - name: Remove build directory from Test directory
+      - name: Clean Build Directory
         run: rm -rf /home/ubuntu/chemical-ordering-system/test/build
 
-      - name: Move build directory to Test directory
-        run: mv /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/frontend/ChemicalOrderingSystem/build /home/ubuntu/chemical-ordering-system/test/
-
-      - name: Reload nginx configuration
-        run: sudo nginx -s reload
-
-      - name: Move JAR file to Test directory
-        run: mv /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/backend/uni_chemicals_ordering_system/chemical-ordering-system/target/chemical-ordering-system-0.0.1-SNAPSHOT.jar /home/ubuntu/chemical-ordering-system/test/
-
-      - name: Build Docker Test image
+      - name: Move Build Artifacts
         run: |
-          docker build -t chemical-ordering-system-test -f /home/ubuntu/chemical-ordering-system/test/Dockerfile /home/ubuntu/chemical-ordering-system/test/
+          mv /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/frontend/ChemicalOrderingSystem/build /home/ubuntu/chemical-ordering-system/test/
+          mv /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/backend/uni_chemicals_ordering_system/chemical-ordering-system/target/chemical-ordering-system-0.0.1-SNAPSHOT.jar /home/ubuntu/chemical-ordering-system/test/
+
+      - name: Build Docker Image
+        run: |
+          docker build --no-cache -t chemical-ordering-system-test -f /home/ubuntu/chemical-ordering-system/test/Dockerfile /home/ubuntu/chemical-ordering-system/test/
 
   deployed:
     runs-on: self-hosted
@@ -44,7 +42,7 @@ jobs:
     steps:
       - name: Start Containers
         run: |
-          docker-compose -f /home/ubuntu/chemical-ordering-system/docker-compose.yml up -d
+          docker-compose -f /home/ubuntu/chemical-ordering-system/docker-compose.yml up -d --remove-orphans
 
       - name: Clean up Docker
         run: |
