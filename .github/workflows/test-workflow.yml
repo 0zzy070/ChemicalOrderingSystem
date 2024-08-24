@@ -12,16 +12,16 @@ jobs:
       cancel-in-progress: true
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1  # Use shallow clone, only fetch the latest commit.
-
       - name: Remove Old Containers and Networks
         run: |
           docker-compose -f /home/ubuntu/chemical-ordering-system/docker-compose.yml down --remove-orphans || true
 
       - name: Clean Build Directory
         run: rm -rf /home/ubuntu/chemical-ordering-system/test/build
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1  # Use shallow clone, only fetch the latest commit.
 
       - name: Move Build Artifacts
         run: |
