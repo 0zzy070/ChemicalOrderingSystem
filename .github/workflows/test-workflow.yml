@@ -30,7 +30,7 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build --no-cache -t chemical-ordering-system-test -f /home/ubuntu/chemical-ordering-system/test/Dockerfile /home/ubuntu/chemical-ordering-system/test/
+          docker build -t chemical-ordering-system-test -f /home/ubuntu/chemical-ordering-system/test/Dockerfile /home/ubuntu/chemical-ordering-system/test/
 
   deployed:
     runs-on: self-hosted
