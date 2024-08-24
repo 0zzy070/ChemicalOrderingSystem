@@ -12,25 +12,26 @@ jobs:
       cancel-in-progress: true
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Remove Old Containers and Networks
+      - name: Remove Old Containers
         run: |
-          docker-compose -f /home/ubuntu/chemical-ordering-system/docker-compose.yml down || true
+          docker stop chemical-ordering-system-dev || true
+          docker rm chemical-ordering-system-dev || true
+          docker stop chemical-ordering-system-test || true
+          docker rm chemical-ordering-system-test || true
 
-      - name: Remove build directory from Dev directory
+      - name: Clean Build Directory
         run: rm -rf /home/ubuntu/chemical-ordering-system/dev/build
 
-      - name: Move build directory to Dev directory
-        run: mv /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/frontend/ChemicalOrderingSystem/build /home/ubuntu/chemical-ordering-system/dev/
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1  # Use shallow clone, only fetch the latest commit.
 
-      - name: Reload nginx configuration
-        run: sudo nginx -s reload
+      - name: Move Build Artifacts
+        run: |
+          mv /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/frontend/ChemicalOrderingSystem/build /home/ubuntu/chemical-ordering-system/dev/
+          mv /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/backend/uni_chemicals_ordering_system/chemical-ordering-system/target/chemical-ordering-system-0.0.1-SNAPSHOT.jar /home/ubuntu/chemical-ordering-system/dev/
 
-      - name: Move JAR file to Dev directory
-        run: mv /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/backend/uni_chemicals_ordering_system/chemical-ordering-system/target/chemical-ordering-system-0.0.1-SNAPSHOT.jar /home/ubuntu/chemical-ordering-system/dev/
-
-      - name: Build Docker Dev image
+      - name: Build Docker Dev Image
         run: |
           docker build -t chemical-ordering-system-dev -f /home/ubuntu/chemical-ordering-system/dev/Dockerfile /home/ubuntu/chemical-ordering-system/dev/
 
@@ -42,9 +43,21 @@ jobs:
       cancel-in-progress: true
 
     steps:
-      - name: Start Containers
+      - name: Start Dev Container
         run: |
-          docker-compose -f /home/ubuntu/chemical-ordering-system/docker-compose.yml up -d
+          docker run -d --name chemical-ordering-system-dev \
+            --cpus="1" \
+            --memory="512m" \
+            -p 8080:8080 \
+            chemical-ordering-system-dev
+
+      - name: Start Test Container
+        run: |
+          docker run -d --name chemical-ordering-system-test \
+            --cpus="1" \
+            --memory="512m" \
+            -p 9080:8080 \
+            chemical-ordering-system-test
 
       - name: Clean up Docker
         run: |
