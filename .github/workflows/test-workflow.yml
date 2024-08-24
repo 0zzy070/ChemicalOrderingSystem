@@ -14,9 +14,10 @@ jobs:
     steps:
       - name: Remove Old Containers
         run: |
-          docker stop chemical-ordering-system-dev || true
           docker stop chemical-ordering-system-test || true
           docker rm chemical-ordering-system-test || true
+          docker stop chemical-ordering-system-dev || true
+          docker rm chemical-ordering-system-dev || true
 
       - name: Clean Build Directory
         run: rm -rf /home/ubuntu/chemical-ordering-system/test/build
@@ -30,7 +31,7 @@ jobs:
           mv /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/frontend/ChemicalOrderingSystem/build /home/ubuntu/chemical-ordering-system/test/
           mv /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/backend/uni_chemicals_ordering_system/chemical-ordering-system/target/chemical-ordering-system-0.0.1-SNAPSHOT.jar /home/ubuntu/chemical-ordering-system/test/
 
-      - name: Build Docker Image
+      - name: Build Docker Test Image
         run: |
           docker build -t chemical-ordering-system-test -f /home/ubuntu/chemical-ordering-system/test/Dockerfile /home/ubuntu/chemical-ordering-system/test/
 
@@ -46,18 +47,26 @@ jobs:
         run: |
           docker run -d --name chemical-ordering-system-test \
             --cpus="1" \
-            --memory="512m" \
+            --memory="450m" \
+            --device-read-bps=/dev/sda:1mb \
+            --device-write-bps=/dev/sda:1mb \
+            --device-read-iops=/dev/sda:100 \
+            --device-write-iops=/dev/sda:100 \
             -p 9080:8080 \
-            chemical-ordering-system-test
-
+            chemical-ordering-system-test 
+        
       - name: Start Dev Container
         run: |
-          docker start chemical-ordering-system-dev || true
+          docker run -d --name chemical-ordering-system-dev \
+            --cpus="1" \
+            --memory="450m" \
+            --device-read-bps=/dev/sda:1mb \
+            --device-write-bps=/dev/sda:1mb \
+            --device-read-iops=/dev/sda:100 \
+            --device-write-iops=/dev/sda:100 \
+            -p 8080:8080 \
+            chemical-ordering-system-dev
 
       - name: Clean up Docker
         run: |
           docker system prune -f
-
-      - name: Restart GitHub Actions Runner
-        run: sudo systemctl restart github-runner.service
-        timeout-minutes: 1
