@@ -23,7 +23,7 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 1  # Use shallow clone, only fetch the latest commit.
+          fetch-depth: 0  # Use shallow clone, only fetch the latest commit.
           sparse-checkout: |
             uni_chemicals_ordering_system/backend/uni_chemicals_ordering_system/chemical-ordering-system/target/chemical-ordering-system-0.0.1-SNAPSHOT.jar
             uni_chemicals_ordering_system/frontend/ChemicalOrderingSystem/build
