@@ -14,11 +14,10 @@ jobs:
     steps:
       - name: Remove Old Containers
         run: |
+          docker stop chemical-ordering-system-test || true
           docker stop chemical-ordering-system-dev || true
           docker rm chemical-ordering-system-dev || true
-          docker stop chemical-ordering-system-test || true
-          docker rm chemical-ordering-system-test || true
-
+          
       - name: Clean Build Directory
         run: rm -rf /home/ubuntu/chemical-ordering-system/dev/build
 
@@ -53,11 +52,7 @@ jobs:
 
       - name: Start Test Container
         run: |
-          docker run -d --name chemical-ordering-system-test \
-            --cpus="1" \
-            --memory="512m" \
-            -p 9080:8080 \
-            chemical-ordering-system-test
+          docker start chemical-ordering-system-test || true
 
       - name: Clean up Docker
         run: |
