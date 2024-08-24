@@ -45,11 +45,19 @@ jobs:
     steps:
       - name: Start Dev Container
         run: |
-          docker run -d --name chemical-ordering-system-dev --cpus="0.5" --memory="256m" -p 8080:8080 chemical-ordering-system-dev
+          docker run -d --name chemical-ordering-system-dev \
+            --cpus="0.5" \
+            --memory="768m" \
+            -p 8080:8080 \
+            chemical-ordering-system-dev
 
       - name: Start Test Container
         run: |
-          docker run -d --name chemical-ordering-system-test --cpus="0.5" --memory="256m" -p 9080:8080 chemical-ordering-system-test
+          docker run -d --name chemical-ordering-system-test \
+            --cpus="0.5" \
+            --memory="768m" \
+            -p 9080:8080 \
+            chemical-ordering-system-test
 
       - name: Clean up Docker
         run: |
