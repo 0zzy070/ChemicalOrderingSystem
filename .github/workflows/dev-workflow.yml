@@ -54,11 +54,6 @@ jobs:
             --device-write-iops=/dev/sda:100 \
             -p 8080:8080 \
             chemical-ordering-system-dev
-      
-      - name: Wait for Dev Container to start
-        run: |
-          echo "Waiting for Dev container to start..."
-          sleep 30  # Wait for 30 seconds
 
       - name: Start Test Container
         run: |
