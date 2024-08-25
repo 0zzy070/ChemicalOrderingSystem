@@ -37,7 +37,7 @@ jobs:
           docker build -t chemical-ordering-system-dev -f /home/ubuntu/chemical-ordering-system/dev/Dockerfile /home/ubuntu/chemical-ordering-system/dev/
 
   deployed:
-    runs-on: self-hosted
+    runs-on: [self-hosted, dev-runner]
     needs: build
     concurrency:
       group: "deployed-${{ github.ref }}"
@@ -46,7 +46,6 @@ jobs:
     steps:
       - name: Start Dev Container
         run: |
-          ls -l /home/ubuntu/chemical-ordering-system/dev/  # Check file presence
           docker-compose -f /home/ubuntu/chemical-ordering-system/dev/docker-compose.yml up --remove-orphans || true
 
       - name: Clean up Docker
