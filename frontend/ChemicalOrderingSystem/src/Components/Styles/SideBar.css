@@ -41,6 +41,7 @@
   overflow-y: auto; /* Scroll if content overflows */
   transform: translateX(-100%); /* Initially hidden, off-screen to the left */
   transition: transform 0.2s ease-in-out; /* Smooth slide-in effect */
+  z-index: 10;
 }
 
 /* Show drawer when active */

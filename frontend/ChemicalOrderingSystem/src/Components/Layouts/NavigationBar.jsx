@@ -13,7 +13,7 @@ const NavigationBar = () => {
   return (
     <Navbar bg="light" expand="lg" className="navigation">
       <Container>
-        <Navbar.Brand href="#home" className="navbar-brand">
+        <Navbar.Brand as={Link} to="/dashboard" className="navbar-brand">
           <img
             src={brandLogo}
             alt="Brand Logo"

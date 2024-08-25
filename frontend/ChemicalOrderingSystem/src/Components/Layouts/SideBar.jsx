@@ -20,8 +20,8 @@ const SideBar = () => {
   return (
     <div className="">
       <div className="bg-light side-bar">
-        <Nav defaultActiveKey="/home" className="flex-column">
-          <Nav.Link href="" className="d-flex align-items-center">
+        <Nav defaultActiveKey="/users" className="flex-column">
+          <Nav.Link href="/users" className="d-flex align-items-center">
             <IconUsers />
             <span>Users</span>
           </Nav.Link>

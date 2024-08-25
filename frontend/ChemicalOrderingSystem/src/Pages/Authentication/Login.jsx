@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import AuthContext from "../../Context/AuthProvider";
 import "./Login.css";
 import { useNavigate } from "react-router-dom";
-import axios from "../../axiosConfig";
+import axios from "../../Api/axiosConfig";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { setAuth } = useContext(AuthContext);
 
   useEffect(() => {
     document.title = "Please login to your account";
@@ -44,8 +46,6 @@ const Login = () => {
       setIsSubmitting(true);
 
       setTimeout(() => {
-        console.log("Form is valid, submit the form", formData);
-
         // API call goes here
         axios
           .post("/api/users/login", formData)
@@ -53,6 +53,8 @@ const Login = () => {
             // Handle success response
             console.log("Login successful:", response.data);
             navigate("/dashboard");
+            const accessToken = response?.data?.accessToken;
+            setAuth({ formData, accessToken, isAuthenticated: true });
           })
           .catch((error) => {
             // Handle error response
