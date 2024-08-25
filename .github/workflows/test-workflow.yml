@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: [self-hosted, test-runner]
     concurrency:
       group: "build-${{ github.ref }}"
       cancel-in-progress: true
@@ -14,10 +14,7 @@ jobs:
     steps:
       - name: Remove Old Containers
         run: |
-          docker stop chemical-ordering-system-test || true
-          docker rm chemical-ordering-system-test || true
-          docker stop chemical-ordering-system-dev || true
-          docker rm chemical-ordering-system-dev || true
+          docker-compose -f /home/ubuntu/chemical-ordering-system/test/docker-compose.yml down --remove-orphans || true
 
       - name: Clean Build Directory
         run: rm -rf /home/ubuntu/chemical-ordering-system/test/build
@@ -25,6 +22,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1  # Use shallow clone, only fetch the latest commit.
+
+      - name: Build Back-End files
+        run: |
+          mvn -B package -DskipTests -Dmaven.compiler.fork=true -Djava.util.Arrays.useLegacyMergeSort=true --file /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/backend/uni_chemicals_ordering_system/chemical-ordering-system/pom.xml
 
       - name: Move Build Artifacts
         run: |
@@ -45,27 +46,7 @@ jobs:
     steps:
       - name: Start Test Container
         run: |
-          docker run -d --name chemical-ordering-system-test \
-            --cpus="1" \
-            --memory="450m" \
-            --device-read-bps=/dev/sda:1mb \
-            --device-write-bps=/dev/sda:1mb \
-            --device-read-iops=/dev/sda:100 \
-            --device-write-iops=/dev/sda:100 \
-            -p 9080:8080 \
-            chemical-ordering-system-test 
-        
-      - name: Start Dev Container
-        run: |
-          docker run -d --name chemical-ordering-system-dev \
-            --cpus="1" \
-            --memory="450m" \
-            --device-read-bps=/dev/sda:1mb \
-            --device-write-bps=/dev/sda:1mb \
-            --device-read-iops=/dev/sda:100 \
-            --device-write-iops=/dev/sda:100 \
-            -p 8080:8080 \
-            chemical-ordering-system-dev
+          docker-compose -f /home/ubuntu/chemical-ordering-system/test/docker-compose.yml up -d --remove-orphans
 
       - name: Clean up Docker
         run: |
