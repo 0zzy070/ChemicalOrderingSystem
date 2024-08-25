@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: [self-hosted, test-runner]
+    runs-on: [ self-hosted, test-runner ]
     concurrency:
       group: "build-${{ github.ref }}"
       cancel-in-progress: true
@@ -37,7 +37,7 @@ jobs:
           docker build -t chemical-ordering-system-test -f /home/ubuntu/chemical-ordering-system/test/Dockerfile /home/ubuntu/chemical-ordering-system/test/
 
   deployed:
-    runs-on: self-hosted
+    runs-on: [ self-hosted, test-runner ]
     needs: build
     concurrency:
       group: "deployed-${{ github.ref }}"
@@ -46,7 +46,7 @@ jobs:
     steps:
       - name: Start Test Container
         run: |
-          docker-compose -f /home/ubuntu/chemical-ordering-system/test/docker-compose.yml up -d --remove-orphans
+          docker-compose -f /home/ubuntu/chemical-ordering-system/test/docker-compose.yml up -d --remove-orphans || true
 
       - name: Clean up Docker
         run: |

@@ -1,0 +1,110 @@
+/* Container for side bar and notification drawer */
+.sidebar-container {
+  position: relative;
+  display: flex;
+}
+.side-bar {
+  height: 100vh;
+  width: 230px;
+  border-right: 1px solid #ddd;
+  padding-top: 20px;
+  position: fixed;
+  left: 0;
+  z-index: 100;
+}
+
+.side-bar .nav-link {
+  color: #000; /* Dark color for text */
+  font-size: 14px; /* Adjust font size as needed */
+  padding: 20px 20px; /* Adjust padding as needed */
+}
+
+.side-bar .nav-link:hover {
+  background-color: #e3e4e7; /* Light background on hover */
+}
+
+.side-bar .nav-link svg {
+  width: 20px; /* Consistent icon size */
+  height: 20px; /* Consistent icon size */
+  margin-right: 10px; /* Space between icon and text */
+}
+
+/* Notification drawer styles */
+.notifications--drawer {
+  width: 400px; /* Same width as the sidebar */
+  height: 100vh; /* Full viewport height */
+  position: absolute;
+  top: 20;
+  left: 230px; /* Align to the left edge of the container */
+  background-color: #fff; /* Background color for the drawer */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Optional shadow for better visibility */
+  overflow-y: auto; /* Scroll if content overflows */
+  transform: translateX(-100%); /* Initially hidden, off-screen to the left */
+  transition: transform 0.2s ease-in-out; /* Smooth slide-in effect */
+  z-index: 10;
+}
+
+/* Show drawer when active */
+.notifications--drawer.open {
+  transform: translateX(0); /* Slide in from the left */
+}
+
+/* Drawer header styles */
+.notifications--drawer-header {
+  padding: 15px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f8f8f8;
+}
+
+/* Button styles */
+.notifications--drawer-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Notification item button */
+.notification-item {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: none;
+  background: none;
+  padding: 10px;
+  cursor: pointer;
+  text-align: left;
+}
+
+/* Notification content wrapper */
+.notification-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Notification header (title and date) */
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+/* Title and date styles */
+.notification-title {
+  font-weight: bold;
+}
+
+.notification-date {
+  font-size: 0.875rem;
+  color: #999;
+}
+
+/* Body of the notification */
+.notification-body {
+  margin-top: 5px;
+  font-size: 15px;
+}
