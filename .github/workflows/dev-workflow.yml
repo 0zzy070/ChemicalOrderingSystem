@@ -28,8 +28,11 @@ jobs:
           mvn -B package -DskipTests -Dmaven.compiler.fork=true -Djava.util.Arrays.useLegacyMergeSort=true --file /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/backend/uni_chemicals_ordering_system/chemical-ordering-system/pom.xml
 
       - name: Build Front-End files
-        run: npm run build --prefix /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/frontend/ChemicalOrderingSystem/
-          
+        run: |
+          cd /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/frontend/ChemicalOrderingSystem/
+          cp -r /home/ubuntu/chemical-ordering-system/dev/node_modules/ .
+          npm run build
+ 
       - name: Move Build Artifacts
         run: |
           mv /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/frontend/ChemicalOrderingSystem/build /home/ubuntu/chemical-ordering-system/dev/
