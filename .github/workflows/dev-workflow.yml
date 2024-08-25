@@ -23,6 +23,13 @@ jobs:
         with:
           fetch-depth: 1  # Use shallow clone, only fetch the latest commit.
 
+      - name: Build Back-End files
+        run: |
+          mvn -B package -DskipTests -Dmaven.compiler.fork=true -Djava.util.Arrays.useLegacyMergeSort=true --file /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/backend/uni_chemicals_ordering_system/chemical-ordering-system/pom.xml
+
+      - name: Build Front-End files
+        run: npm run build --prefix /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/frontend/ChemicalOrderingSystem/
+          
       - name: Move Build Artifacts
         run: |
           mv /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/frontend/ChemicalOrderingSystem/build /home/ubuntu/chemical-ordering-system/dev/
