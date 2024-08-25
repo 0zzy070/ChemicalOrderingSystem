@@ -31,7 +31,7 @@ jobs:
         run: |
           cd /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/frontend/ChemicalOrderingSystem/
           cp -r /home/ubuntu/chemical-ordering-system/dev/node_modules/ .
-          npm run build
+          /home/ubuntu/.nvm/versions/node/v20.17.0/bin/npm run build
  
       - name: Move Build Artifacts
         run: |
