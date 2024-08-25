@@ -1,0 +1,40 @@
+.default-dashboard {
+  position: fixed;
+  left: 230px;
+  background-color: #e3e4e7;
+  width: calc(100% - 230px);
+  height: 100vh;
+  padding: 20px 30px;
+}
+
+.cards {
+  width: 100%;
+  display: flex;
+  gap: 50px;
+  margin: 35px 0px;
+}
+
+.default-dashboard .smallCards {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 50px;
+}
+
+.default-dashboard .card {
+  flex: 1 1 calc(50% - 50px);
+  box-sizing: border-box;
+  padding: 30px 30px;
+  color: black;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  border-radius: 25px;
+}
+.card:hover {
+  transform: scale(1.03);
+  opacity: 1;
+}
+
+.card p {
+  text-align: left;
+  color: black;
+}
