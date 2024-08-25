@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: [self-hosted, dev-runner]
     concurrency:
       group: "build-${{ github.ref }}"
       cancel-in-progress: true
@@ -26,16 +26,6 @@ jobs:
       - name: Build Back-End files
         run: |
           mvn -B package -DskipTests -Dmaven.compiler.fork=true -Djava.util.Arrays.useLegacyMergeSort=true --file /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/backend/uni_chemicals_ordering_system/chemical-ordering-system/pom.xml
-
-      - name: Build Front-End files
-        run: |
-          export NVM_DIR="$HOME/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-          [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-          nvm use 20.17.0
-          cd /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/frontend/ChemicalOrderingSystem/
-          cp -r /home/ubuntu/chemical-ordering-system/dev/node_modules/ ./node_modules/
-          npm run build
  
       - name: Move Build Artifacts
         run: |
