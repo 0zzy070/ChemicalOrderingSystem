@@ -1,9 +1,9 @@
 HELP.md
 
 !.mvn/wrapper/maven-wrapper.jar
-# Ignore all target directories, but does not ignore JAR file
-target/*
-!target/*.jar
+# Ignore all target directories
+target/
+
 
 ### STS ###
 .apt_generated
