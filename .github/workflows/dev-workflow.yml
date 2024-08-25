@@ -29,9 +29,13 @@ jobs:
 
       - name: Build Front-End files
         run: |
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+          [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+          nvm use 20.17.0
           cd /home/ubuntu/actions-runner/_work/uni_chemicals_ordering_system/uni_chemicals_ordering_system/frontend/ChemicalOrderingSystem/
-          cp -r /home/ubuntu/chemical-ordering-system/dev/node_modules/ .
-          /home/ubuntu/.nvm/versions/node/v20.17.0/bin/npm run build
+          cp -r /home/ubuntu/chemical-ordering-system/dev/node_modules/ ./node_modules/
+          npm run build
  
       - name: Move Build Artifacts
         run: |
