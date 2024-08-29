@@ -5,6 +5,8 @@ import Login from "../Pages/Authentication/Login";
 import Dashboard from "../Pages/LandingPage/Dashboard";
 import BlankLayout from "../Pages/BlankLayout";
 import Users from "../Pages/Users/Users";
+import Location from "../Pages/Locations/Location";
+import Chemical from "../Pages/Chemicals/Chemical";
 
 /* 
 const ProtectedRoute = ({ children }) => {
@@ -33,6 +35,16 @@ export const routes = [
   {
     path: "/users",
     element: <Users />,
+    layout: "blank",
+  },
+  {
+    path: "/location",
+    element: <Location />,
+    layout: "blank",
+  },
+  {
+    path: "/chemical",
+    element: <Chemical />,
     layout: "blank",
   },
   {

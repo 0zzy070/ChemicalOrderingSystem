@@ -9,12 +9,10 @@ import NavigationBar from "../../Components/Layouts/NavigationBar.jsx";
 import SideBar from "../../Components/Layouts/SideBar.jsx";
 import blankUserImage from "../../Assets/Images/blank-profile.png";
 
-const Users = () => {
+const Chemical = () => {
   const [value, setValue] = useState("list");
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 12;
   const [params, setParams] = useState({
     name: "",
     email: "",
@@ -70,27 +68,11 @@ const Users = () => {
   const handleShow = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
   const saveUser = () => handleClose();
-  const editUser = (user) => {
-    setParams(user);
+  const editUser = (contact) => {
+    setParams(contact);
     handleShow();
   };
-  const deleteUser = (user) => console.log("Delete user:", user);
-
-  // Calculate the total number of pages
-  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
-
-  // Slice the filteredItems array to get the items for the current page
-  const currentItems = filteredItems.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  // Handle page change
-  const handlePageChange = (newPage) => {
-    if (newPage > 0 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-    }
-  };
+  const deleteUser = (contact) => console.log("Delete user:", contact);
 
   return (
     <div className="container-fluid">
@@ -162,7 +144,7 @@ const Users = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentItems.map((user) => (
+                  {filteredItems.map((user) => (
                     <tr key={user.id}>
                       <td>
                         <div className="d-flex align-items-center">
@@ -252,30 +234,6 @@ const Users = () => {
             </div>
           )}
 
-          {/* Pagination */}
-          <div className="d-flex justify-content-end align-items-center mt-4">
-            <span className="me-3">
-              {`${(currentPage - 1) * itemsPerPage + 1}-${Math.min(
-                currentPage * itemsPerPage,
-                filteredItems.length
-              )} of ${filteredItems.length}`}
-            </span>
-            <button
-              className="btn btn-sm btn-outline-primary me-2"
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              &larr; {/* Left arrow */}
-            </button>
-            <button
-              className="btn btn-sm btn-outline-primary"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              &rarr; {/* Right arrow */}
-            </button>
-          </div>
-
           <Modal show={showModal} onHide={handleClose} centered>
             <Modal.Header closeButton>
               <Modal.Title>{params.id ? "Edit User" : "Add User"}</Modal.Title>
@@ -349,4 +307,4 @@ const Users = () => {
   );
 };
 
-export default Users;
+export default Chemical;
