@@ -29,7 +29,7 @@ const SideBar = () => {
             <IconBuilding />
             <span>Locations</span>
           </Nav.Link>
-          <Nav.Link href="/add-section" className="d-flex align-items-center">
+          <Nav.Link href="/chemicals" className="d-flex align-items-center">
             <IconFlask />
             <span>Chemicals</span>
           </Nav.Link>

@@ -5,6 +5,7 @@ import Login from "../Pages/Authentication/Login";
 import Dashboard from "../Pages/LandingPage/Dashboard";
 import BlankLayout from "../Pages/BlankLayout";
 import Users from "../Pages/Users/Users";
+import Chemicals from "../Pages/Chemicals/Chemicals";
 
 /* 
 const ProtectedRoute = ({ children }) => {
@@ -33,6 +34,11 @@ export const routes = [
   {
     path: "/users",
     element: <Users />,
+    layout: "blank",
+  },
+  {
+    path: "/chemicals",
+    element: <Chemicals />,
     layout: "blank",
   },
   {
