@@ -1,0 +1,48 @@
+body,
+html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+}
+
+header {
+  padding: 03px;
+  background-color: #fff;
+  text-align: center;
+  color: #777;
+}
+
+header p {
+  font-size: 14px; /* Standard small text size */
+  color: #555;
+  margin-top: 0px;
+}
+
+header h4 {
+  padding-top: 9px;
+  padding-bottom: 0;
+}
+.footer {
+  background-color: #f8f9fa;
+  padding: 5px 80px;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer .text-muted {
+  font-size: 12px; /* Small footer text */
+  color: #6c757d;
+}
+
+.footer a {
+  font-size: 12px; /* Match the small footer link */
+  color: #6c757d;
+  text-decoration: none;
+}

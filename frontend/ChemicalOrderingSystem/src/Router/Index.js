@@ -1,12 +1,12 @@
 import { createBrowserRouter } from "react-router-dom";
-import BlankLayout from "../Pages/BlankLayout";
+import BlankLayout from "../Layouts/BlankLayout";
 import { routes } from "./Routes";
-import Login from "../Pages/Authentication/Login";
+import DefaultLayout from "../Layouts/DefaultLayout";
 
 // Map routes to apply layouts
 const finalRoutes = routes.map((route) => {
   // Determine which layout to use
-  const Layout = route.layout === "blank" ? BlankLayout : Login;
+  const Layout = route.layout === "blank" ? BlankLayout : DefaultLayout;
 
   return {
     ...route,

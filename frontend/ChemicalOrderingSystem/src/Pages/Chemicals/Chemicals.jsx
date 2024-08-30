@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Modal } from "react-bootstrap";
 import React from "react";
-import IconUserPlus from "../../Assets/Icon/IconUserPlus.tsx";
+import IconFlask from "../../Assets/Icon/IconChemicalFlaskPlus.tsx";
 import IconListCheck from "../../Assets/Icon/IconListCheck.tsx";
 import IconLayoutGrid from "../../Assets/Icon/IconLayoutGrid.tsx";
 import IconSearch from "../../Assets/Icon/IconSearch.tsx";
@@ -38,18 +38,19 @@ const Chemicals = () => {
       storage_period: 5,
       path: "blank-profile.png",
     },
-    
+
     // Add more contacts here
   ];
 
   const handleShow = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
   const saveChemical = () => handleClose();
-  const editChemical = (contact) => {
-    setParams(contact);
+  const editChemical = (chemical) => {
+    setParams(chemical);
     handleShow();
   };
-  const deleteChemical = (contact) => console.log("Delete chemical:", contact);
+  const deleteChemical = (chemical) =>
+    console.log("Delete chemical:", chemical);
 
   return (
     <div className="container-fluid">
@@ -62,11 +63,39 @@ const Chemicals = () => {
           <div className="d-flex align-items-center justify-content-between mt-4">
             <div className="d-flex align-items-center gap-3">
               <h2 className="h4 mb-0">Chemicals</h2>
-              <div className="position-relative">
+            </div>
+            <div className="d-flex gap-3">
+              <button
+                type="button"
+                className="btn btn-primary d-flex align-items-center px-4"
+                onClick={() => editChemical({})}
+              >
+                <IconFlask className="me-2" />
+                Add a Chemcial
+              </button>
+              <button
+                type="button"
+                className={`btn btn-outline-primary d-flex align-items-center ${
+                  value === "list" && "bg-primary text-white"
+                }`}
+                onClick={() => setValue("list")}
+              >
+                <IconListCheck />
+              </button>
+              <button
+                type="button"
+                className={`btn btn-outline-primary d-flex align-items-center ${
+                  value === "grid" && "bg-primary text-white"
+                }`}
+                onClick={() => setValue("grid")}
+              >
+                <IconLayoutGrid />
+              </button>
+              <div className="position-relative d-flex">
                 <input
                   type="text"
                   placeholder="Search Chemicals"
-                  className="form-control py-2"
+                  className="form-control"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -78,34 +107,6 @@ const Chemicals = () => {
                 </button>
               </div>
             </div>
-            <div className="d-flex gap-3">
-              <button
-                type="button"
-                className={`btn btn-outline-primary p-2 ${
-                  value === "list" && "bg-primary text-white"
-                }`}
-                onClick={() => setValue("list")}
-              >
-                <IconListCheck />
-              </button>
-              <button
-                type="button"
-                className={`btn btn-outline-primary p-2 ${
-                  value === "grid" && "bg-primary text-white"
-                }`}
-                onClick={() => setValue("grid")}
-              >
-                <IconLayoutGrid />
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => editChemical({})}
-              >
-                <IconUserPlus className="me-2" />
-                Add Chemical
-              </button>
-            </div>
           </div>
 
           {value === "list" && (
@@ -114,7 +115,9 @@ const Chemicals = () => {
                 <thead>
                   <tr>
                     <th>Common Name</th>
-                    <th className="text-center align-middle">Systematic Name</th>
+                    <th className="text-center align-middle">
+                      Systematic Name
+                    </th>
                     <th className="text-center align-middle">Risk Category</th>
                     <th className="text-center align-middle">Storage Period</th>
                     <th className="text-center">Actions</th>
@@ -137,7 +140,9 @@ const Chemicals = () => {
                         </div> */}
                         {chemical.common_name}
                       </td>
-                      <td className="text-center">{chemical.systematic_name}</td>
+                      <td className="text-center">
+                        {chemical.systematic_name}
+                      </td>
                       <td className="text-center">{chemical.risk_category}</td>
                       <td className="text-center">{chemical.storage_period}</td>
                       <td className="text-center">
@@ -166,7 +171,10 @@ const Chemicals = () => {
           {value === "grid" && (
             <div className="row mt-5">
               {filteredItems.map((chemical) => (
-                <div className="col-xl-3 col-lg-4 col-md-6 mb-4" key={chemical.id}>
+                <div
+                  className="col-xl-3 col-lg-4 col-md-6 mb-4"
+                  key={chemical.id}
+                >
                   <div className="card text-center shadow">
                     <div className="card-body p-4">
                       <img
@@ -175,17 +183,22 @@ const Chemicals = () => {
                         alt="chemical"
                         style={{ width: "80%", maxHeight: "160px" }}
                       />
-                      <h5 className="card-title mt-4">{chemical.common_name}</h5>
+                      <h5 className="card-title mt-4">
+                        {chemical.common_name}
+                      </h5>
                       {/* <p className="card-text">{chemical.risk_category}</p> */}
                       <div className="mt-4 text-start">
                         <p>
-                          <strong>Systematic Name:</strong> {chemical.systematic_name}
+                          <strong>Systematic Name:</strong>{" "}
+                          {chemical.systematic_name}
                         </p>
                         <p>
-                          <strong>Risk Category:</strong> {chemical.risk_category}
+                          <strong>Risk Category:</strong>{" "}
+                          {chemical.risk_category}
                         </p>
                         <p>
-                          <strong>Storage Period:</strong> {chemical.storage_period}
+                          <strong>Storage Period:</strong>{" "}
+                          {chemical.storage_period}
                         </p>
                       </div>
                       <div className="d-flex justify-content-between mt-4">
@@ -213,7 +226,9 @@ const Chemicals = () => {
 
           <Modal show={showModal} onHide={handleClose} centered>
             <Modal.Header closeButton>
-              <Modal.Title>{params.id ? "Edit Chemical" : "Add Chemical"}</Modal.Title>
+              <Modal.Title>
+                {params.id ? "Edit Chemical" : "Add Chemical"}
+              </Modal.Title>
             </Modal.Header>
             <Modal.Body>
               <form>

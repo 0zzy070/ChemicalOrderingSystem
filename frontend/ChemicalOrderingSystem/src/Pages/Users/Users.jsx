@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios"; // Make sure to install axios
 import { Modal } from "react-bootstrap";
 import React from "react";
 import IconUserPlus from "../../Assets/Icon/IconUserPlus.tsx";
@@ -7,7 +8,6 @@ import IconLayoutGrid from "../../Assets/Icon/IconLayoutGrid.tsx";
 import IconSearch from "../../Assets/Icon/IconSearch.tsx";
 import NavigationBar from "../../Components/Layouts/NavigationBar.jsx";
 import SideBar from "../../Components/Layouts/SideBar.jsx";
-import blankUserImage from "../../Assets/Images/blank-profile.png";
 
 const Users = () => {
   const [value, setValue] = useState("list");
@@ -22,59 +22,82 @@ const Users = () => {
     location: "",
     id: null,
   });
+  const [users, setUsers] = useState([]); // State to hold users data
 
-  const filteredItems = [
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john@example.com",
-      role: "Admin",
-      location: "Strut Campus",
-      path: "blank-profile.png",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane@example.com",
-      role: "Research Staff",
-      location: "Main Campus",
-      path: "blank-profile.png",
-    },
-    {
-      id: 3,
-      name: "Joe Smith",
-      email: "jane@example.com",
-      role: "Research Staff",
-      location: "Main Campus",
-      path: "blank-profile.png",
-    },
-    {
-      id: 4,
-      name: "Jane Doe",
-      email: "jane@example.com",
-      role: "Supervisor",
-      location: "Main Campus",
-      path: "blank-profile.png",
-    },
-    {
-      id: 5,
-      name: "Doe Smith",
-      email: "jane@example.com",
-      role: "Student",
-      location: "Main Campus",
-      path: "blank-profile.png",
-    },
-    // Add more contacts here
-  ];
+  const token = JSON.parse(localStorage.getItem("auth"));
+  const accessToken = token.accessToken;
+
+  useEffect(() => {
+    // Function to fetch users
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get("/api/users", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`, // Set the token in the Authorization header
+          },
+        });
+        setUsers(response.data.data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    fetchUsers(); // Fetch users when the component mounts
+  }, [accessToken]);
 
   const handleShow = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
-  const saveUser = () => handleClose();
-  const editUser = (user) => {
+  const saveUser = async () => {
+    try {
+      // Construct the API URL
+      const url = "/api/users";
+
+      // Make the POST request with the user data and access token
+      await axios.post(url, params, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      // Optionally, update the UI or state after successful save
+      console.log("User saved successfully");
+      // Refresh the user list or update the state
+      handleClose(); // Close the modal
+    } catch (error) {
+      console.error("Error saving user:", error);
+      // Optionally, show an error message to the user
+    }
+  };
+  const addUser = (user) => {
     setParams(user);
     handleShow();
   };
-  const deleteUser = (user) => console.log("Delete user:", user);
+  const deleteUser = async (user) => {
+    try {
+      // Construct the API URL with the user ID
+      const url = `api/users/${user.id}`;
+
+      // Make the DELETE request with the access token
+      await axios.delete(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Optionally, update the UI or state after successful deletion
+      console.log("User deleted successfully");
+      // You might want to refresh the user list or update the state
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      // Optionally, show an error message to the user
+    }
+  };
+
+  // Filter items based on search
+  const filteredItems = users.filter((user) =>
+    user.username.toLowerCase().includes(search.toLowerCase())
+  );
 
   // Calculate the total number of pages
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
@@ -94,20 +117,48 @@ const Users = () => {
 
   return (
     <div className="container-fluid">
-      <NavigationBar></NavigationBar>
+      <NavigationBar />
       <div className="row">
         <div className="col-2">
-          <SideBar></SideBar>
+          <SideBar />
         </div>
         <div className="col p-4">
           <div className="d-flex align-items-center justify-content-between mt-4">
             <div className="d-flex align-items-center gap-3">
               <h2 className="h4 mb-0">Users</h2>
-              <div className="position-relative">
+            </div>
+            <div className="d-flex gap-3">
+              <button
+                type="button"
+                className="btn btn-primary d-flex align-items-center px-4"
+                onClick={() => addUser({})}
+              >
+                <IconUserPlus className="me-2" />
+                Add User
+              </button>
+              <button
+                type="button"
+                className={`btn btn-outline-primary d-flex align-items-center ${
+                  value === "list" && "bg-primary text-white"
+                }`}
+                onClick={() => setValue("list")}
+              >
+                <IconListCheck />
+              </button>
+              <button
+                type="button"
+                className={`btn btn-outline-primary d-flex align-items-center ${
+                  value === "grid" && "bg-primary text-white"
+                }`}
+                onClick={() => setValue("grid")}
+              >
+                <IconLayoutGrid />
+              </button>
+              <div className="position-relative d-flex">
                 <input
                   type="text"
                   placeholder="Search Users"
-                  className="form-control py-2"
+                  className="form-control"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -119,34 +170,6 @@ const Users = () => {
                 </button>
               </div>
             </div>
-            <div className="d-flex gap-3">
-              <button
-                type="button"
-                className={`btn btn-outline-primary p-2 ${
-                  value === "list" && "bg-primary text-white"
-                }`}
-                onClick={() => setValue("list")}
-              >
-                <IconListCheck />
-              </button>
-              <button
-                type="button"
-                className={`btn btn-outline-primary p-2 ${
-                  value === "grid" && "bg-primary text-white"
-                }`}
-                onClick={() => setValue("grid")}
-              >
-                <IconLayoutGrid />
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => editUser({})}
-              >
-                <IconUserPlus className="me-2" />
-                Add User
-              </button>
-            </div>
           </div>
 
           {value === "list" && (
@@ -155,8 +178,8 @@ const Users = () => {
                 <thead>
                   <tr>
                     <th>Name</th>
+                    <th>Employee Number</th>
                     <th>Email</th>
-                    <th>Location</th>
                     <th>Role</th>
                     <th className="text-center">Actions</th>
                   </tr>
@@ -166,29 +189,19 @@ const Users = () => {
                     <tr key={user.id}>
                       <td>
                         <div className="d-flex align-items-center">
-                          {user.path && (
-                            //{`../../Assets/Images/${user.path}`}
-                            <img
-                              src={require("../../Assets/Images/blank-profile.png")}
-                              className="rounded-circle me-2"
-                              alt="profile-photo"
-                              style={{ width: "36px", height: "36px" }}
-                            />
-                          )}
-                          <div>{user.name}</div>
+                          <img
+                            src={require("../../Assets/Images/blank-profile.png")}
+                            className="rounded-circle me-2"
+                            alt="profilepic"
+                            style={{ width: "36px", height: "36px" }}
+                          />
+                          <div>{user.username}</div>
                         </div>
                       </td>
+                      <td>{user.employeeNumber}</td>
                       <td>{user.email}</td>
-                      <td>{user.location}</td>
                       <td>{user.role}</td>
                       <td className="text-center">
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-primary me-2"
-                          onClick={() => editUser(user)}
-                        >
-                          Edit
-                        </button>
                         <button
                           type="button"
                           className="btn btn-sm btn-outline-danger"
@@ -216,7 +229,7 @@ const Users = () => {
                         alt="user"
                         style={{ width: "80%", maxHeight: "160px" }}
                       />
-                      <h5 className="card-title mt-4">{user.name}</h5>
+                      <h5 className="card-title mt-4">{user.username}</h5>
                       <p className="card-text">{user.role}</p>
                       <div className="mt-4 text-start">
                         <p>
@@ -230,13 +243,6 @@ const Users = () => {
                         </p>
                       </div>
                       <div className="d-flex justify-content-between mt-4">
-                        <button
-                          type="button"
-                          className="btn btn-outline-primary"
-                          onClick={() => editUser(user)}
-                        >
-                          Edit
-                        </button>
                         <button
                           type="button"
                           className="btn btn-outline-danger"
@@ -258,7 +264,7 @@ const Users = () => {
               {`${(currentPage - 1) * itemsPerPage + 1}-${Math.min(
                 currentPage * itemsPerPage,
                 filteredItems.length
-              )} of ${filteredItems.length}`}
+              )} of ${filteredItems.length} items`}
             </span>
             <button
               className="btn btn-sm btn-outline-primary me-2"
@@ -276,51 +282,52 @@ const Users = () => {
             </button>
           </div>
 
-          <Modal show={showModal} onHide={handleClose} centered>
+          {/* Modal for Adding/Editing Users */}
+          <Modal show={showModal} onHide={handleClose}>
             <Modal.Header closeButton>
-              <Modal.Title>{params.id ? "Edit User" : "Add User"}</Modal.Title>
+              <Modal.Title>{"Add User"}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
               <form>
                 <div className="mb-3">
-                  <label htmlFor="name" className="form-label">
-                    Name
+                  <label htmlFor="username" className="form-label">
+                    Username
                   </label>
                   <input
-                    id="name"
                     type="text"
                     className="form-control"
-                    value={params.name}
+                    id="username"
+                    value={params.username || ""}
                     onChange={(e) =>
-                      setParams({ ...params, name: e.target.value })
+                      setParams({ ...params, username: e.target.value })
                     }
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="email" className="form-label">
-                    Email
+                  <label htmlFor="password" className="form-label">
+                    Password
                   </label>
                   <input
-                    id="email"
-                    type="email"
+                    type="password"
                     className="form-control"
-                    value={params.email}
+                    id="password"
+                    value={params.password || ""}
                     onChange={(e) =>
-                      setParams({ ...params, email: e.target.value })
+                      setParams({ ...params, password: e.target.value })
                     }
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="role" className="form-label">
+                  <label htmlFor="authority" className="form-label">
                     Role
                   </label>
                   <input
-                    id="role"
                     type="text"
                     className="form-control"
-                    value={params.role}
+                    id="authority"
+                    value={params.authority || ""}
                     onChange={(e) =>
-                      setParams({ ...params, role: e.target.value })
+                      setParams({ ...params, authority: e.target.value })
                     }
                   />
                 </div>
@@ -329,17 +336,10 @@ const Users = () => {
             <Modal.Footer>
               <button
                 type="button"
-                className="btn btn-outline-danger"
-                onClick={handleClose}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
                 className="btn btn-primary"
                 onClick={saveUser}
               >
-                {params.id ? "Update" : "Add"}
+                {params.id ? "Save Changes" : "Add User"}
               </button>
             </Modal.Footer>
           </Modal>

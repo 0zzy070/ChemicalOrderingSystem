@@ -1,5 +1,7 @@
 import { Navbar, Container, Nav, NavDropdown } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import AuthContext from "../../Context/AuthProvider.js";
 import IconUser from "../../Assets/Icon/IconUser.tsx";
 import IconSettings from "../../Assets/Icon/IconSettings.tsx";
 import IconLogout from "../../Assets/Icon/IconLogout.tsx";
@@ -10,6 +12,13 @@ import blankUserImage from "../../Assets/Images/blank-profile.png";
 import brandLogo from "../../Assets/Images/flinders-logo.png";
 
 const NavigationBar = () => {
+  const { logout } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout(); // Perform the logout operation
+    navigate("/"); // Redirect to the login page
+  };
   return (
     <Navbar bg="light" expand="lg" className="navigation">
       <Container>
@@ -67,8 +76,8 @@ const NavigationBar = () => {
               </NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item
-                as={Link}
-                to="/auth/boxed-signin"
+                as="button"
+                onClick={handleLogout}
                 className="text-danger"
               >
                 <IconLogout className="me-2" /> Sign Out

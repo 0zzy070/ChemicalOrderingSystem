@@ -53,7 +53,7 @@ const Login = () => {
             // Handle success response
             console.log("Login successful:", response.data);
             navigate("/dashboard");
-            const accessToken = response?.data?.accessToken;
+            const accessToken = response.data.data.jwtToken;
             setAuth({ formData, accessToken, isAuthenticated: true });
           })
           .catch((error) => {
