@@ -94,13 +94,14 @@ COMMENT ON COLUMN public.organizational_unit.status IS '1: available     0:unava
 
 
 CREATE TABLE public.users (
-    id character varying(64) NOT NULL,
-    employee_number character varying(32) NOT NULL,
-    create_time bigint,
-    update_time bigint,
-    username character varying(64),
-    password character varying(128),
-    enabled boolean
+  id character varying(64) NOT NULL,
+  employee_number character varying(32) NOT NULL,
+  create_time bigint,
+  update_time bigint,
+  username character varying(64),
+  password character varying(128),
+  enabled boolean
+      email character varying(128)
 );
 
 
