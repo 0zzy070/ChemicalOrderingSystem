@@ -28,6 +28,7 @@ const Users = () => {
 
   useEffect(() => {
     document.title = "Users";
+    console.log(users);
     fetchUsers(); // Fetch users when the component mounts
   }, []);
 
@@ -105,7 +106,7 @@ const Users = () => {
   };
 
   const totalUsers = users.filter((user) =>
-    user.userName.toLowerCase().includes(search.toLowerCase())
+    user.username.toLowerCase().includes(search.toLowerCase())
   );
 
   // Calculate the total number of pages
@@ -201,7 +202,7 @@ const Users = () => {
                           />
                         </div>
                       </td>
-                      <td>{user.userName}</td>
+                      <td>{user.username}</td>
                       <td>{user.employeeNumber}</td>
                       <td>{user.email}</td>
                       <td>{user.role}</td>
