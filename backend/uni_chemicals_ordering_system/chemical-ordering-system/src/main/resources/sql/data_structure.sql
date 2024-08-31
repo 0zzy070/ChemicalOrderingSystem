@@ -100,8 +100,8 @@ CREATE TABLE public.users (
   update_time bigint,
   username character varying(64),
   password character varying(128),
-  enabled boolean
-      email character varying(128)
+  enabled boolean,
+  email character varying(128)
 );
 
 
