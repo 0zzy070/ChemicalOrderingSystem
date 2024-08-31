@@ -15,10 +15,10 @@ import java.util.Optional;
 public interface IUserService {
 
     List<Users> findUserByUsername(String userName);
-    List<Users> findAllUsers();
-    Optional<Users> findUserById(String id);
+    List<UserDTO> findAllUsers();
+    List<UserDTO> findUserById(String id);
     ResponseEntity<ApiResponse<Users>> saveUser(UserDTO userDTO) throws BusinessException ;
-    Optional<Users> updateUser(String id, Users user);
+    Optional<UserDTO> updateUser(String id, UserDTO userDTO);
     boolean deleteUserById(String id);
 
     LoginResponse login(@Valid UserLoginDTO user) throws BusinessException;

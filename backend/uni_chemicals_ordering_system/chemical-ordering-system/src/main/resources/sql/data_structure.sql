@@ -101,6 +101,7 @@ CREATE TABLE public.users (
     username character varying(64),
     password character varying(128),
     enabled boolean
+    email character varying(128)
 );
 
 

@@ -1,5 +1,6 @@
 package chemical_ordering_system.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -17,6 +18,11 @@ public class Authority {
 
     @Column(name = "authority", columnDefinition = "character varying(64) NOT NULL")
     private String authority;
+
+    @OneToOne
+    @JoinColumn(name = "id") // 关联的列名，与 Users 表的主键列名相同
+    @JsonIgnore
+    private Users user; // 指向 Users 实体
 
     // Optionally, you can include a default constructor if needed
     public Authority() {}

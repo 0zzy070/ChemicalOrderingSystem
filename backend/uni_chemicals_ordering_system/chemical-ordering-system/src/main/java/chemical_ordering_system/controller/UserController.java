@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -33,20 +34,22 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse<>(200, "Success", response));
     }
 
+
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Users>>> getAllUsers() {
-        List<Users> users = userService.findAllUsers();
+    public ResponseEntity<ApiResponse<List<UserDTO>>> getAllUsers() {
+        List<UserDTO> users = userService.findAllUsers();
         return ResponseEntity.ok(new ApiResponse<>(200, "Success", users));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Users>> getUserById(@PathVariable String id) {
-        return userService.findUserById(id)
-                .map(user -> ResponseEntity.ok(new ApiResponse<>(200, "Success", user)))
-                .orElseGet(() ->
-                        ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                .body(new ApiResponse<>(404, "User not found", null))
-                );
+    public ResponseEntity<ApiResponse<List<UserDTO>>> getUserById(@PathVariable String id) {
+        List<UserDTO> userDTOs = userService.findUserById(id);
+        if (!userDTOs.isEmpty()) {
+            return ResponseEntity.ok(new ApiResponse<>(200, "User(s) found", userDTOs));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(404, "User not found", null));
+        }
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -57,18 +60,13 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Users>> updateUser(
-            @PathVariable String id, @Valid @RequestBody Users user) {
-        Users existingUser = userService.findUserById(id).orElse(null);
-        if (existingUser != null) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-            Users updatedUser = userService.updateUser(id, user).orElse(null);
-            if (updatedUser != null) {
-                return ResponseEntity.ok(new ApiResponse<>(200, "User updated successfully", updatedUser));
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiResponse<>(404, "User not found", null));
-            }
+    public ResponseEntity<ApiResponse<UserDTO>> updateUser(
+            @PathVariable String id, @Valid @RequestBody UserDTO userDTO) {
+        // 调用服务层更新方法
+        Optional<UserDTO> updatedUserDTO = userService.updateUser(id, userDTO);
+
+        if (updatedUserDTO.isPresent()) {
+            return ResponseEntity.ok(new ApiResponse<>(200, "User updated successfully", updatedUserDTO.get()));
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ApiResponse<>(404, "User not found", null));

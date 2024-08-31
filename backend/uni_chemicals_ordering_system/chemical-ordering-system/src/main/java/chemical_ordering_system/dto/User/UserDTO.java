@@ -17,4 +17,7 @@ public class UserDTO {
     @Length(max = 64)
     private String authority;
 
+    @NotBlank
+    @Length(max = 64)
+    private String email;
 }
