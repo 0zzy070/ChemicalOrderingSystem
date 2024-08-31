@@ -24,4 +24,7 @@ public class UserDTO {
     @NotBlank
     @Length(max = 64)
     private String email;
+
+    @Length(max = 64)
+    private String employeeNumber;
 }

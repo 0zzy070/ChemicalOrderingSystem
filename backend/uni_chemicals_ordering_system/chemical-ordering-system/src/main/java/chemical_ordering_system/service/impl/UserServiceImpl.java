@@ -61,6 +61,7 @@ public class UserServiceImpl implements IUserService {
                     userDTO.setPassword((String) result[2]);
                     userDTO.setAuthority((String) result[4]);
                     userDTO.setEmail((String) result[3]);
+                    userDTO.setEmployeeNumber((String) result[5]);
                     return userDTO;
                 })
                 .collect(Collectors.toList());
@@ -75,8 +76,9 @@ public class UserServiceImpl implements IUserService {
             userDTO.setId((String) r[0]);
             userDTO.setUserName((String) r[1]);
             userDTO.setPassword((String) r[2]);
-            userDTO.setAuthority((String) r[4]);
             userDTO.setEmail((String) r[3]);
+            userDTO.setAuthority((String) r[4]);
+            userDTO.setEmployeeNumber((String) r[5]);
             return userDTO;
         }).collect(Collectors.toList());
     }
