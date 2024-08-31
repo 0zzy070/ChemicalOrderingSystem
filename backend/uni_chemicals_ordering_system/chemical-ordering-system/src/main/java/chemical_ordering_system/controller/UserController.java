@@ -33,7 +33,6 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse<>(200, "Success", response));
     }
 
-
     @GetMapping
     public ResponseEntity<ApiResponse<List<Users>>> getAllUsers() {
         List<Users> users = userService.findAllUsers();
