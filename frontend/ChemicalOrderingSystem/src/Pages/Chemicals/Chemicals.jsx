@@ -10,9 +10,11 @@ import SideBar from "../../Components/Layouts/SideBar.jsx";
 import defaultChemicalImg from "../../Assets/Images/default-chemical.jpg";
 
 const Chemicals = () => {
-  const [value, setValue] = useState("list");
   const [search, setSearch] = useState("");
+  const [chemicals, setChemicals] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const itemsPerPage = 10;
+  const [currentPage, setCurrentPage] = useState(1);
   const [params, setParams] = useState({
     common_name: "",
     systematic_name: "",
@@ -21,7 +23,7 @@ const Chemicals = () => {
     id: null,
   });
 
-  const filteredItems = [
+  const Chemicals = [
     {
       id: 1,
       common_name: "Acetone",
@@ -52,6 +54,20 @@ const Chemicals = () => {
   const deleteChemical = (chemical) =>
     console.log("Delete chemical:", chemical);
 
+  const totalChemicals = chemicals.filter((location) =>
+    chemicals.orgName.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // Calculate the total number of pages
+  const totalPages = Math.ceil(totalChemicals.length / itemsPerPage);
+
+  // Handle page change
+  const handlePageChange = (newPage) => {
+    if (newPage > 0 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
   return (
     <div className="container-fluid">
       <NavigationBar></NavigationBar>
@@ -73,24 +89,6 @@ const Chemicals = () => {
                 <IconFlask className="me-2" />
                 Add a Chemcial
               </button>
-              <button
-                type="button"
-                className={`btn btn-outline-primary d-flex align-items-center ${
-                  value === "list" && "bg-primary text-white"
-                }`}
-                onClick={() => setValue("list")}
-              >
-                <IconListCheck />
-              </button>
-              <button
-                type="button"
-                className={`btn btn-outline-primary d-flex align-items-center ${
-                  value === "grid" && "bg-primary text-white"
-                }`}
-                onClick={() => setValue("grid")}
-              >
-                <IconLayoutGrid />
-              </button>
               <div className="position-relative d-flex">
                 <input
                   type="text"
@@ -109,120 +107,80 @@ const Chemicals = () => {
             </div>
           </div>
 
-          {value === "list" && (
-            <div className="mt-5">
-              <table className="table table-striped table-hover">
-                <thead>
-                  <tr>
-                    <th>Common Name</th>
-                    <th className="text-center align-middle">
-                      Systematic Name
-                    </th>
-                    <th className="text-center align-middle">Risk Category</th>
-                    <th className="text-center align-middle">Storage Period</th>
-                    <th className="text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredItems.map((chemical) => (
-                    <tr key={chemical.id}>
-                      <td>
-                        {/* <div className="d-flex align-items-center">
-                          {chemical.path && (
-                            <img
-                              src={blankUserImage}
-                              className="rounded-circle me-2"
-                              alt="profile-photo"
-                              style={{ width: "36px", height: "36px" }}
-                            />
-                          )}
-                          <div>{chemical.common_name}</div>
-                        </div> */}
-                        {chemical.common_name}
-                      </td>
-                      <td className="text-center">
+          <div className="row mt-5">
+            {Chemicals.map((chemical) => (
+              <div
+                className="col-xl-3 col-lg-4 col-md-6 mb-4"
+                key={chemical.id}
+              >
+                <div className="card text-center shadow">
+                  <div className="card-body p-4">
+                    <img
+                      className="card-img-top rounded-circle mx-auto d-block"
+                      src={defaultChemicalImg}
+                      alt="chemical"
+                      style={{ width: "70%", height: "150px" }}
+                    />
+                    <h5 className="card-title mt-4">{chemical.common_name}</h5>
+                    {/* <p className="card-text">{chemical.risk_category}</p> */}
+                    <div className="mt-4 text-start">
+                      <p>
+                        <strong>Systematic Name:</strong>{" "}
                         {chemical.systematic_name}
-                      </td>
-                      <td className="text-center">{chemical.risk_category}</td>
-                      <td className="text-center">{chemical.storage_period}</td>
-                      <td className="text-center">
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-primary me-2"
-                          onClick={() => editChemical(chemical)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => deleteChemical(chemical)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {value === "grid" && (
-            <div className="row mt-5">
-              {filteredItems.map((chemical) => (
-                <div
-                  className="col-xl-3 col-lg-4 col-md-6 mb-4"
-                  key={chemical.id}
-                >
-                  <div className="card text-center shadow">
-                    <div className="card-body p-4">
-                      <img
-                        className="card-img-top rounded-circle mx-auto d-block"
-                        src={defaultChemicalImg}
-                        alt="chemical"
-                        style={{ width: "80%", maxHeight: "160px" }}
-                      />
-                      <h5 className="card-title mt-4">
-                        {chemical.common_name}
-                      </h5>
-                      {/* <p className="card-text">{chemical.risk_category}</p> */}
-                      <div className="mt-4 text-start">
-                        <p>
-                          <strong>Systematic Name:</strong>{" "}
-                          {chemical.systematic_name}
-                        </p>
-                        <p>
-                          <strong>Risk Category:</strong>{" "}
-                          {chemical.risk_category}
-                        </p>
-                        <p>
-                          <strong>Storage Period:</strong>{" "}
-                          {chemical.storage_period}
-                        </p>
-                      </div>
-                      <div className="d-flex justify-content-between mt-4">
-                        <button
-                          type="button"
-                          className="btn btn-outline-primary"
-                          onClick={() => editChemical(chemical)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-outline-danger"
-                          onClick={() => deleteChemical(chemical)}
-                        >
-                          Delete
-                        </button>
-                      </div>
+                      </p>
+                      <p>
+                        <strong>Risk Category:</strong> {chemical.risk_category}
+                      </p>
+                      <p>
+                        <strong>Storage Period:</strong>{" "}
+                        {chemical.storage_period}
+                      </p>
+                    </div>
+                    <div className="d-flex justify-content-between mt-4">
+                      <button
+                        type="button"
+                        className="btn btn-outline-primary"
+                        onClick={() => editChemical(chemical)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-outline-danger"
+                        onClick={() => deleteChemical(chemical)}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          <div className="d-flex justify-content-end align-items-center mt-4">
+            <span className="me-3">
+              {`${(currentPage - 1) * itemsPerPage + 1}-${Math.min(
+                currentPage * itemsPerPage,
+                chemicals.length
+              )} of ${chemicals.length} items`}
+            </span>
+            <button
+              className="btn btn-sm btn-outline-primary me-2"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              &larr; {/* Left arrow */}
+            </button>
+            <button
+              className="btn btn-sm btn-outline-primary"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              &rarr; {/* Right arrow */}
+            </button>
+          </div>
 
           <Modal show={showModal} onHide={handleClose} centered>
             <Modal.Header closeButton>
