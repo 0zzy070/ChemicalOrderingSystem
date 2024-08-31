@@ -6,6 +6,10 @@ import org.hibernate.validator.constraints.Length;
 
 @Data
 public class UserDTO {
+
+    @Length(max = 64)
+    private String id;
+
     @NotBlank
     @Length(max = 64)
     private String userName;
