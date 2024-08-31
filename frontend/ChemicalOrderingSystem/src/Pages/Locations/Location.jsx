@@ -12,6 +12,8 @@ const Location = () => {
   const [value, setValue] = useState("list");
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const itemsPerPage = 10;
+  const [currentPage, setCurrentPage] = useState(1);
   const [params, setParams] = useState({
     name: "",
     email: "",
@@ -20,13 +22,14 @@ const Location = () => {
     id: null,
   });
   const [locations, setLocations] = useState([]);
-  const [filteredItems, setFilteredItems] = useState([]);
   const token = JSON.parse(localStorage.getItem("auth"));
   const accessToken = token.accessToken;
   const orgType = -1;
+
   useEffect(() => {
+    document.title = "Locations";
     fetchLocations();
-  }, []);
+  });
 
   const fetchLocations = async () => {
     try {
@@ -38,14 +41,12 @@ const Location = () => {
           },
         }
       );
-
       // Access the 'data' property of the response object
       const data = response.data.data;
 
       // If the response.data is an object containing the array
       if (Array.isArray(data)) {
         setLocations(data);
-        setFilteredItems(data);
       } else {
         console.error("Expected an array but received:", data);
       }
@@ -81,6 +82,7 @@ const Location = () => {
 
   const addLocation = (location) => {
     setParams(location);
+    handleShow();
   };
 
   const deleteLocation = async (location) => {
@@ -94,6 +96,20 @@ const Location = () => {
     }
   };
 
+  const totalLocations = locations.filter((location) =>
+    location.orgName.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // Calculate the total number of pages
+  const totalPages = Math.ceil(totalLocations.length / itemsPerPage);
+
+  // Handle page change
+  const handlePageChange = (newPage) => {
+    if (newPage > 0 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
   return (
     <div className="container-fluid">
       <NavigationBar />
@@ -104,7 +120,7 @@ const Location = () => {
         <div className="col p-4">
           <div className="d-flex align-items-center justify-content-between mt-4">
             <div className="d-flex align-items-center gap-3">
-              <h2 className="h4 mb-0">Users</h2>
+              <h2 className="h4 mb-0">All Locations</h2>
             </div>
             <div className="d-flex gap-3">
               <button
@@ -200,7 +216,7 @@ const Location = () => {
 
           {value === "grid" && (
             <div className="row">
-              {filteredItems.map((location) => (
+              {locations.map((location) => (
                 <div key={location.id} className="col-md-4 mb-4">
                   <div className="card">
                     <div className="card-body">
@@ -228,6 +244,30 @@ const Location = () => {
           )}
         </div>
 
+        {/* Pagination */}
+        <div className="d-flex justify-content-end align-items-center mt-4">
+          <span className="me-3">
+            {`${(currentPage - 1) * itemsPerPage + 1}-${Math.min(
+              currentPage * itemsPerPage,
+              totalLocations.length
+            )} of ${totalLocations.length} items`}
+          </span>
+          <button
+            className="btn btn-sm btn-outline-primary me-2"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            &larr; {/* Left arrow */}
+          </button>
+          <button
+            className="btn btn-sm btn-outline-primary"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            &rarr; {/* Right arrow */}
+          </button>
+        </div>
+
         <Modal show={showModal} onHide={handleClose} centered>
           <Modal.Header closeButton>
             <Modal.Title>
@@ -238,29 +278,29 @@ const Location = () => {
             <form>
               <div className="mb-3">
                 <label htmlFor="name" className="form-label">
-                  Name
+                  Oragnization Name
                 </label>
                 <input
                   id="name"
                   type="text"
                   className="form-control"
-                  value={params.name}
+                  value={params.orgName}
                   onChange={(e) =>
-                    setParams({ ...params, name: e.target.value })
+                    setParams({ ...params, orgName: e.target.value })
                   }
                 />
               </div>
               <div className="mb-3">
                 <label htmlFor="email" className="form-label">
-                  Email
+                  Organization Type
                 </label>
                 <input
-                  id="email"
-                  type="email"
+                  id="type"
+                  type="text"
                   className="form-control"
-                  value={params.email}
+                  value={params.orgType}
                   onChange={(e) =>
-                    setParams({ ...params, email: e.target.value })
+                    setParams({ ...params, orgType: e.target.value })
                   }
                 />
               </div>
@@ -275,20 +315,6 @@ const Location = () => {
                   value={params.role}
                   onChange={(e) =>
                     setParams({ ...params, role: e.target.value })
-                  }
-                />
-              </div>
-              <div className="mb-3">
-                <label htmlFor="location" className="form-label">
-                  Location
-                </label>
-                <input
-                  id="location"
-                  type="text"
-                  className="form-control"
-                  value={params.location}
-                  onChange={(e) =>
-                    setParams({ ...params, location: e.target.value })
                   }
                 />
               </div>

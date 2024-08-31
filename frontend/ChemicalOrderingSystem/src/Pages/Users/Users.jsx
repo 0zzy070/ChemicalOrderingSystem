@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
-import axios from "axios"; // Make sure to install axios
-import { Modal } from "react-bootstrap";
-import React from "react";
+import { React, useState, useEffect } from "react";
+import { Modal, Toast, ToastContainer } from "react-bootstrap";
+import axios from "axios";
 import IconUserPlus from "../../Assets/Icon/IconUserPlus.tsx";
 import IconListCheck from "../../Assets/Icon/IconListCheck.tsx";
 import IconLayoutGrid from "../../Assets/Icon/IconLayoutGrid.tsx";
@@ -14,39 +13,47 @@ const Users = () => {
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 12;
+  const itemsPerPage = 10;
   const [params, setParams] = useState({
     name: "",
     email: "",
     role: "",
-    location: "",
     id: null,
   });
   const [users, setUsers] = useState([]); // State to hold users data
-
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const token = JSON.parse(localStorage.getItem("auth"));
   const accessToken = token.accessToken;
 
   useEffect(() => {
-    // Function to fetch users
-    const fetchUsers = async () => {
-      try {
-        const response = await axios.get("/api/users", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`, // Set the token in the Authorization header
-          },
-        });
-        setUsers(response.data.data);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      }
-    };
-
+    document.title = "Users";
     fetchUsers(); // Fetch users when the component mounts
-  }, [accessToken]);
+  }, []);
+
+  // Function to fetch users
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get("/api/users", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`, // Set the token in the Authorization header
+        },
+      });
+      setUsers(response.data.data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
 
   const handleShow = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
+
+  // Add a new user
+  const addUser = (user) => {
+    setParams(user);
+    handleShow();
+  };
+
   const saveUser = async () => {
     try {
       // Construct the API URL
@@ -62,17 +69,17 @@ const Users = () => {
 
       // Optionally, update the UI or state after successful save
       console.log("User saved successfully");
+      setToastMessage("User added successfully!");
+      setShowToast(true); // Show the toast notification
+
       // Refresh the user list or update the state
+      fetchUsers(); // Fetch the latest user list
       handleClose(); // Close the modal
     } catch (error) {
       console.error("Error saving user:", error);
-      // Optionally, show an error message to the user
     }
   };
-  const addUser = (user) => {
-    setParams(user);
-    handleShow();
-  };
+
   const deleteUser = async (user) => {
     try {
       // Construct the API URL with the user ID
@@ -87,26 +94,22 @@ const Users = () => {
 
       // Optionally, update the UI or state after successful deletion
       console.log("User deleted successfully");
-      // You might want to refresh the user list or update the state
+      setToastMessage("User deleted successfully!");
+      setShowToast(true); // Show the toast notification
+
+      // Refresh the user list or update the state
+      fetchUsers(); // Fetch the latest user list
     } catch (error) {
       console.error("Error deleting user:", error);
-      // Optionally, show an error message to the user
     }
   };
 
-  // Filter items based on search
-  const filteredItems = users.filter((user) =>
-    user.username.toLowerCase().includes(search.toLowerCase())
+  const totalUsers = users.filter((user) =>
+    user.userName.toLowerCase().includes(search.toLowerCase())
   );
 
   // Calculate the total number of pages
-  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
-
-  // Slice the filteredItems array to get the items for the current page
-  const currentItems = filteredItems.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const totalPages = Math.ceil(totalUsers.length / itemsPerPage);
 
   // Handle page change
   const handlePageChange = (newPage) => {
@@ -177,6 +180,7 @@ const Users = () => {
               <table className="table table-striped table-hover">
                 <thead>
                   <tr>
+                    <th>Image</th>
                     <th>Name</th>
                     <th>Employee Number</th>
                     <th>Email</th>
@@ -185,7 +189,7 @@ const Users = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentItems.map((user) => (
+                  {totalUsers.map((user) => (
                     <tr key={user.id}>
                       <td>
                         <div className="d-flex align-items-center">
@@ -195,9 +199,9 @@ const Users = () => {
                             alt="profilepic"
                             style={{ width: "36px", height: "36px" }}
                           />
-                          <div>{user.username}</div>
                         </div>
                       </td>
+                      <td>{user.userName}</td>
                       <td>{user.employeeNumber}</td>
                       <td>{user.email}</td>
                       <td>{user.role}</td>
@@ -219,7 +223,7 @@ const Users = () => {
 
           {value === "grid" && (
             <div className="row mt-5">
-              {filteredItems.map((user) => (
+              {totalUsers.map((user) => (
                 <div className="col-xl-3 col-lg-4 col-md-6 mb-4" key={user.id}>
                   <div className="card text-center shadow">
                     <div className="card-body p-4">
@@ -263,8 +267,8 @@ const Users = () => {
             <span className="me-3">
               {`${(currentPage - 1) * itemsPerPage + 1}-${Math.min(
                 currentPage * itemsPerPage,
-                filteredItems.length
-              )} of ${filteredItems.length} items`}
+                totalUsers.length
+              )} of ${totalUsers.length} items`}
             </span>
             <button
               className="btn btn-sm btn-outline-primary me-2"
@@ -282,7 +286,19 @@ const Users = () => {
             </button>
           </div>
 
-          {/* Modal for Adding/Editing Users */}
+          {/* Toast Message for Adding & Deleting User */}
+          <ToastContainer position="top-end" className="p-3">
+            <Toast
+              onClose={() => setShowToast(false)}
+              show={showToast}
+              delay={3000}
+              autohide
+            >
+              <Toast.Body>{toastMessage}</Toast.Body>
+            </Toast>
+          </ToastContainer>
+
+          {/* Modal for Adding Users */}
           <Modal show={showModal} onHide={handleClose}>
             <Modal.Header closeButton>
               <Modal.Title>{"Add User"}</Modal.Title>
