@@ -7,6 +7,10 @@ import BlankLayout from "../Layouts/BlankLayout";
 import Users from "../Pages/Users/Users";
 import Location from "../Pages/Locations/Location";
 import Chemicals from "../Pages/Chemicals/Chemicals";
+import Institutes from "../Pages/Locations/Institutes";
+import StorageLocations from "../Pages/Locations/StorageLocations";
+import ResearchCentres from "../Pages/Locations/ResearchCentres";
+import Laboratories from "../Pages/Locations/Laboratories";
 
 // ProtectedRoute to ensure only authenticated users can access certain routes
 const ProtectedRoute = ({ children }) => {
@@ -64,6 +68,42 @@ export const routes = [
     element: (
       <ProtectedRoute>
         <Location />
+      </ProtectedRoute>
+    ),
+    layout: "blank", // Will use BlankLayout
+  },
+  {
+    path: "/institutes",
+    element: (
+      <ProtectedRoute>
+        <Institutes />
+      </ProtectedRoute>
+    ),
+    layout: "blank", // Will use BlankLayout
+  },
+  {
+    path: "/storagelocations",
+    element: (
+      <ProtectedRoute>
+        <StorageLocations />
+      </ProtectedRoute>
+    ),
+    layout: "blank", // Will use BlankLayout
+  },
+  {
+    path: "/researchcentres",
+    element: (
+      <ProtectedRoute>
+        <ResearchCentres />
+      </ProtectedRoute>
+    ),
+    layout: "blank", // Will use BlankLayout
+  },
+  {
+    path: "/laboratories",
+    element: (
+      <ProtectedRoute>
+        <Laboratories />
       </ProtectedRoute>
     ),
     layout: "blank", // Will use BlankLayout
