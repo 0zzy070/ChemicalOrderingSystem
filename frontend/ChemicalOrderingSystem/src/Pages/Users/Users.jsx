@@ -106,7 +106,7 @@ const Users = () => {
   };
 
   const totalUsers = users.filter((user) =>
-    user.username.toLowerCase().includes(search.toLowerCase())
+    user.userName.toLowerCase().includes(search.toLowerCase())
   );
 
   // Calculate the total number of pages
@@ -202,10 +202,10 @@ const Users = () => {
                           />
                         </div>
                       </td>
-                      <td>{user.username}</td>
+                      <td>{user.userName}</td>
                       <td>{user.employeeNumber}</td>
                       <td>{user.email}</td>
-                      <td>{user.role}</td>
+                      <td>{user.authority}</td>
                       <td className="text-center">
                         <button
                           type="button"
@@ -238,13 +238,14 @@ const Users = () => {
                       <p className="card-text">{user.role}</p>
                       <div className="mt-4 text-start">
                         <p>
+                          <strong>Employee Number:</strong>{" "}
+                          {user.employeeNumber}
+                        </p>
+                        <p>
                           <strong>Email:</strong> {user.email}
                         </p>
                         <p>
-                          <strong>Role:</strong> {user.role}
-                        </p>
-                        <p>
-                          <strong>Location:</strong> {user.location}
+                          <strong>Role:</strong> {user.authority}
                         </p>
                       </div>
                       <div className="d-flex justify-content-between mt-4">
@@ -314,9 +315,9 @@ const Users = () => {
                     type="text"
                     className="form-control"
                     id="username"
-                    value={params.username || ""}
+                    value={params.userName || ""}
                     onChange={(e) =>
-                      setParams({ ...params, username: e.target.value })
+                      setParams({ ...params, userName: e.target.value })
                     }
                   />
                 </div>
