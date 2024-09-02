@@ -30,7 +30,7 @@ const Users = () => {
     document.title = "Users";
     console.log(users);
     fetchUsers(); // Fetch users when the component mounts
-    console.log("users",users);
+    console.log("users", users);
   }, []);
 
   // Function to fetch users
@@ -106,11 +106,10 @@ const Users = () => {
     }
   };
 
-  const totalUsers = users.filter((user) =>{
-      const userName = user.username || ''; 
-      return userName .toLowerCase().includes(search.toLowerCase());
-    }
-  );
+  const totalUsers = users.filter((user) => {
+    const userName = user.userName || "";
+    return userName.toLowerCase().includes(search.toLowerCase());
+  });
 
   // Calculate the total number of pages
   const totalPages = Math.ceil(totalUsers.length / itemsPerPage);
@@ -205,7 +204,7 @@ const Users = () => {
                           />
                         </div>
                       </td>
-                      <td>{user.username}</td>
+                      <td>{user.userName}</td>
                       <td>{user.employeeNumber}</td>
                       <td>{user.email}</td>
                       <td>{user.authority}</td>
@@ -237,7 +236,7 @@ const Users = () => {
                         alt="user"
                         style={{ width: "80%", maxHeight: "160px" }}
                       />
-                      <h5 className="card-title mt-4">{user.username}</h5>
+                      <h5 className="card-title mt-4">{user.userName}</h5>
                       <p className="card-text">{user.role}</p>
                       <div className="mt-4 text-start">
                         <p>
@@ -311,7 +310,7 @@ const Users = () => {
             <Modal.Body>
               <form>
                 <div className="mb-3">
-                  <label htmlFor="username" className="form-label">
+                  <label htmlFor="userName" className="form-label">
                     Username
                   </label>
                   <input
