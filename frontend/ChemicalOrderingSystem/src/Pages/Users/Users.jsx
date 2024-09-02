@@ -30,6 +30,7 @@ const Users = () => {
     document.title = "Users";
     console.log(users);
     fetchUsers(); // Fetch users when the component mounts
+    console.log("users",users);
   }, []);
 
   // Function to fetch users
@@ -105,8 +106,10 @@ const Users = () => {
     }
   };
 
-  const totalUsers = users.filter((user) =>
-    user.userName.toLowerCase().includes(search.toLowerCase())
+  const totalUsers = users.filter((user) =>{
+      const userName = user.username || ''; 
+      return userName .toLowerCase().includes(search.toLowerCase());
+    }
   );
 
   // Calculate the total number of pages
@@ -202,7 +205,7 @@ const Users = () => {
                           />
                         </div>
                       </td>
-                      <td>{user.userName}</td>
+                      <td>{user.username}</td>
                       <td>{user.employeeNumber}</td>
                       <td>{user.email}</td>
                       <td>{user.authority}</td>
