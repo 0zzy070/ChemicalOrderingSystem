@@ -63,7 +63,7 @@ const Users = () => {
       // Make the POST request with the user data and access token
       await axios.post(url, params, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
       });
@@ -89,7 +89,7 @@ const Users = () => {
       // Make the DELETE request with the access token
       await axios.delete(url, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       });
 
