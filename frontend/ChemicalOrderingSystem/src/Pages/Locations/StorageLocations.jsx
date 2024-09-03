@@ -26,7 +26,7 @@ const StorageLocations = () => {
   useEffect(() => {
     document.title = "Storage Locations";
     fetchStorages();
-  });
+  }, []);
 
   const fetchStorages = async () => {
     try {

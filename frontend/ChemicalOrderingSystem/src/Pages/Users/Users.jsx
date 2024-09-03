@@ -64,7 +64,7 @@ const Users = () => {
       // Make the POST request with the user data and access token
       await axios.post(url, params, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
       });
@@ -90,7 +90,7 @@ const Users = () => {
       // Make the DELETE request with the access token
       await axios.delete(url, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       });
 
@@ -334,6 +334,20 @@ const Users = () => {
                     value={params.password || ""}
                     onChange={(e) =>
                       setParams({ ...params, password: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="email" className="form-label">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    id="email"
+                    value={params.email || ""}
+                    onChange={(e) =>
+                      setParams({ ...params, email: e.target.value })
                     }
                   />
                 </div>
