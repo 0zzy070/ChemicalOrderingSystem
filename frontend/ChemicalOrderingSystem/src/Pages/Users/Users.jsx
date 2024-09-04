@@ -1,71 +1,170 @@
-import { useState } from "react";
-import { Modal } from "react-bootstrap";
-import React from "react";
+import { React, useState, useEffect } from "react";
+import { Modal, Toast, ToastContainer } from "react-bootstrap";
+import axios from "axios";
 import IconUserPlus from "../../Assets/Icon/IconUserPlus.tsx";
 import IconListCheck from "../../Assets/Icon/IconListCheck.tsx";
 import IconLayoutGrid from "../../Assets/Icon/IconLayoutGrid.tsx";
 import IconSearch from "../../Assets/Icon/IconSearch.tsx";
 import NavigationBar from "../../Components/Layouts/NavigationBar.jsx";
 import SideBar from "../../Components/Layouts/SideBar.jsx";
-import blankUserImage from "../../Assets/Images/blank-profile.png";
 
 const Users = () => {
   const [value, setValue] = useState("list");
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const [params, setParams] = useState({
     name: "",
     email: "",
     role: "",
-    location: "",
     id: null,
   });
+  const [users, setUsers] = useState([]); // State to hold users data
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const token = JSON.parse(localStorage.getItem("auth"));
+  const accessToken = token.accessToken;
 
-  const filteredItems = [
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john@example.com",
-      role: "Admin",
-      location: "Strut Campus",
-      path: "blank-profile.png",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane@example.com",
-      role: "Research Staff",
-      location: "Main Campus",
-      path: "blank-profile.png",
-    },
-    // Add more contacts here
-  ];
+  useEffect(() => {
+    document.title = "Users";
+    console.log(users);
+    fetchUsers(); // Fetch users when the component mounts
+    console.log("users", users);
+  }, []);
+
+  // Function to fetch users
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get("/api/users", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`, // Set the token in the Authorization header
+        },
+      });
+      setUsers(response.data.data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
 
   const handleShow = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
-  const saveUser = () => handleClose();
-  const editUser = (contact) => {
-    setParams(contact);
+
+  // Add a new user
+  const addUser = (user) => {
+    setParams(user);
     handleShow();
   };
-  const deleteUser = (contact) => console.log("Delete user:", contact);
+
+  const saveUser = async () => {
+    try {
+      // Construct the API URL
+      const url = "/api/users";
+
+      // Make the POST request with the user data and access token
+      await axios.post(url, params, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      // Optionally, update the UI or state after successful save
+      console.log("User saved successfully");
+      setToastMessage("User added successfully!");
+      setShowToast(true); // Show the toast notification
+
+      // Refresh the user list or update the state
+      fetchUsers(); // Fetch the latest user list
+      handleClose(); // Close the modal
+    } catch (error) {
+      console.error("Error saving user:", error);
+    }
+  };
+
+  const deleteUser = async (user) => {
+    try {
+      // Construct the API URL with the user ID
+      const url = `api/users/${user.id}`;
+
+      // Make the DELETE request with the access token
+      await axios.delete(url, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      // Optionally, update the UI or state after successful deletion
+      console.log("User deleted successfully");
+      setToastMessage("User deleted successfully!");
+      setShowToast(true); // Show the toast notification
+
+      // Refresh the user list or update the state
+      fetchUsers(); // Fetch the latest user list
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    }
+  };
+
+  const totalUsers = users.filter((user) => {
+    const userName = user.userName || "";
+    return userName.toLowerCase().includes(search.toLowerCase());
+  });
+
+  // Calculate the total number of pages
+  const totalPages = Math.ceil(totalUsers.length / itemsPerPage);
+
+  // Handle page change
+  const handlePageChange = (newPage) => {
+    if (newPage > 0 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
 
   return (
     <div className="container-fluid">
-      <NavigationBar></NavigationBar>
+      <NavigationBar />
       <div className="row">
         <div className="col-2">
-          <SideBar></SideBar>
+          <SideBar />
         </div>
         <div className="col p-4">
           <div className="d-flex align-items-center justify-content-between mt-4">
             <div className="d-flex align-items-center gap-3">
               <h2 className="h4 mb-0">Users</h2>
-              <div className="position-relative">
+            </div>
+            <div className="d-flex gap-3">
+              <button
+                type="button"
+                className="btn btn-primary d-flex align-items-center px-4"
+                onClick={() => addUser({})}
+              >
+                <IconUserPlus className="me-2" />
+                Add User
+              </button>
+              <button
+                type="button"
+                className={`btn btn-outline-primary d-flex align-items-center ${
+                  value === "list" && "bg-primary text-white"
+                }`}
+                onClick={() => setValue("list")}
+              >
+                <IconListCheck />
+              </button>
+              <button
+                type="button"
+                className={`btn btn-outline-primary d-flex align-items-center ${
+                  value === "grid" && "bg-primary text-white"
+                }`}
+                onClick={() => setValue("grid")}
+              >
+                <IconLayoutGrid />
+              </button>
+              <div className="position-relative d-flex">
                 <input
                   type="text"
                   placeholder="Search Users"
-                  className="form-control py-2"
+                  className="form-control"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -77,34 +176,6 @@ const Users = () => {
                 </button>
               </div>
             </div>
-            <div className="d-flex gap-3">
-              <button
-                type="button"
-                className={`btn btn-outline-primary p-2 ${
-                  value === "list" && "bg-primary text-white"
-                }`}
-                onClick={() => setValue("list")}
-              >
-                <IconListCheck />
-              </button>
-              <button
-                type="button"
-                className={`btn btn-outline-primary p-2 ${
-                  value === "grid" && "bg-primary text-white"
-                }`}
-                onClick={() => setValue("grid")}
-              >
-                <IconLayoutGrid />
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => editUser({})}
-              >
-                <IconUserPlus className="me-2" />
-                Add User
-              </button>
-            </div>
           </div>
 
           {value === "list" && (
@@ -112,40 +183,32 @@ const Users = () => {
               <table className="table table-striped table-hover">
                 <thead>
                   <tr>
+                    <th>Image</th>
                     <th>Name</th>
+                    <th>Employee Number</th>
                     <th>Email</th>
-                    <th>Location</th>
                     <th>Role</th>
                     <th className="text-center">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredItems.map((user) => (
+                  {totalUsers.map((user) => (
                     <tr key={user.id}>
                       <td>
                         <div className="d-flex align-items-center">
-                          {user.path && (
-                            <img
-                              src={`../../Assets/Images/${user.path}`}
-                              className="rounded-circle me-2"
-                              alt="profile-photo"
-                              style={{ width: "36px", height: "36px" }}
-                            />
-                          )}
-                          <div>{user.name}</div>
+                          <img
+                            src={require("../../Assets/Images/blank-profile.png")}
+                            className="rounded-circle me-2"
+                            alt="profilepic"
+                            style={{ width: "36px", height: "36px" }}
+                          />
                         </div>
                       </td>
+                      <td>{user.userName}</td>
+                      <td>{user.employeeNumber}</td>
                       <td>{user.email}</td>
-                      <td>{user.location}</td>
-                      <td>{user.role}</td>
+                      <td>{user.authority}</td>
                       <td className="text-center">
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-primary me-2"
-                          onClick={() => editUser(user)}
-                        >
-                          Edit
-                        </button>
                         <button
                           type="button"
                           className="btn btn-sm btn-outline-danger"
@@ -163,7 +226,7 @@ const Users = () => {
 
           {value === "grid" && (
             <div className="row mt-5">
-              {filteredItems.map((user) => (
+              {totalUsers.map((user) => (
                 <div className="col-xl-3 col-lg-4 col-md-6 mb-4" key={user.id}>
                   <div className="card text-center shadow">
                     <div className="card-body p-4">
@@ -173,27 +236,21 @@ const Users = () => {
                         alt="user"
                         style={{ width: "80%", maxHeight: "160px" }}
                       />
-                      <h5 className="card-title mt-4">{user.name}</h5>
+                      <h5 className="card-title mt-4">{user.userName}</h5>
                       <p className="card-text">{user.role}</p>
                       <div className="mt-4 text-start">
+                        <p>
+                          <strong>Employee Number:</strong>{" "}
+                          {user.employeeNumber}
+                        </p>
                         <p>
                           <strong>Email:</strong> {user.email}
                         </p>
                         <p>
-                          <strong>Role:</strong> {user.role}
-                        </p>
-                        <p>
-                          <strong>Location:</strong> {user.location}
+                          <strong>Role:</strong> {user.authority}
                         </p>
                       </div>
                       <div className="d-flex justify-content-between mt-4">
-                        <button
-                          type="button"
-                          className="btn btn-outline-primary"
-                          onClick={() => editUser(user)}
-                        >
-                          Edit
-                        </button>
                         <button
                           type="button"
                           className="btn btn-outline-danger"
@@ -209,23 +266,74 @@ const Users = () => {
             </div>
           )}
 
-          <Modal show={showModal} onHide={handleClose} centered>
+          {/* Pagination */}
+          <div className="d-flex justify-content-end align-items-center mt-4">
+            <span className="me-3">
+              {`${(currentPage - 1) * itemsPerPage + 1}-${Math.min(
+                currentPage * itemsPerPage,
+                totalUsers.length
+              )} of ${totalUsers.length} items`}
+            </span>
+            <button
+              className="btn btn-sm btn-outline-primary me-2"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              &larr; {/* Left arrow */}
+            </button>
+            <button
+              className="btn btn-sm btn-outline-primary"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              &rarr; {/* Right arrow */}
+            </button>
+          </div>
+
+          {/* Toast Message for Adding & Deleting User */}
+          <ToastContainer position="top-end" className="p-3">
+            <Toast
+              onClose={() => setShowToast(false)}
+              show={showToast}
+              delay={3000}
+              autohide
+            >
+              <Toast.Body>{toastMessage}</Toast.Body>
+            </Toast>
+          </ToastContainer>
+
+          {/* Modal for Adding Users */}
+          <Modal show={showModal} onHide={handleClose}>
             <Modal.Header closeButton>
-              <Modal.Title>{params.id ? "Edit User" : "Add User"}</Modal.Title>
+              <Modal.Title>{"Add User"}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
               <form>
                 <div className="mb-3">
-                  <label htmlFor="name" className="form-label">
-                    Name
+                  <label htmlFor="userName" className="form-label">
+                    Username
                   </label>
                   <input
-                    id="name"
                     type="text"
                     className="form-control"
-                    value={params.name}
+                    id="username"
+                    value={params.userName || ""}
                     onChange={(e) =>
-                      setParams({ ...params, name: e.target.value })
+                      setParams({ ...params, userName: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="password" className="form-label">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    id="password"
+                    value={params.password || ""}
+                    onChange={(e) =>
+                      setParams({ ...params, password: e.target.value })
                     }
                   />
                 </div>
@@ -234,26 +342,26 @@ const Users = () => {
                     Email
                   </label>
                   <input
-                    id="email"
                     type="email"
                     className="form-control"
-                    value={params.email}
+                    id="email"
+                    value={params.email || ""}
                     onChange={(e) =>
                       setParams({ ...params, email: e.target.value })
                     }
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="role" className="form-label">
+                  <label htmlFor="authority" className="form-label">
                     Role
                   </label>
                   <input
-                    id="role"
                     type="text"
                     className="form-control"
-                    value={params.role}
+                    id="authority"
+                    value={params.authority || ""}
                     onChange={(e) =>
-                      setParams({ ...params, role: e.target.value })
+                      setParams({ ...params, authority: e.target.value })
                     }
                   />
                 </div>
@@ -262,17 +370,10 @@ const Users = () => {
             <Modal.Footer>
               <button
                 type="button"
-                className="btn btn-outline-danger"
-                onClick={handleClose}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
                 className="btn btn-primary"
                 onClick={saveUser}
               >
-                {params.id ? "Update" : "Add"}
+                {params.id ? "Save Changes" : "Add User"}
               </button>
             </Modal.Footer>
           </Modal>

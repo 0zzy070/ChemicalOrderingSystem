@@ -8,20 +8,17 @@ import chemical_ordering_system.exception.BusinessException;
 import chemical_ordering_system.jwt.JwtUtils;
 import chemical_ordering_system.model.ApiResponse;
 import chemical_ordering_system.model.Authority;
-import chemical_ordering_system.model.OrganizationalUnit;
 import chemical_ordering_system.model.Users;
 import chemical_ordering_system.repository.AuthorityRepository;
 import chemical_ordering_system.repository.UserRepository;
 import chemical_ordering_system.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -54,57 +51,110 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public List<Users> findAllUsers() {
-        return userRepository.findAll();
+    public List<UserDTO> findAllUsers() {
+        List<Object[]> results = userRepository.findAllUsersWithAuthority();
+        return results.stream()
+                .map(result -> {
+                    UserDTO userDTO = new UserDTO();
+                    userDTO.setId((String) result[0]);
+                    userDTO.setUserName((String) result[1]);
+                    userDTO.setPassword((String) result[2]);
+                    userDTO.setAuthority((String) result[4]);
+                    userDTO.setEmail((String) result[3]);
+                    userDTO.setEmployeeNumber((String) result[5]);
+                    return userDTO;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Optional<Users> findUserById(String id) {
-        return userRepository.findById(id);
+    public List<UserDTO> findUserById(String id) {
+        List<Object[]> results = userRepository.findUserByIdWithAuthority(id);
+        return results.stream().map(r -> {
+            UserDTO userDTO = new UserDTO();
+            // Assuming r[0] is an instance of a custom object or Map containing all the fields
+            userDTO.setId((String) r[0]);
+            userDTO.setUserName((String) r[1]);
+            userDTO.setPassword((String) r[2]);
+            userDTO.setEmail((String) r[3]);
+            userDTO.setAuthority((String) r[4]);
+            userDTO.setEmployeeNumber((String) r[5]);
+            return userDTO;
+        }).collect(Collectors.toList());
     }
 
     @Override
     public ResponseEntity<ApiResponse<Users>> saveUser(UserDTO userDTO) throws BusinessException{
         if (userRepository.existsByUsername(userDTO.getUserName())) {
-            throw new BusinessException(ErrorEnum.INVALID_INPUT,"username: "+ userDTO.getUserName() + " already exists");
+            throw new BusinessException(ErrorEnum.INVALID_INPUT, "username: " + userDTO.getUserName() + " already exists");
         }
 
         String id = UUID.randomUUID().toString();
         Users users = new Users();
         users.setId(id);
         users.setUsername(userDTO.getUserName());
-        users.setPassword(userDTO.getPassword());
+        users.setPassword(passwordEncoder.encode(userDTO.getPassword())); // Ensure passwords are encoded
+        users.setEmail(userDTO.getEmail());
         String newEmployeeNumber = generateEmployeeNumber();
         users.setEmployeeNumber(newEmployeeNumber);
         users.setCreateTime(System.currentTimeMillis());
         users.setEnabled(true);
 
-        Users savedUser = userRepository.save(users);
-
-        //        return userRepository.save(user);
+        // Create Authority and set the user reference
         Authority authority = new Authority();
         authority.setId(id);
         authority.setAuthority(userDTO.getAuthority());
         authority.setUsername(userDTO.getUserName());
-        authorityRepository.save(authority);
+        authority.setUser(users); // Set the bi-directional relationship
 
-        return ResponseEntity.ok(new ApiResponse<>(200, "success",savedUser));
+        // Set the Authority in the Users entity
+        users.setAuthority(authority);
+
+        Users savedUser = userRepository.save(users); // This will also save Authority due to cascade
+
+        return ResponseEntity.ok(new ApiResponse<>(200, "success", savedUser));
     }
 
     @Override
-    public Optional<Users> updateUser(String id, Users user) {
+    public Optional<UserDTO> updateUser(String id, UserDTO userDTO) {
+        // 检查用户是否存在
         if (userRepository.existsById(id)) {
-            user.setId(id);
-            //user.setPwd(passwordEncoder.encode(user.getPwd()));
-            return Optional.of(userRepository.save(user));
+            // 更新 Users 表
+            Users existingUser = userRepository.findById(id).orElse(null);
+            if (existingUser != null) {
+                existingUser.setUsername(userDTO.getUserName());
+                existingUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+                existingUser.setEmail(userDTO.getEmail());
+                existingUser.setUpdateTime(System.currentTimeMillis());
+                userRepository.save(existingUser);
+
+                // 更新 Authority 表
+                Authority existingAuthority = authorityRepository.findById(id).orElse(null);
+                if (existingAuthority != null) {
+                    existingAuthority.setAuthority(userDTO.getAuthority());
+                    authorityRepository.save(existingAuthority);
+                }
+
+                // 返回更新后的 UserDTO
+                UserDTO updatedUserDTO = new UserDTO();
+                updatedUserDTO.setUserName(existingUser.getUsername());
+                updatedUserDTO.setPassword(existingUser.getPassword());
+                updatedUserDTO.setEmail(existingUser.getEmail());
+                updatedUserDTO.setAuthority(existingAuthority != null ? existingAuthority.getAuthority() : null);
+
+                return Optional.of(updatedUserDTO);
+            }
         }
         return Optional.empty();
     }
 
     @Override
     public boolean deleteUserById(String id) {
-        if (userRepository.existsById(id)) {
-            userRepository.deleteById(id);
+        Optional<Users> userOptional = userRepository.findById(id);
+        if (userOptional.isPresent()) {
+            Users user = userOptional.get();
+            authorityRepository.deleteById(user.getId()); // Delete related authority
+            userRepository.deleteById(id); // Delete user
             return true;
         }
         return false;
@@ -141,3 +191,4 @@ public class UserServiceImpl implements IUserService {
         return String.format("empyNo%03d", newNumber);
     }
 }
+

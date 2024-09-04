@@ -30,4 +30,11 @@ public class Users {
 
     @Column(columnDefinition = "boolean NOT NULL DEFAULT true")
     private boolean enabled;
+
+    @Column(columnDefinition = "character varying(128) NOT NULL")
+    private String email;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Authority authority;
 }
+

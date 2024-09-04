@@ -81,6 +81,13 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable());
         http.addFilterBefore(
                 authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+        //        http.logout(logout -> logout
+//                .logoutUrl("/api/users/logout") // 设置登出 URL
+//                .logoutSuccessUrl("/api/users/login") // 登出成功后重定向的 URL
+//                .invalidateHttpSession(true) // 使会话失效
+//                .deleteCookies("JSESSIONID") // 删除会话 cookie
+//                .permitAll() // 允许所有用户访问登出端点
+//        );
         return http.build();
     }
 

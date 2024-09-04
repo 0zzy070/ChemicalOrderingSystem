@@ -25,11 +25,11 @@ const SideBar = () => {
             <IconUsers />
             <span>Users</span>
           </Nav.Link>
-          <Nav.Link href="" className="d-flex align-items-center">
+          <Nav.Link href="/location" className="d-flex align-items-center">
             <IconBuilding />
             <span>Locations</span>
           </Nav.Link>
-          <Nav.Link href="/add-section" className="d-flex align-items-center">
+          <Nav.Link href="/chemicals" className="d-flex align-items-center">
             <IconFlask />
             <span>Chemicals</span>
           </Nav.Link>
@@ -65,7 +65,7 @@ const SideBar = () => {
         <main>
           <button
             className="notification-item"
-            tabindex="0"
+            tabIndex="0"
             data-se="notification-item"
             aria-pressed="false"
           >
