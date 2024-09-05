@@ -34,13 +34,14 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse<>(200, "Success", response));
     }
 
-
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<ApiResponse<List<UserDTO>>> getAllUsers() {
         List<UserDTO> users = userService.findAllUsers();
         return ResponseEntity.ok(new ApiResponse<>(200, "Success", users));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<List<UserDTO>>> getUserById(@PathVariable String id) {
         List<UserDTO> userDTOs = userService.findUserById(id);
@@ -59,6 +60,7 @@ public class UserController {
         return  userService.saveUser(userDTO);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<UserDTO>> updateUser(
             @PathVariable String id, @Valid @RequestBody UserDTO userDTO) {
@@ -73,6 +75,7 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable String id) {
         if (userService.deleteUserById(id)) {
