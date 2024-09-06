@@ -15,5 +15,5 @@ public interface IChemicalOrgUnitService {
 
     ApiResponse<ChemicalOrgUnit> updateChemicalOrgUnit(String id, Map<String, Object> requestBody);
 
-    ApiResponse<Void> deleteChemicalOrgUnit(String id, Map<String, Object> requestBody);
+    ApiResponse<Void> deleteChemicalOrgUnit(String id);
 }

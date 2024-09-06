@@ -75,14 +75,12 @@ public class ChemicalController {
      * Delete a chemical by its ID
      *
      * @param id The ID of the chemical to delete
-     * @param requestBody The request body containing additional parameters, such as user type
      * @return A response indicating success or failure
      */
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteChemical(
-            @RequestBody Map<String, Object> requestBody, @PathVariable String id) {
-        ApiResponse<Void> response = chemicalService.deleteChemical(id, requestBody);
+    public ResponseEntity<ApiResponse<Void>> deleteChemical(@PathVariable String id) {
+        ApiResponse<Void> response = chemicalService.deleteChemical(id);
         return ResponseEntity.status(response.getCode()).body(response);
     }
 }

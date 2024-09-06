@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
 @Entity
 @Table(name = "chemical")
@@ -39,6 +41,10 @@ public class Chemical {
     // Automatically set createTime and updateTime before the entity is persisted
     @PrePersist
     protected void onCreate() {
+        if (this.id == null || this.id.isEmpty()) {
+            this.id = UUID.randomUUID().toString();
+        }
+
         long timestamp = System.currentTimeMillis();
         this.createTime = timestamp;
         this.updateTime = timestamp;
