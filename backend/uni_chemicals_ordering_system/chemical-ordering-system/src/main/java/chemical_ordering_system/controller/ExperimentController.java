@@ -70,13 +70,11 @@ public class ExperimentController {
      * Delete an experiment by its ID.
      *
      * @param id the ID of the experiment to delete
-     * @param requestBody the request body containing the user type
      * @return ApiResponse indicating the result of the deletion
      */
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ApiResponse<Void> deleteExperiment(
-            @PathVariable String id, @RequestBody Map<String, Object> requestBody) {
-        return experimentService.deleteExperiment(id, requestBody);
+    public ApiResponse<Void> deleteExperiment(@PathVariable String id) {
+        return experimentService.deleteExperiment(id);
     }
 }

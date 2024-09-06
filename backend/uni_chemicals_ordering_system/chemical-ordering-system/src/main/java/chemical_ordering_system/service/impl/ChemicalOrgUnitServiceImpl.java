@@ -77,7 +77,7 @@ public class ChemicalOrgUnitServiceImpl implements IChemicalOrgUnitService {
     }
 
     @Override
-    public ApiResponse<Void> deleteChemicalOrgUnit(String id, Map<String, Object> requestBody) {
+    public ApiResponse<Void> deleteChemicalOrgUnit(String id) {
         if (!chemicalOrgUnitRepository.existsById(id)) {
             return new ApiResponse<>(404, "ChemicalOrgUnit with ID " + id + " not found", null);
         }

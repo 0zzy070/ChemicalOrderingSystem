@@ -18,5 +18,5 @@ public interface IExperimentService {
     ApiResponse<Experiment> updateExperiment(
             Authentication authentication, String id, Map<String, Object> requestBody);
 
-    ApiResponse<Void> deleteExperiment(String id, Map<String, Object> requestBody);
+    ApiResponse<Void> deleteExperiment(String id);
 }

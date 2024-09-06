@@ -210,7 +210,7 @@ public class ExperimentServiceImpl implements IExperimentService {
     }
 
     @Override
-    public ApiResponse<Void> deleteExperiment(String id, Map<String, Object> requestBody) {
+    public ApiResponse<Void> deleteExperiment(String id) {
         if (!experimentRepository.existsById(id)) {
             return new ApiResponse<>(404, "Experiment with ID " + id + " not found", null);
         }

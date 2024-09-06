@@ -15,5 +15,5 @@ public interface IChemicalService {
 
     ApiResponse<Chemical> updateChemical(String id, Map<String, Object> requestBody);
 
-    ApiResponse<Void> deleteChemical(String id, Map<String, Object> requestBody);
+    ApiResponse<Void> deleteChemical(String id);
 }
