@@ -70,13 +70,11 @@ public class ChemicalOrgUnitController {
      * Delete a chemical organizational unit by its ID.
      *
      * @param id The ID of the chemical organizational unit to delete.
-     * @param requestBody User details for authorization.
      * @return Success message or an error message if unauthorized or not found.
      */
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ApiResponse<Void> deleteChemicalOrgUnit(
-            @PathVariable String id, @RequestBody Map<String, Object> requestBody) {
-        return chemicalOrgUnitService.deleteChemicalOrgUnit(id, requestBody);
+    public ApiResponse<Void> deleteChemicalOrgUnit(@PathVariable String id) {
+        return chemicalOrgUnitService.deleteChemicalOrgUnit(id);
     }
 }
