@@ -12,6 +12,9 @@ import java.util.List;
 @Repository
 public interface UserRepository extends JpaRepository<Users, String> {
 
+    @Query("SELECT u.id, u.username, u.password, u.email, a.authority, u.employeeNumber FROM Users u LEFT JOIN Authority a ON u.id = a.id WHERE u.employeeNumber = :employeeNumber")
+    List<Object[]> findUserByEmployeeNumberWithAuthority(@Param("employeeNumber") String employeeNumber);
+
     List<Users> findByUsername(String username);
 
     @Query("SELECT COALESCE(MAX(u.employeeNumber), 'empyNo000') FROM Users u")

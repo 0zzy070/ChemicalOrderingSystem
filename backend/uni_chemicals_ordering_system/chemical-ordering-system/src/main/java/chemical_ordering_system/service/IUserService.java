@@ -14,6 +14,7 @@ import java.util.Optional;
 
 public interface IUserService {
 
+    List<UserDTO> findUserByEmployeeNumber(String employeeNumber);
     List<Users> findUserByUsername(String userName);
     List<UserDTO> findAllUsers();
     List<UserDTO> findUserById(String id);

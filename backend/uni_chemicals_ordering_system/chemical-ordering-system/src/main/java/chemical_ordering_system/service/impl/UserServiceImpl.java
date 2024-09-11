@@ -46,6 +46,22 @@ public class UserServiceImpl implements IUserService {
     private AuthorityRepository authorityRepository;
 
     @Override
+    public List<UserDTO> findUserByEmployeeNumber(String employeeNumber) {
+        List<Object[]> results = userRepository.findUserByEmployeeNumberWithAuthority(employeeNumber);
+        return results.stream().map(r -> {
+            UserDTO userDTO = new UserDTO();
+            userDTO.setId((String) r[0]);
+            userDTO.setUserName((String) r[1]);
+            userDTO.setPassword((String) r[2]);
+            userDTO.setEmail((String) r[3]);
+            userDTO.setAuthority((String) r[4]);
+            userDTO.setEmployeeNumber((String) r[5]);
+            return userDTO;
+        }).collect(Collectors.toList());
+    }
+
+
+    @Override
     public List<Users> findUserByUsername(String userName) {
         return userRepository.findByUsername(userName);
     }

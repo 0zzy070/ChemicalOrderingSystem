@@ -54,6 +54,19 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/employee/{employeeNumber}")
+    public ResponseEntity<ApiResponse<List<UserDTO>>> getUserByEmployeeNumber(@PathVariable String employeeNumber) {
+        List<UserDTO> userDTOs = userService.findUserByEmployeeNumber(employeeNumber);
+        if (!userDTOs.isEmpty()) {
+            return ResponseEntity.ok(new ApiResponse<>(200, "User(s) found", userDTOs));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(404, "User not found", null));
+        }
+    }
+
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<Users>> createUser(@Valid @RequestBody UserDTO userDTO) throws BusinessException{
         userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
