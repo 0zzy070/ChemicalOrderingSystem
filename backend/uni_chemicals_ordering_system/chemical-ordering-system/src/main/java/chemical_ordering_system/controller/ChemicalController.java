@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,6 +48,7 @@ public class ChemicalController {
      * @param requestBody The chemical details from the request body
      * @return The created chemical, or an error message if creation failed
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<Chemical>> createChemical(
             @Valid @RequestBody Map<String, Object> requestBody) {
@@ -61,6 +63,7 @@ public class ChemicalController {
      * @param requestBody The chemical details from the request body
      * @return The updated chemical, or an error message if update failed
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<Chemical>> updateChemical(
             @PathVariable String id, @Valid @RequestBody Map<String, Object> requestBody) {
@@ -72,13 +75,12 @@ public class ChemicalController {
      * Delete a chemical by its ID
      *
      * @param id The ID of the chemical to delete
-     * @param requestBody The request body containing additional parameters, such as user type
      * @return A response indicating success or failure
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteChemical(
-            @RequestBody Map<String, Object> requestBody, @PathVariable String id) {
-        ApiResponse<Void> response = chemicalService.deleteChemical(id, requestBody);
+    public ResponseEntity<ApiResponse<Void>> deleteChemical(@PathVariable String id) {
+        ApiResponse<Void> response = chemicalService.deleteChemical(id);
         return ResponseEntity.status(response.getCode()).body(response);
     }
 }

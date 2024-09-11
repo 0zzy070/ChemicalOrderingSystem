@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import AuthContext from "../../Context/AuthProvider";
 import "./Login.css";
 import { useNavigate } from "react-router-dom";
+import axios from "../../Api/axiosConfig";
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    username: "",
+    userName: "",
     password: "",
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { setAuth } = useContext(AuthContext);
 
   useEffect(() => {
     document.title = "Please login to your account";
@@ -17,8 +20,8 @@ const Login = () => {
 
   const validate = () => {
     const errors = {};
-    if (!formData.username) {
-      errors.username = "Username is required";
+    if (!formData.userName) {
+      errors.userName = "Username is required";
     }
     if (!formData.password) {
       errors.password = "Password is required";
@@ -43,45 +46,57 @@ const Login = () => {
       setIsSubmitting(true);
 
       setTimeout(() => {
-        // API call will go here
-        console.log("Form is valid, submit the form", formData);
-        // Example: axios.post('/api/login', formData)
-        navigate("/dashboard");
+        // API call goes here
+        axios
+          .post("/api/users/login", formData)
+          .then((response) => {
+            // Handle success response
+            console.log("Login successful:", response.data);
+            navigate("/dashboard");
+            const accessToken = response.data.data.jwtToken;
+            setAuth({ formData, accessToken, isAuthenticated: true });
+          })
+          .catch((error) => {
+            // Handle error response
+            if (error.response) {
+              // Server responded with a status other than 2xx
+              console.error("Error response:", error.response.data);
+              setErrors({
+                apiError: error.response.data.message || "An error occurred",
+              });
+            } else if (error.request) {
+              // Request was made but no response received
+              console.error("No response:", error.request);
+              setErrors({
+                apiError: "No response from server. Please try again later.",
+              });
+            } else {
+              // Something else happened in setting up the request
+              console.error("Error:", error.message);
+              setErrors({ apiError: error.message });
+            }
+          })
+          .finally(() => {
+            setIsSubmitting(false);
+          });
       }, 1000);
     }
   };
 
   return (
-    <div>
+    <div className="bg-image">
       <div>
         <header className="bg-light text-center">
-          <h4 className="heading">
-            Connecting to{" "}
-            <img
-              src={require("../../Assets/Images/canvas-logo.png")}
-              alt="Canvas Logo"
-              style={{ width: "35px", height: "27px" }}
-            />
-          </h4>
+          <h4 className="heading">Chemical Ordering System</h4>
           <p>Sign in with your account to access your Dashboard</p>
         </header>
       </div>
       <div className="login-page d-flex justify-content-center align-items-center bg-transparent">
-        <div
-          className="card p-sm-4 shadow-lg"
-          style={{
-            maxWidth: "400px",
-            width: "100%",
-          }}
-        >
+        <div className="card p-sm-4 shadow-lg">
           <img
             src={require("../../Assets/Images/flinders-logo.png")}
             alt="Flinders University Logo"
-            className="mx-auto mb-4"
-            style={{
-              width: "130px",
-              height: "38px",
-            }}
+            className="mx-auto mb-4 img-dimension"
           />
           <p className="text-center mb-3">
             Welcome! To obtain access, make sure you have an account created by
@@ -89,19 +104,19 @@ const Login = () => {
           </p>
           <form onSubmit={handleSubmit} noValidate>
             <div className="form-group mb-3">
-              <label htmlFor="username" className="fw-bold">
+              <label htmlFor="userName" className="fw-bold">
                 Username
               </label>
               <input
                 type="text"
-                id="username"
+                id="userName"
                 className="form-control"
                 placeholder="Username"
-                value={formData.username}
+                value={formData.userName}
                 onChange={handleChange}
               />
-              {errors.username && (
-                <small className="text-danger">{errors.username}</small>
+              {errors.userName && (
+                <small className="text-danger">{errors.userName}</small>
               )}
             </div>
             <div className="form-group mb-3">

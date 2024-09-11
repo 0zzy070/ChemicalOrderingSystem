@@ -1,0 +1,4 @@
+*.iml
+*.xml
+.DS_Store
+frontend/.DS_Store

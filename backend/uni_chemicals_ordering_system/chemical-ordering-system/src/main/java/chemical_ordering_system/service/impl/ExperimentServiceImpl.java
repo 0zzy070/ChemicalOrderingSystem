@@ -8,6 +8,8 @@ import chemical_ordering_system.repository.ExperimentRepository;
 import chemical_ordering_system.service.IExperimentService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -63,11 +65,14 @@ public class ExperimentServiceImpl implements IExperimentService {
     }
 
     @Override
-    public ApiResponse<Experiment> updateExperiment(String id, Map<String, Object> requestBody) {
-        Integer userType = (Integer) requestBody.get("userType");
-        if (userType == null) {
-            return new ApiResponse<>(400, "Please provide a valid userType", null);
-        }
+    public ApiResponse<Experiment> updateExperiment(
+            Authentication authentication, String id, Map<String, Object> requestBody) {
+        String role =
+                authentication.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .findFirst() // Assuming one role, if more logic is needed for multiple
+                        // roles, adjust accordingly
+                        .orElse("UNKNOWN");
 
         if (!experimentRepository.existsById(id)) {
             return new ApiResponse<>(404, "Experiment with ID " + id + " not found", null);
@@ -75,8 +80,9 @@ public class ExperimentServiceImpl implements IExperimentService {
 
         Experiment originalExperiment = experimentRepository.findById(id).orElseThrow();
 
-        switch (userType) {
-            case 0: // Admin user: Can modify all fields
+        switch (role) {
+            case "ROLE_ADMIN": // Admin user: Can modify all fields
+                System.out.println("ROLE_ADMIN");
                 requestBody.forEach(
                         (key, value) -> {
                             try {
@@ -93,9 +99,8 @@ public class ExperimentServiceImpl implements IExperimentService {
                             }
                         });
                 break;
-            case 1: // Research staff: Not authorized to use this API
-                return new ApiResponse<>(403, "You are not authorized to use this API", null);
-            case 2: // Supervisor: Can only modify fields starting with supervisor_
+            case "ROLE_SUPERVISOR": // Supervisor: Can only modify fields starting with supervisor_
+                System.out.println("ROLE_SUPERVISOR");
                 if (originalExperiment.getStatus() != 0) {
                     return new ApiResponse<>(
                             400, "Invalid status, please follow the approval steps", null);
@@ -120,7 +125,9 @@ public class ExperimentServiceImpl implements IExperimentService {
                     }
                 }
                 break;
-            case 3: // Higher approver: Can only modify fields starting with higher_approve_
+            case "ROLE_HIGHER_APPROVER": // Higher approver: Can only modify fields starting with
+                // higher_approve_
+                System.out.println("ROLE_HIGHER_APPROVER");
                 if (originalExperiment.getStatus() != 1) {
                     return new ApiResponse<>(
                             400, "Invalid status, please follow the approval steps", null);
@@ -139,7 +146,8 @@ public class ExperimentServiceImpl implements IExperimentService {
                     }
                 }
                 break;
-            case 4: // Order manager: Can only modify fields starting with order_
+            case "ROLE_ORDER_MANAGER": // Order manager: Can only modify fields starting with order_
+                System.out.println("ROLE_ORDER_MANAGER");
                 if (originalExperiment.getOrderApproveTime() == null) {
                     if (originalExperiment.getStatus() != 2) {
                         return new ApiResponse<>(
@@ -202,12 +210,7 @@ public class ExperimentServiceImpl implements IExperimentService {
     }
 
     @Override
-    public ApiResponse<Void> deleteExperiment(String id, Map<String, Object> requestBody) {
-        Integer userType = (Integer) requestBody.get("userType");
-        if (userType == null || userType != 0) {
-            return new ApiResponse<>(403, "You are not authorized to delete this experiment", null);
-        }
-
+    public ApiResponse<Void> deleteExperiment(String id) {
         if (!experimentRepository.existsById(id)) {
             return new ApiResponse<>(404, "Experiment with ID " + id + " not found", null);
         }

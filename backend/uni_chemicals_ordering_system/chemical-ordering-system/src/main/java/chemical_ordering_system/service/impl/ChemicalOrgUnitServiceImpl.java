@@ -39,12 +39,6 @@ public class ChemicalOrgUnitServiceImpl implements IChemicalOrgUnitService {
 
     @Override
     public ApiResponse<ChemicalOrgUnit> createChemicalOrgUnit(Map<String, Object> requestBody) {
-        Integer userType = (Integer) requestBody.get("userType");
-        if (userType == null || userType != 0) {
-            return new ApiResponse<>(
-                    403, "You are not authorized to create a chemical organizational unit", null);
-        }
-
         ChemicalOrgUnit chemicalOrgUnit = new ChemicalOrgUnit();
         chemicalOrgUnit.setExperimentId((String) requestBody.get("experimentId"));
         chemicalOrgUnit.setChemicalId((String) requestBody.get("chemicalId"));
@@ -62,14 +56,6 @@ public class ChemicalOrgUnitServiceImpl implements IChemicalOrgUnitService {
     @Override
     public ApiResponse<ChemicalOrgUnit> updateChemicalOrgUnit(
             String id, Map<String, Object> requestBody) {
-        Integer userType = (Integer) requestBody.get("userType");
-        if (userType == null || userType != 0) {
-            return new ApiResponse<>(
-                    403,
-                    "You are not authorized to update this chemical organizational unit",
-                    null);
-        }
-
         if (!chemicalOrgUnitRepository.existsById(id)) {
             return new ApiResponse<>(404, "ChemicalOrgUnit with ID " + id + " not found", null);
         }
@@ -91,15 +77,7 @@ public class ChemicalOrgUnitServiceImpl implements IChemicalOrgUnitService {
     }
 
     @Override
-    public ApiResponse<Void> deleteChemicalOrgUnit(String id, Map<String, Object> requestBody) {
-        Integer userType = (Integer) requestBody.get("userType");
-        if (userType == null || userType != 0) {
-            return new ApiResponse<>(
-                    403,
-                    "You are not authorized to delete this chemical organizational unit",
-                    null);
-        }
-
+    public ApiResponse<Void> deleteChemicalOrgUnit(String id) {
         if (!chemicalOrgUnitRepository.existsById(id)) {
             return new ApiResponse<>(404, "ChemicalOrgUnit with ID " + id + " not found", null);
         }

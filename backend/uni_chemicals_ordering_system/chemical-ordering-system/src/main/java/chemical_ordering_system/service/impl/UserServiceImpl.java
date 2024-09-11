@@ -8,20 +8,17 @@ import chemical_ordering_system.exception.BusinessException;
 import chemical_ordering_system.jwt.JwtUtils;
 import chemical_ordering_system.model.ApiResponse;
 import chemical_ordering_system.model.Authority;
-import chemical_ordering_system.model.OrganizationalUnit;
 import chemical_ordering_system.model.Users;
 import chemical_ordering_system.repository.AuthorityRepository;
 import chemical_ordering_system.repository.UserRepository;
 import chemical_ordering_system.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -59,10 +56,12 @@ public class UserServiceImpl implements IUserService {
         return results.stream()
                 .map(result -> {
                     UserDTO userDTO = new UserDTO();
+                    userDTO.setId((String) result[0]);
                     userDTO.setUserName((String) result[1]);
                     userDTO.setPassword((String) result[2]);
                     userDTO.setAuthority((String) result[4]);
                     userDTO.setEmail((String) result[3]);
+                    userDTO.setEmployeeNumber((String) result[5]);
                     return userDTO;
                 })
                 .collect(Collectors.toList());
@@ -74,10 +73,12 @@ public class UserServiceImpl implements IUserService {
         return results.stream().map(r -> {
             UserDTO userDTO = new UserDTO();
             // Assuming r[0] is an instance of a custom object or Map containing all the fields
+            userDTO.setId((String) r[0]);
             userDTO.setUserName((String) r[1]);
             userDTO.setPassword((String) r[2]);
-            userDTO.setAuthority((String) r[4]);
             userDTO.setEmail((String) r[3]);
+            userDTO.setAuthority((String) r[4]);
+            userDTO.setEmployeeNumber((String) r[5]);
             return userDTO;
         }).collect(Collectors.toList());
     }
@@ -190,3 +191,4 @@ public class UserServiceImpl implements IUserService {
         return String.format("empyNo%03d", newNumber);
     }
 }
+
