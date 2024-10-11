@@ -11,6 +11,10 @@ import Institutes from "../Pages/Locations/Location";
 import StorageLocations from "../Pages/Locations/StorageLocations";
 import ResearchCentres from "../Pages/Locations/ResearchCentres";
 import Laboratories from "../Pages/Locations/Laboratories";
+import Approvals from "../Pages/Approvals/Approvals";
+import HigherApprovals from "../Pages/HigherApprovals/HigherApprovals";
+import Experiments from "../Pages/Experiments/Experiments";
+import Orders from "../Pages/Orders/Orders";
 
 // ProtectedRoute to ensure only authenticated users can access certain routes
 const ProtectedRoute = ({ children }) => {
@@ -113,6 +117,42 @@ export const routes = [
     element: (
       <ProtectedRoute>
         <Chemicals />
+      </ProtectedRoute>
+    ),
+    layout: "blank", // Will use BlankLayout
+  },
+  {
+    path: "/approvals",
+    element: (
+      <ProtectedRoute>
+        <Approvals />
+      </ProtectedRoute>
+    ),
+    layout: "blank", // Will use BlankLayout
+  },
+  {
+    path: "/higherApprovals",
+    element: (
+      <ProtectedRoute>
+        <HigherApprovals />
+      </ProtectedRoute>
+    ),
+    layout: "blank", // Will use BlankLayout
+  },
+  {
+    path: "/orders",
+    element: (
+      <ProtectedRoute>
+        <Orders />
+      </ProtectedRoute>
+    ),
+    layout: "blank", // Will use BlankLayout
+  },
+  {
+    path: "/experiments",
+    element: (
+      <ProtectedRoute>
+        <Experiments />
       </ProtectedRoute>
     ),
     layout: "blank", // Will use BlankLayout

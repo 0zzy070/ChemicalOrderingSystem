@@ -6,7 +6,10 @@ import IconNotification from "../../Assets/Icon/IconBellBing.tsx";
 import IconBuilding from "../../Assets/Icon/IconBuilding.tsx";
 import IconX from "../../Assets/Icon/IconX.tsx";
 import "../Styles/SideBar.css";
-
+import IconListCheck from "../../Assets/Icon/IconFa6SolidListCheck.tsx";
+import IconUserCheck from "../../Assets/Icon/IconTablerUserCheck.tsx";
+import IconRiShoppingCartLine from "../../Assets/Icon/IconRiShoppingCartLine.tsx";
+import IconLucideListTodo from "../../Assets/Icon/IconLucideListTodo.tsx";
 const SideBar = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -32,6 +35,22 @@ const SideBar = () => {
           <Nav.Link href="/chemicals" className="d-flex align-items-center">
             <IconFlask />
             <span>Chemicals</span>
+          </Nav.Link>
+          <Nav.Link href="/approvals" className="d-flex align-items-center">
+            <IconListCheck />
+            <span>Approvals</span>
+          </Nav.Link>
+          <Nav.Link href="/higherApprovals" className="d-flex align-items-center">
+            <IconUserCheck />
+            <span>Higher Approvals</span>
+          </Nav.Link>
+          <Nav.Link href="/orders" className="d-flex align-items-center">
+            <IconRiShoppingCartLine />
+            <span>Orders</span>
+          </Nav.Link>
+          <Nav.Link href="/experiments" className="d-flex align-items-center">
+            <IconLucideListTodo />
+            <span>Experiments</span>
           </Nav.Link>
           <Nav.Link
             onClick={handleDrawerToggle}
