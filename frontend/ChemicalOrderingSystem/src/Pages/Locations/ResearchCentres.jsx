@@ -1,47 +1,52 @@
-import { useState, useEffect } from "react";
-import { Modal } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Modal, Button, Form } from "react-bootstrap";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import IconUserPlus from "../../Assets/Icon/IconUserPlus.tsx";
 import IconSearch from "../../Assets/Icon/IconSearch.tsx";
 import NavigationBar from "../../Components/Layouts/NavigationBar.jsx";
 import SideBar from "../../Components/Layouts/SideBar.jsx";
+import LocationTypeModal from "./LocationTypeModal.jsx";
 
 const ResearchCentres = () => {
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const itemsPerPage = 10;
-  const [currentPage, setCurrentPage] = useState(1);
+  const [showLocationTypeModal, setShowLocationTypeModal] = useState(false);
   const [params, setParams] = useState({
-    name: "",
-    email: "",
-    role: "",
-    location: "",
+    orgName: "",
+    hasSpecialEquipment: "",
     id: null,
   });
   const [centres, setCentres] = useState([]);
+  const [formValues, setFormValues] = useState({
+    orgName: "",
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCentreId, setSelectedCentreId] = useState(null);
+  const itemsPerPage = 10;
   const token = JSON.parse(localStorage.getItem("auth"));
   const accessToken = token.accessToken;
   const orgType = 3;
+  const { id } = useParams();
 
   useEffect(() => {
-    document.title = "Research Centres";
-    fetchCentres();
-  });
+    if (id) {
+      document.title = "Research Centres";
+      fetchCentres(id); // Fetch the research centres based on the URL parameter
+    }
+  }, [id]);
 
-  const fetchCentres = async () => {
+  const fetchCentres = async (id) => {
     try {
       const response = await axios.get(
-        `/api/organizational-units/listByOrgType/${orgType}`,
+        `/api/organizational-units/listDirectChildrenUnit/${id}/${orgType}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         }
       );
-      // Access the 'data' property of the response object
       const data = response.data.data;
-
-      // If the response.data is an object containing the array
       if (Array.isArray(data)) {
         setCentres(data);
       } else {
@@ -52,23 +57,70 @@ const ResearchCentres = () => {
     }
   };
 
-  const handleShow = () => setShowModal(true);
-  const handleClose = () => setShowModal(false);
+  const handleShow = () => {
+    setShowModal(true);
+  };
 
   const saveCentre = async () => {
     try {
-      if (params.id) {
-        await axios.put(
-          `https://your-api-endpoint.com/locations/${params.id}`,
-          params
-        );
-      } else {
-        await axios.post("https://your-api-endpoint.com/locations", params);
-      }
-      //fetchLocations();
+      const url = params.id
+        ? `/api/organizational-units/updateUnitById`
+        : `/api/organizational-units/createOrganizationalUnit`;
+
+      const method = "post";
+
+      const data = params.id
+        ? {
+            orgName: params.orgName,
+            hasSpecialEquipment: 0,
+            id: params.id,
+          }
+        : {
+            orgName: params.orgName,
+            hasSpecialEquipment: 0,
+            orgType: orgType,
+            pid: id,
+          };
+
+      const response = await axios({
+        method: method,
+        url: url,
+        data: data,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      console.log("API Response:", response.data);
+      fetchCentres(id);
       handleClose();
     } catch (error) {
-      console.error("Error saving location:", error);
+      console.error("Error saving centre:", error);
+    }
+  };
+
+  const handleClose = () => setShowModal(false);
+
+  const handleShowLocationTypeModal = () => setShowLocationTypeModal(true);
+  const handleCloseLocationTypeModal = () => setShowLocationTypeModal(false);
+
+  const openLocationTypeModal = (centreId) => {
+    setSelectedCentreId(centreId);
+    setShowLocationTypeModal(true);
+  };
+
+  const handleOptionSelect = (type) => {
+    setShowLocationTypeModal(false);
+
+    switch (type) {
+      case "researchStorage":
+        window.location.href = `/storagelocations/${selectedCentreId}`;
+        break;
+      case "laboratory":
+        window.location.href = `/laboratory/${selectedCentreId}`;
+        break;
+      default:
+        break;
     }
   };
 
@@ -77,30 +129,24 @@ const ResearchCentres = () => {
     handleShow();
   };
 
-  const addCentre = (centre) => {
-    setParams(centre);
+  const addCentre = () => {
     handleShow();
   };
 
   const deleteCentre = async (centre) => {
     try {
-      await axios.delete(
-        `https://your-api-endpoint.com/locations/${centre.id}`
-      );
-      //fetchLocations();
+      await axios.delete(`/api/organizational-units/deleteById/${centre.id}`);
+      fetchCentres();
     } catch (error) {
-      console.error("Error deleting location:", error);
+      console.error("Error deleting centre:", error);
     }
   };
 
-  const totalCentres = centres.filter((centres) =>
-    centres.orgName.toLowerCase().includes(search.toLowerCase())
+  const totalCentres = centres.filter((centre) =>
+    centre.orgName.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Calculate the total number of pages
   const totalPages = Math.ceil(totalCentres.length / itemsPerPage);
-
-  // Handle page change
   const handlePageChange = (newPage) => {
     if (newPage > 0 && newPage <= totalPages) {
       setCurrentPage(newPage);
@@ -123,10 +169,10 @@ const ResearchCentres = () => {
               <button
                 type="button"
                 className="btn btn-primary d-flex align-items-center px-4"
-                onClick={() => addCentre({})}
+                onClick={handleShow}
               >
                 <IconUserPlus className="me-2" />
-                Add new Research Centre
+                Add Research Centre
               </button>
               <div className="position-relative d-flex">
                 <input
@@ -159,15 +205,16 @@ const ResearchCentres = () => {
                 {totalCentres.map((centre) => (
                   <tr key={centre.id}>
                     <td>
-                      <div className="d-flex align-items-center">
-                        <img
-                          src={require("../../Assets/Images/blank-profile.png")}
-                          className="rounded-circle me-2"
-                          alt="profilepic"
-                          style={{ width: "36px", height: "36px" }}
-                        />
-                        <div>{centre.id}</div>
-                      </div>
+                      <span
+                        role="button"
+                        onClick={() => openLocationTypeModal(centre.id)}
+                        style={{
+                          cursor: "pointer",
+                          textDecoration: "none",
+                        }}
+                      >
+                        {centre.id}
+                      </span>
                     </td>
                     <td>{centre.orgName}</td>
                     <td className="text-center">
@@ -189,103 +236,118 @@ const ResearchCentres = () => {
                 ))}
               </tbody>
             </table>
+            <div className="d-flex justify-content-center">
+              <nav>
+                <ul className="pagination">
+                  <li
+                    className={`page-item ${
+                      currentPage === 1 ? "disabled" : ""
+                    }`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => handlePageChange(currentPage - 1)}
+                    >
+                      Previous
+                    </button>
+                  </li>
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <li
+                      key={i}
+                      className={`page-item ${
+                        currentPage === i + 1 ? "active" : ""
+                      }`}
+                    >
+                      <button
+                        className="page-link"
+                        onClick={() => handlePageChange(i + 1)}
+                      >
+                        {i + 1}
+                      </button>
+                    </li>
+                  ))}
+                  <li
+                    className={`page-item ${
+                      currentPage === totalPages ? "disabled" : ""
+                    }`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => handlePageChange(currentPage + 1)}
+                    >
+                      Next
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
           </div>
 
-          {/* Pagination */}
-          <div className="d-flex justify-content-end align-items-center mt-4">
-            <span className="me-3">
-              {`${(currentPage - 1) * itemsPerPage + 1}-${Math.min(
-                currentPage * itemsPerPage,
-                totalCentres.length
-              )} of ${totalCentres.length} items`}
-            </span>
-            <button
-              className="btn btn-sm btn-outline-primary me-2"
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              &larr; {/* Left arrow */}
-            </button>
-            <button
-              className="btn btn-sm btn-outline-primary"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              &rarr; {/* Right arrow */}
-            </button>
-          </div>
-
-          <Modal show={showModal} onHide={handleClose} centered>
+          <Modal show={showModal} onHide={handleClose}>
             <Modal.Header closeButton>
               <Modal.Title>
-                {params.id ? "Edit Location" : "Add Location"}
+                {params.id ? "Edit Research Centre" : "Add Research Centre"}
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>
               <form>
                 <div className="mb-3">
-                  <label htmlFor="name" className="form-label">
-                    Oragnization Name
+                  <label htmlFor="centreName" className="form-label">
+                    Research Centre Name
                   </label>
                   <input
-                    id="name"
                     type="text"
                     className="form-control"
+                    id="centreName"
                     value={params.orgName}
                     onChange={(e) =>
                       setParams({ ...params, orgName: e.target.value })
                     }
+                    required
                   />
                 </div>
+
                 <div className="mb-3">
-                  <label htmlFor="email" className="form-label">
-                    Organization Type
+                  <label htmlFor="hasSpecialEquipment" className="form-label">
+                    Special Equipment Available
                   </label>
-                  <input
-                    id="type"
-                    type="text"
+                  <select
                     className="form-control"
-                    value={params.orgType}
-                    onChange={(e) =>
-                      setParams({ ...params, orgType: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="role" className="form-label">
-                    Role
-                  </label>
-                  <input
-                    id="role"
-                    type="text"
-                    className="form-control"
-                    value={params.role}
-                    onChange={(e) =>
-                      setParams({ ...params, role: e.target.value })
-                    }
-                  />
+                    id="hasSpecialEquipment"
+                    value={params.hasSpecialEquipment}
+                    onChange={(e) => {
+                      setParams({
+                        ...params,
+                        hasSpecialEquipment: e.target.value,
+                      });
+                    }}
+                  >
+                    <option value="">Select</option>
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                  </select>
                 </div>
               </form>
             </Modal.Body>
             <Modal.Footer>
-              <button
-                type="button"
-                className="btn btn-outline-danger"
-                onClick={handleClose}
-              >
+              <button className="btn btn-secondary" onClick={handleClose}>
                 Cancel
               </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={saveCentre}
-              >
-                {params.id ? "Update" : "Add"}
+              <button className="btn btn-primary" onClick={saveCentre}>
+                {params.id ? "Save Changes" : "Add Centre"}
               </button>
             </Modal.Footer>
           </Modal>
         </div>
       </div>
+
+      {/* Modal for selecting location type */}
+      <LocationTypeModal
+        show={showLocationTypeModal}
+        handleClose={handleCloseLocationTypeModal}
+        handleOptionSelect={handleOptionSelect}
+        value={2}
+      />
     </div>
   );
 };

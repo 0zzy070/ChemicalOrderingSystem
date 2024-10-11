@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { Modal } from "react-bootstrap";
 import axios from "axios";
 import IconUserPlus from "../../Assets/Icon/IconUserPlus.tsx";
@@ -9,46 +10,44 @@ import SideBar from "../../Components/Layouts/SideBar.jsx";
 const Laboratories = () => {
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const itemsPerPage = 10;
-  const [currentPage, setCurrentPage] = useState(1);
+  const [laboratories, setLaboratories] = useState([]);
   const [params, setParams] = useState({
-    name: "",
-    email: "",
-    role: "",
-    location: "",
+    orgName: "",
+    orgType: "4", // For Laboratories
     id: null,
   });
-  const [laboratories, setLaboratories] = useState([]);
+  const itemsPerPage = 10;
+  const [currentPage, setCurrentPage] = useState(1);
   const token = JSON.parse(localStorage.getItem("auth"));
   const accessToken = token.accessToken;
   const orgType = 4;
+  const { id } = useParams();
 
   useEffect(() => {
-    document.title = "Laboratories";
-    fetchLaboratories();
-  });
+    if (id) {
+      document.title = "Laboratories";
+      fetchLaboratories();
+    }
+  }, [id]);
 
   const fetchLaboratories = async () => {
     try {
       const response = await axios.get(
-        `/api/organizational-units/listByOrgType/${orgType}`,
+        `/api/organizational-units/listByOrgType/${params.orgType}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         }
       );
-      // Access the 'data' property of the response object
       const data = response.data.data;
-
-      // If the response.data is an object containing the array
       if (Array.isArray(data)) {
         setLaboratories(data);
       } else {
         console.error("Expected an array but received:", data);
       }
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error fetching laboratories:", error);
     }
   };
 
@@ -57,18 +56,37 @@ const Laboratories = () => {
 
   const saveLaboratory = async () => {
     try {
-      if (params.id) {
-        await axios.put(
-          `https://your-api-endpoint.com/locations/${params.id}`,
-          params
-        );
-      } else {
-        await axios.post("https://your-api-endpoint.com/locations", params);
-      }
-      //fetchLocations();
+      const url = params.id
+        ? `/api/organizational-units/updateUnitById`
+        : `/api/organizational-units/createOrganizationalUnit`;
+
+      const method = "post";
+      const data = params.id
+        ? {
+            orgName: params.orgName,
+            hasSpecialEquipment: 0,
+            id: params.id,
+          }
+        : {
+            orgName: params.orgName,
+            hasSpecialEquipment: 0,
+            orgType: orgType,
+            pid: id,
+          };
+
+      const response = await axios({
+        method: method,
+        url: url,
+        data: data,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      fetchLaboratories();
       handleClose();
     } catch (error) {
-      console.error("Error saving location:", error);
+      console.error("Error saving laboratory:", error);
     }
   };
 
@@ -77,30 +95,30 @@ const Laboratories = () => {
     handleShow();
   };
 
-  const addLaboratory = (laboratory) => {
-    setParams(laboratory);
+  const addLaboratory = () => {
+    setParams({ orgName: "", orgType: "4", id: null });
     handleShow();
   };
 
   const deleteLaboratory = async (laboratory) => {
     try {
-      await axios.delete(
-        `https://your-api-endpoint.com/locations/${laboratory.id}`
-      );
-      //fetchLocations();
+      await axios.delete(`/api/locations/${laboratory.id}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      fetchLaboratories();
     } catch (error) {
-      console.error("Error deleting location:", error);
+      console.error("Error deleting laboratory:", error);
     }
   };
 
-  const totalLaboratories = laboratories.filter((laboratory) =>
-    laboratories.orgName.toLowerCase().includes(search.toLowerCase())
+  const totalLaboratories = laboratories.filter((lab) =>
+    lab.orgName.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Calculate the total number of pages
   const totalPages = Math.ceil(totalLaboratories.length / itemsPerPage);
 
-  // Handle page change
   const handlePageChange = (newPage) => {
     if (newPage > 0 && newPage <= totalPages) {
       setCurrentPage(newPage);
@@ -116,17 +134,15 @@ const Laboratories = () => {
         </div>
         <div className="col p-4">
           <div className="d-flex align-items-center justify-content-between mt-4">
-            <div className="d-flex align-items-center gap-3">
-              <h2 className="h4 mb-0">Laboratories</h2>
-            </div>
+            <h2 className="h4 mb-0">Laboratories</h2>
             <div className="d-flex gap-3">
               <button
                 type="button"
                 className="btn btn-primary d-flex align-items-center px-4"
-                onClick={() => addLaboratory({})}
+                onClick={addLaboratory}
               >
                 <IconUserPlus className="me-2" />
-                Add new Laboratory
+                Add New Laboratory
               </button>
               <div className="position-relative d-flex">
                 <input
@@ -136,10 +152,7 @@ const Laboratories = () => {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
-                <button
-                  type="button"
-                  className="btn position-absolute end-0 top-50 translate-middle-y"
-                >
+                <button type="button" className="btn position-absolute end-0">
                   <IconSearch />
                 </button>
               </div>
@@ -156,37 +169,32 @@ const Laboratories = () => {
                 </tr>
               </thead>
               <tbody>
-                {totalLaboratories.map((laboratory) => (
-                  <tr key={laboratory.id}>
-                    <td>
-                      <div className="d-flex align-items-center">
-                        <img
-                          src={require("../../Assets/Images/blank-profile.png")}
-                          className="rounded-circle me-2"
-                          alt="profilepic"
-                          style={{ width: "36px", height: "36px" }}
-                        />
-                        <div>{laboratory.id}</div>
-                      </div>
-                    </td>
-                    <td>{laboratory.orgName}</td>
-                    <td className="text-center">
-                      <button
-                        className="btn btn-sm btn-outline-secondary me-2"
-                        onClick={() => editLaboratory(laboratory)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-outline-danger"
-                        onClick={() => deleteLaboratory(laboratory)}
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {totalLaboratories
+                  .slice(
+                    (currentPage - 1) * itemsPerPage,
+                    currentPage * itemsPerPage
+                  )
+                  .map((lab) => (
+                    <tr key={lab.id}>
+                      <td>{lab.id}</td>
+                      <td>{lab.orgName}</td>
+                      <td className="text-center">
+                        <button
+                          className="btn btn-sm btn-outline-secondary me-2"
+                          onClick={() => editLaboratory(lab)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => deleteLaboratory(lab)}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
@@ -215,53 +223,26 @@ const Laboratories = () => {
             </button>
           </div>
 
+          {/* Modal for Add/Edit */}
           <Modal show={showModal} onHide={handleClose} centered>
             <Modal.Header closeButton>
               <Modal.Title>
-                {params.id ? "Edit Location" : "Add Location"}
+                {params.id ? "Edit Laboratory" : "Add Laboratory"}
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>
               <form>
                 <div className="mb-3">
-                  <label htmlFor="name" className="form-label">
-                    Oragnization Name
+                  <label htmlFor="orgName" className="form-label">
+                    Organization Name
                   </label>
                   <input
-                    id="name"
+                    id="orgName"
                     type="text"
                     className="form-control"
                     value={params.orgName}
                     onChange={(e) =>
                       setParams({ ...params, orgName: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="email" className="form-label">
-                    Organization Type
-                  </label>
-                  <input
-                    id="type"
-                    type="text"
-                    className="form-control"
-                    value={params.orgType}
-                    onChange={(e) =>
-                      setParams({ ...params, orgType: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="role" className="form-label">
-                    Role
-                  </label>
-                  <input
-                    id="role"
-                    type="text"
-                    className="form-control"
-                    value={params.role}
-                    onChange={(e) =>
-                      setParams({ ...params, role: e.target.value })
                     }
                   />
                 </div>

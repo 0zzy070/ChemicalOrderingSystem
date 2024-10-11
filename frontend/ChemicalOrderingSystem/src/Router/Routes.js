@@ -7,7 +7,7 @@ import BlankLayout from "../Layouts/BlankLayout";
 import Users from "../Pages/Users/Users";
 import Location from "../Pages/Locations/Location";
 import Chemicals from "../Pages/Chemicals/Chemicals";
-import Institutes from "../Pages/Locations/Institutes";
+import Institutes from "../Pages/Locations/Location";
 import StorageLocations from "../Pages/Locations/StorageLocations";
 import ResearchCentres from "../Pages/Locations/ResearchCentres";
 import Laboratories from "../Pages/Locations/Laboratories";
@@ -82,7 +82,7 @@ export const routes = [
     layout: "blank", // Will use BlankLayout
   },
   {
-    path: "/storagelocations",
+    path: "/storagelocations/:id",
     element: (
       <ProtectedRoute>
         <StorageLocations />
@@ -91,7 +91,7 @@ export const routes = [
     layout: "blank", // Will use BlankLayout
   },
   {
-    path: "/researchcentres",
+    path: "/researchcentre/:id",
     element: (
       <ProtectedRoute>
         <ResearchCentres />
@@ -100,7 +100,7 @@ export const routes = [
     layout: "blank", // Will use BlankLayout
   },
   {
-    path: "/laboratories",
+    path: "/laboratory/:id",
     element: (
       <ProtectedRoute>
         <Laboratories />
