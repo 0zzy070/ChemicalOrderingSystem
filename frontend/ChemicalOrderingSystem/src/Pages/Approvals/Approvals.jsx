@@ -26,6 +26,9 @@ const Approvals = () => {
   const [showDisapprovalModal, setShowDisapprovalModal] = useState(false);
   const [ShowSupervisorModal, setShowSupervisorModal] = useState(false);
   const [requestToUpdate, setRequestToUpdate] = useState(null);
+  const [chemicalData, setChemicalData] = useState(null); // 存储化学品数据
+  const [loading, setLoading] = useState(false); // 控制加载状态
+  const [error, setError] = useState(null); // 错误状态
   // const [comment, setComment] = useState('');
   
   const data=[
@@ -68,7 +71,7 @@ const Approvals = () => {
       "orderReceiveTime": 1723804160000,
       "orderPlacedTime": 1723804190000,
       "chemicalId": "e5bcefa3-50a8-440e-a4e6-cb5e3de3ef2d",
-      "amount": 10,
+      "amount": 5,
       "unit": "bucket          "
     }, 
     {
@@ -110,7 +113,7 @@ const Approvals = () => {
       "orderReceiveTime": 1723804160000,
       "orderPlacedTime": 1723804190000,
       "chemicalId": "e5bcefa3-50a8-440e-a4e6-cb5e3de3ef2d",
-      "amount": 10,
+      "amount": 15,
       "unit": "bucket          "
     }
   ];
@@ -273,6 +276,24 @@ const Approvals = () => {
       console.error('Error fetching chemical data or updating request status:', error);
     }
    
+  };
+
+  const fetchChemicalData = async (chemicalId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const chemicalApiUrl = `/api/chemicals/${chemicalId}`;
+      const response = await axios.get(chemicalApiUrl, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`, // Set the token in the Authorization header
+        },
+      });
+      setChemicalData(response.data.data);
+    } catch (error) {
+      setError('Failed to load chemical data');
+    } finally {
+      setLoading(false);
+    }
   }
    
   const StyledPopover = styled(Popover)`
@@ -293,10 +314,30 @@ const Approvals = () => {
               </tr>
             </thead>
             <tbody>
-              <td>Chemical1</td>       
+              {/* <td>Chemical1</td>       
               <td>Chemical1</td>
               <td>High</td>
-              <td>3</td>
+              <td>3</td> */}
+              {loading ? (
+                <tr>
+                  <td colSpan="4">Loading...</td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan="4">{error}</td>
+                </tr>
+              ) : chemicalData ? (
+                <tr>
+                  <td>{chemicalData.commonName}</td>
+                  <td>{chemicalData.systematicName}</td>
+                  <td>{chemicalData.riskCategory}</td>
+                  <td>{chemicalData.amount}</td>
+                </tr>
+              ) : (
+                <tr>
+                  <td colSpan="4">No data available</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div> 
@@ -425,7 +466,8 @@ const Approvals = () => {
                   <tr>
                     {/* <th>Image</th> */}
                     <th>Experiment Name</th>
-                    <th>Chemical ID</th>
+                    <th>Chemical</th>
+                    <th>Chemical Amount</th>
                     <th>Supervisor Comment</th>
                     <th>Higher approver Comment</th>
                     <th>Order Comment</th>
@@ -451,10 +493,10 @@ const Approvals = () => {
                       {/* <OverlayTrigger trigger="click" placement="bottom" overlay={popoverClick}>
                         <td>{request.chemicalId}</td>
                       </OverlayTrigger> */}
-                      <OverlayTrigger trigger="click" placement="right" overlay={popover}>
-                        <td style={{ color: '#0d6efd' }}>{request.chemicalId}</td>
+                      <OverlayTrigger trigger="click" placement="right" overlay={popover} onEnter={() => fetchChemicalData(request.chemicalId)}>
+                        <td style={{ color: '#0d6efd' }}>View</td>
                       </OverlayTrigger>
-                      
+                      <td>{request.amount}</td>
                       <td>{request.supervisorComment}</td>
                       <td>{request.higherApproveComment}</td>
                       <td>{request.orderComment}</td>
