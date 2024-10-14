@@ -59,31 +59,29 @@ const Experiments = () => {
   }, [activeChemicalId]);
 
   const handlePopoverToggle = async (chemicalId) => {
-    try {
-      const response = await axios.get("/api/chemicals", {
-        headers: {
-          Authorization: `Bearer ${accessToken}`, // Set the token in the Authorization header
-        },
-      });
-      const chemicalsList = response.data.data;
+    if (activeChemicalId === chemicalId) {
+      // If clicking on the same chemicalId, close the popover
+      setActiveChemicalId(null);
+    } else {
+      // Fetch chemical details for the clicked chemicalId
+      try {
+        const response = await axios.get("/api/chemicals", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        const chemicalsList = response.data.data;
 
-      // Find the chemical with the matching ID
-      const selectedChemical = chemicalsList.find(
-        (chemical) => chemical.id === chemicalId
-      );
+        const selectedChemical = chemicalsList.find(
+          (chemical) => chemical.id === chemicalId
+        );
 
-      if (selectedChemical) {
-        setChemical(selectedChemical); // Save the matched chemical data to state
-      } else {
-        setChemical(null); // Clear state if no match found
+        setChemical(selectedChemical || null);
+      } catch (error) {
+        console.error("Error fetching chemicals:", error);
       }
-      console.log(chemicals);
-    } catch (error) {
-      console.error("Error fetching chemicals:", error);
+      setActiveChemicalId(chemicalId); // Set the clicked chemicalId
     }
-    setActiveChemicalId((prevId) =>
-      prevId === chemicalId ? null : chemicalId
-    );
   };
 
   // Fetch experiments from the API
@@ -114,6 +112,7 @@ const Experiments = () => {
 
     setShowModal(true);
   };
+
   const handleClose = () => {
     setShowModal(false);
     setParams({ name: "", chemicalId: "", amount: "", id: null }); // Reset params on close
@@ -309,13 +308,13 @@ const Experiments = () => {
                         trigger="click"
                         placement="right"
                         overlay={popover}
-                        show={activeChemicalId === experiment.chemicalId} // Show popover only if this chemicalId is active
+                        show={activeChemicalId === experiment.chemicalId}
                       >
                         <td
                           style={{ color: "#0d6efd", cursor: "pointer" }}
                           onClick={() =>
                             handlePopoverToggle(experiment.chemicalId)
-                          } // Pass the specific chemicalId to toggle
+                          }
                         >
                           {experiment.chemicalId}
                         </td>
