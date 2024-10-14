@@ -1,5 +1,11 @@
 import { React, useState, useEffect } from "react";
-import { Modal, Toast, ToastContainer, Popover,OverlayTrigger } from "react-bootstrap";
+import {
+  Modal,
+  Toast,
+  ToastContainer,
+  Popover,
+  OverlayTrigger,
+} from "react-bootstrap";
 import axios from "axios";
 import IconUserPlus from "../../Assets/Icon/IconUserPlus.tsx";
 import IconListCheck from "../../Assets/Icon/IconListCheck.tsx";
@@ -7,7 +13,7 @@ import IconLayoutGrid from "../../Assets/Icon/IconLayoutGrid.tsx";
 import IconSearch from "../../Assets/Icon/IconSearch.tsx";
 import NavigationBar from "../../Components/Layouts/NavigationBar.jsx";
 import SideBar from "../../Components/Layouts/SideBar.jsx";
-import styled from 'styled-components';
+import styled from "styled-components";
 
 const Approvals = () => {
   const [value, setValue] = useState("list");
@@ -27,11 +33,11 @@ const Approvals = () => {
   const token = JSON.parse(localStorage.getItem("auth"));
   const accessToken = token.accessToken;
   const [showDisapprovalModal, setShowDisapprovalModal] = useState(false);
- 
+
   useEffect(() => {
     document.title = "Approvals";
     // console.log(users);
-    // fetchUsers(); 
+    // fetchUsers();
     // console.log("users", users);
   }, []);
 
@@ -86,12 +92,12 @@ const Approvals = () => {
   //     console.error("Error saving user:", error);
   //   }
   // };
-  const closeApprovalRequest=()=>{
-    handleClose()
-  }
-  const closeDisapprovalRequest=()=>{
-    handleDisapprovalClose()
-  }
+  const closeApprovalRequest = () => {
+    handleClose();
+  };
+  const closeDisapprovalRequest = () => {
+    handleDisapprovalClose();
+  };
 
   const deleteUser = async (user) => {
     try {
@@ -131,90 +137,90 @@ const Approvals = () => {
       setCurrentPage(newPage);
     }
   };
-  const data=[
+  const data = [
     {
-      "id": "47b7b712-7a8b-469b-b617-d4ba040be7af",
-      "name": "Chemical testing experiment",
-      "riskAssessment": "The risk assessment for this chemical experiment identifies high potential hazards, including exposure to toxic fumes and fire risks, requiring stringent safety protocols and protective equipment to mitigate potential health and safety impacts.",
-      "staffSubmitTime": 1723751717601,
-      "supervisorApproveStatus": true,
-      "supervisorComment": null,
-      "supervisorApproveTime": 1723799375387,
-      "higherApproveStatus": true,
-      "higherApproveComment": null,
-      "higherApproveTime": 1723804124915,
-      "status": 5,
-      "orderApproveStatus": true,
-      "orderComment": null,
-      "orderApproveTime": 1723804135756,
-      "orderReceiveTime": 1723804160000,
-      "orderPlacedTime": 1723804190000,
-      "chemicalId": "7758-99-8",
-      "amount": 10,
-      "unit": "bucket          "
-    }, {
-      "id": "47b7b712-7a8b-469b-b617-d4ba040be7af",
-      "name": "Chemical testing experiment",
-      "riskAssessment": "The risk assessment for this chemical experiment identifies high potential hazards, including exposure to toxic fumes and fire risks, requiring stringent safety protocols and protective equipment to mitigate potential health and safety impacts.",
-      "staffSubmitTime": 1723751717601,
-      "supervisorApproveStatus": true,
-      "supervisorComment": null,
-      "supervisorApproveTime": 1723799375387,
-      "higherApproveStatus": true,
-      "higherApproveComment": null,
-      "higherApproveTime": 1723804124915,
-      "status": 5,
-      "orderApproveStatus": true,
-      "orderComment": null,
-      "orderApproveTime": 1723804135756,
-      "orderReceiveTime": 1723804160000,
-      "orderPlacedTime": 1723804190000,
-      "chemicalId": "7758-99-8",
-      "amount": 10,
-      "unit": "bucket          "
-    }
+      id: "47b7b712-7a8b-469b-b617-d4ba040be7af",
+      name: "Chemical testing experiment",
+      riskAssessment:
+        "The risk assessment for this chemical experiment identifies high potential hazards, including exposure to toxic fumes and fire risks, requiring stringent safety protocols and protective equipment to mitigate potential health and safety impacts.",
+      staffSubmitTime: 1723751717601,
+      supervisorApproveStatus: true,
+      supervisorComment: null,
+      supervisorApproveTime: 1723799375387,
+      higherApproveStatus: true,
+      higherApproveComment: null,
+      higherApproveTime: 1723804124915,
+      status: 5,
+      orderApproveStatus: true,
+      orderComment: null,
+      orderApproveTime: 1723804135756,
+      orderReceiveTime: 1723804160000,
+      orderPlacedTime: 1723804190000,
+      chemicalId: "7758-99-8",
+      amount: 10,
+      unit: "bucket          ",
+    },
+    {
+      id: "47b7b712-7a8b-469b-b617-d4ba040be7af",
+      name: "Chemical testing experiment",
+      riskAssessment:
+        "The risk assessment for this chemical experiment identifies high potential hazards, including exposure to toxic fumes and fire risks, requiring stringent safety protocols and protective equipment to mitigate potential health and safety impacts.",
+      staffSubmitTime: 1723751717601,
+      supervisorApproveStatus: true,
+      supervisorComment: null,
+      supervisorApproveTime: 1723799375387,
+      higherApproveStatus: true,
+      higherApproveComment: null,
+      higherApproveTime: 1723804124915,
+      status: 5,
+      orderApproveStatus: true,
+      orderComment: null,
+      orderApproveTime: 1723804135756,
+      orderReceiveTime: 1723804160000,
+      orderPlacedTime: 1723804190000,
+      chemicalId: "7758-99-8",
+      amount: 10,
+      unit: "bucket          ",
+    },
   ];
-  
 
-  const ApprovalRequest =  () => {
+  const ApprovalRequest = () => {
     // setParams(approval);
     handleShow();
-  }
+  };
 
-  const DisapprovalRequest =  () => {
+  const DisapprovalRequest = () => {
     // setParams(approval);
     handleDisapprovalShow();
-  }
+  };
 
   const StyledPopover = styled(Popover)`
-  --bs-popover-max-width: none;
-`;
+    --bs-popover-max-width: none;
+  `;
 
   const popover = (
     <StyledPopover id="popover-basic">
       {/* <Popover.Header as="h3">Popover right</Popover.Header> */}
       <div className="p-3">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Common Name</th>
-                <th>Systematic Name</th>
-                <th>Risk Category</th>
-                <th>Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              <td>Chemical1</td>       
-              <td>Chemical1</td>
-              <td>High</td>
-              <td>3</td>
-            </tbody>
-          </table>
-        </div> 
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Common Name</th>
+              <th>Systematic Name</th>
+              <th>Risk Category</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <td>Chemical1</td>
+            <td>Chemical1</td>
+            <td>High</td>
+            <td>3</td>
+          </tbody>
+        </table>
+      </div>
     </StyledPopover>
   );
-
-  
 
   return (
     <div className="container-fluid">
@@ -306,10 +312,16 @@ const Approvals = () => {
                       {/* <OverlayTrigger trigger="click" placement="bottom" overlay={popoverClick}>
                         <td>{request.chemicalId}</td>
                       </OverlayTrigger> */}
-                      <OverlayTrigger trigger="click" placement="right" overlay={popover}>
-                        <td style={{ color: '#0d6efd' }}>{request.chemicalId}</td>
+                      <OverlayTrigger
+                        trigger="click"
+                        placement="right"
+                        overlay={popover}
+                      >
+                        <td style={{ color: "#0d6efd" }}>
+                          {request.chemicalId}
+                        </td>
                       </OverlayTrigger>
-                      
+
                       <td>{request.supervisorComment}</td>
                       <td>{request.higherApproveComment}</td>
                       <td>{request.orderComment}</td>
@@ -436,21 +448,23 @@ const Approvals = () => {
                       setParams({ ...params, userName: e.target.value })
                     }
                   /> */}
-                  This experiment is classified as high-risk and it will automatically be sent for review by individuals with higher authority.
+                  This experiment is classified as high-risk and it will
+                  automatically be sent for review by individuals with higher
+                  authority.
                 </div>
               </form>
             </Modal.Body>
             <Modal.Footer>
-            <div class="d-grid gap-2 col-6 mx-auto">
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={closeApprovalRequest}
-              >
-                {/* {params.id ? "Save Changes" : "Add User"} */}
-                OK
-              </button>
-            </div>
+              <div class="d-grid gap-2 col-6 mx-auto">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={closeApprovalRequest}
+                >
+                  {/* {params.id ? "Save Changes" : "Add User"} */}
+                  OK
+                </button>
+              </div>
             </Modal.Footer>
           </Modal>
 
@@ -489,7 +503,6 @@ const Approvals = () => {
               </button>
             </Modal.Footer>
           </Modal>
-
         </div>
       </div>
     </div>

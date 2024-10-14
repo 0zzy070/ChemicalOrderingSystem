@@ -1,13 +1,16 @@
 import { React, useState, useEffect } from "react";
-import { Modal, Toast, ToastContainer, Popover,OverlayTrigger, Form } from "react-bootstrap";
+import {
+  Modal,
+  Toast,
+  ToastContainer,
+  Popover,
+  OverlayTrigger,
+} from "react-bootstrap";
 import axios from "axios";
-import IconUserPlus from "../../Assets/Icon/IconUserPlus.tsx";
-import IconListCheck from "../../Assets/Icon/IconListCheck.tsx";
-import IconLayoutGrid from "../../Assets/Icon/IconLayoutGrid.tsx";
 import IconSearch from "../../Assets/Icon/IconSearch.tsx";
 import NavigationBar from "../../Components/Layouts/NavigationBar.jsx";
 import SideBar from "../../Components/Layouts/SideBar.jsx";
-import styled from 'styled-components';
+import styled from "styled-components";
 
 const Orders = () => {
   const [value, setValue] = useState("list");
@@ -28,11 +31,11 @@ const Orders = () => {
   const accessToken = token.accessToken;
   const [showDisapprovalModal, setShowDisapprovalModal] = useState(false);
   const [showDateModal, setShowDateModal] = useState(false);
- 
+
   useEffect(() => {
     document.title = "Orders";
     // console.log(users);
-    // fetchUsers(); 
+    // fetchUsers();
     // console.log("users", users);
   }, []);
 
@@ -57,39 +60,6 @@ const Orders = () => {
   const handleDisapprovalClose = () => setShowDisapprovalModal(false);
   const handleDateShow = () => setShowDateModal(true);
   const handleDateClose = () => setShowDateModal(false);
-
-  // Add a new user
-  const addUser = (user) => {
-    setParams(user);
-    handleShow();
-  };
-
-  // const saveUser = async () => {
-  //   try {
-  //     // Construct the API URL
-  //     const url = "/api/users";
-
-  //     // Make the POST request with the user data and access token
-  //     await axios.post(url, params, {
-  //       headers: {
-  //         Authorization: `Bearer ${accessToken}`,
-  //         "Content-Type": "application/json",
-  //       },
-  //     });
-
-  //     // Optionally, update the UI or state after successful save
-  //     console.log("User saved successfully");
-  //     setToastMessage("User added successfully!");
-  //     setShowToast(true); // Show the toast notification
-
-  //     // Refresh the user list or update the state
-  //     fetchUsers(); // Fetch the latest user list
-  //     handleClose(); // Close the modal
-  //   } catch (error) {
-  //     console.error("Error saving user:", error);
-  //   }
-  // };
- 
 
   const deleteUser = async (user) => {
     try {
@@ -129,104 +99,58 @@ const Orders = () => {
       setCurrentPage(newPage);
     }
   };
-  const data=[
-    {
-      "id": "47b7b712-7a8b-469b-b617-d4ba040be7af",
-      "name": "Chemical testing experiment",
-      "riskAssessment": "The risk assessment for this chemical experiment identifies high potential hazards, including exposure to toxic fumes and fire risks, requiring stringent safety protocols and protective equipment to mitigate potential health and safety impacts.",
-      "staffSubmitTime": 1723751717601,
-      "supervisorApproveStatus": true,
-      "supervisorComment": null,
-      "supervisorApproveTime": 1723799375387,
-      "higherApproveStatus": true,
-      "higherApproveComment": null,
-      "higherApproveTime": 1723804124915,
-      "status": 5,
-      "orderApproveStatus": true,
-      "orderComment": null,
-      "orderApproveTime": 1723804135756,
-      "orderReceiveTime": 1723804160000,
-      "orderPlacedTime": 1723804190000,
-      "chemicalId": "7758-99-8",
-      "amount": 10,
-      "unit": "bucket          "
-    }, {
-      "id": "47b7b712-7a8b-469b-b617-d4ba040be7af",
-      "name": "Chemical testing experiment",
-      "riskAssessment": "The risk assessment for this chemical experiment identifies high potential hazards, including exposure to toxic fumes and fire risks, requiring stringent safety protocols and protective equipment to mitigate potential health and safety impacts.",
-      "staffSubmitTime": 1723751717601,
-      "supervisorApproveStatus": true,
-      "supervisorComment": null,
-      "supervisorApproveTime": 1723799375387,
-      "higherApproveStatus": true,
-      "higherApproveComment": null,
-      "higherApproveTime": 1723804124915,
-      "status": 5,
-      "orderApproveStatus": true,
-      "orderComment": null,
-      "orderApproveTime": 1723804135756,
-      "orderReceiveTime": 1723804160000,
-      "orderPlacedTime": 1723804190000,
-      "chemicalId": "7758-99-8",
-      "amount": 10,
-      "unit": "bucket          "
-    }
-  ];
-  
+  const data = [];
 
-  const ApprovalRequest =  () => {
+  const ApprovalRequest = () => {
     // setParams(approval);
     handleShow();
-  }
+  };
 
-  const DisapprovalRequest =  () => {
+  const DisapprovalRequest = () => {
     // setParams(approval);
     handleDisapprovalShow();
-  }
-  const closeApprovalRequest=()=>{
-    handleClose()
-  }
-  const closeDisapprovalRequest=()=>{
-    handleDisapprovalClose()
-  }
+  };
+  const closeApprovalRequest = () => {
+    handleClose();
+  };
+  const closeDisapprovalRequest = () => {
+    handleDisapprovalClose();
+  };
 
-  const SelectDate=()=>{
-    handleDateShow()
-  }
-  const closeSelectDate=()=>{
-    handleDateClose()
-  }
+  const SelectDate = () => {
+    handleDateShow();
+  };
+  const closeSelectDate = () => {
+    handleDateClose();
+  };
 
   const StyledPopover = styled(Popover)`
-  --bs-popover-max-width: none;
-`;
+    --bs-popover-max-width: none;
+  `;
 
   const popover = (
     <StyledPopover id="popover-basic">
       {/* <Popover.Header as="h3">Popover right</Popover.Header> */}
-        <div className="p-3">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Common Name</th>
-                <th>Systematic Name</th>
-                <th>Risk Category</th>
-                <th>Amount</th>
-                
-              </tr>
-            </thead>
-            <tbody>
-              <td>Chemical1</td>       
-              <td>Chemical1</td>
-              <td>High</td>
-              <td>3</td>
-            </tbody>
-          </table>
-        </div> 
+      <div className="p-3">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Common Name</th>
+              <th>Systematic Name</th>
+              <th>Risk Category</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <td>Chemical1</td>
+            <td>Chemical1</td>
+            <td>High</td>
+            <td>3</td>
+          </tbody>
+        </table>
+      </div>
     </StyledPopover>
   );
-
-  
 
   return (
     <div className="container-fluid">
@@ -241,32 +165,6 @@ const Orders = () => {
               <h2 className="h4 mb-0">Orders</h2>
             </div>
             <div className="d-flex gap-3">
-              {/* <button
-                type="button"
-                className="btn btn-primary d-flex align-items-center px-4"
-                onClick={() => addUser({})}
-              >
-                <IconUserPlus className="me-2" />
-                Add User
-              </button>
-              <button
-                type="button"
-                className={`btn btn-outline-primary d-flex align-items-center ${
-                  value === "list" && "bg-primary text-white"
-                }`}
-                onClick={() => setValue("list")}
-              >
-                <IconListCheck />
-              </button> */}
-              {/* <button
-                type="button"
-                className={`btn btn-outline-primary d-flex align-items-center ${
-                  value === "grid" && "bg-primary text-white"
-                }`}
-                onClick={() => setValue("grid")}
-              >
-                <IconLayoutGrid />
-              </button> */}
               <div className="position-relative d-flex">
                 <input
                   type="text"
@@ -304,50 +202,48 @@ const Orders = () => {
                   {/* {totalUsers.map((data) => ( */}
                   {data.map((request) => (
                     <tr key={request.id}>
-                      {/* <td>
-                        <div className="d-flex align-items-center">
-                          <img
-                            src={require("../../Assets/Images/blank-profile.png")}
-                            className="rounded-circle me-2"
-                            alt="profilepic"
-                            style={{ width: "36px", height: "36px" }}
-                          />
-                        </div>
-                      </td> */}
                       <td>{request.name}</td>
-                      {/* <OverlayTrigger trigger="click" placement="bottom" overlay={popoverClick}>
-                        <td>{request.chemicalId}</td>
-                      </OverlayTrigger> */}
-                      <OverlayTrigger trigger="click" placement="right" overlay={popover}>
-                        <td style={{ color: '#0d6efd' }}>{request.chemicalId}</td>
+
+                      <OverlayTrigger
+                        trigger="click"
+                        placement="right"
+                        overlay={popover}
+                      >
+                        <td style={{ color: "#0d6efd" }}>
+                          {request.chemicalId}
+                        </td>
                       </OverlayTrigger>
-                      
+
                       <td>{request.supervisorComment}</td>
                       <td>{request.higherApproveComment}</td>
                       <td>{request.orderComment}</td>
                       <td>status</td>
                       <td className="text-center ">
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-primary me-2"
-                          onClick={() => ApprovalRequest()}
-                        >
-                          Approval
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-danger me-2"
-                          onClick={() => DisapprovalRequest()}
-                        >
-                          Disapproval
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-primary "
-                          onClick={() => SelectDate()}
-                        >
-                          Set Disposal Date
-                        </button>
+                        <div className="d-flex justify-content-center mb-2">
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-primary me-2"
+                            onClick={() => ApprovalRequest()}
+                          >
+                            Approved
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={() => DisapprovalRequest()}
+                          >
+                            Rejected
+                          </button>
+                        </div>
+                        <div className="d-flex justify-content-center">
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-primary"
+                            onClick={() => SelectDate()}
+                          >
+                            Disposal Date
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -355,48 +251,6 @@ const Orders = () => {
               </table>
             </div>
           )}
-
-          {/* {value === "grid" && (
-            <div className="row mt-5">
-              {totalUsers.map((user) => (
-                <div className="col-xl-3 col-lg-4 col-md-6 mb-4" key={user.id}>
-                  <div className="card text-center shadow">
-                    <div className="card-body p-4">
-                      <img
-                        className="card-img-top rounded-circle mx-auto d-block"
-                        src={require("../../Assets/Images/blank-profile.png")}
-                        alt="user"
-                        style={{ width: "80%", maxHeight: "160px" }}
-                      />
-                      <h5 className="card-title mt-4">{user.userName}</h5>
-                      <p className="card-text">{user.role}</p>
-                      <div className="mt-4 text-start">
-                        <p>
-                          <strong>Employee Number:</strong>{" "}
-                          {user.employeeNumber}
-                        </p>
-                        <p>
-                          <strong>Email:</strong> {user.email}
-                        </p>
-                        <p>
-                          <strong>Role:</strong> {user.authority}
-                        </p>
-                      </div>
-                      <div className="d-flex justify-content-between mt-4">
-                        <button
-                          type="button"
-                          className="btn btn-outline-danger"
-                          onClick={() => deleteUser(user)}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )} */}
 
           {/* Pagination */}
           <div className="d-flex justify-content-end align-items-center mt-4">
@@ -440,21 +294,16 @@ const Orders = () => {
               <Modal.Title>{"Approval Windows"}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-            <form>
+              <form>
                 <div className="mb-3">
                   <label htmlFor="commonName" className="form-label">
                     Storage Location:
                   </label>
-                  {/* <input
-                    id="commonName"
-                    type="text"
+                  <select
+                    name="location"
+                    id="location"
                     className="form-control"
-                    value={params.commonName}
-                    onChange={(e) =>
-                      setParams({ ...params, commonName: e.target.value })
-                    }
-                  /> */}
-                  <select name="location" id="location" className="form-control">
+                  >
                     <option value="location1">Location1</option>
                     <option value="location2">Location2</option>
                     <option value="location3">Location3</option>
@@ -463,16 +312,16 @@ const Orders = () => {
               </form>
             </Modal.Body>
             <Modal.Footer>
-            <div class="d-grid gap-2 col-6 mx-auto">
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={closeApprovalRequest}
-              >
-                {/* {params.id ? "Save Changes" : "Add User"} */}
-                Approval
-              </button>
-            </div>
+              <div class="d-grid gap-2 col-6 mx-auto">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={closeApprovalRequest}
+                >
+                  {/* {params.id ? "Save Changes" : "Add User"} */}
+                  Approval
+                </button>
+              </div>
             </Modal.Footer>
           </Modal>
 
@@ -518,10 +367,10 @@ const Orders = () => {
               <Modal.Title>{"Disposal Date"}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-            <form>
+              <form>
                 <div className="mb-3">
                   <label htmlFor="commonName" className="form-label">
-                   Select Disposal Date:
+                    Select Disposal Date:
                   </label>
                   <input
                     id="disposalDate"
@@ -536,19 +385,18 @@ const Orders = () => {
               </form>
             </Modal.Body>
             <Modal.Footer>
-            <div class="d-grid gap-2 col-6 mx-auto">
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={closeSelectDate}
-              >
-                {/* {params.id ? "Save Changes" : "Add User"} */}
-                Submit
-              </button>
-            </div>
+              <div class="d-grid gap-2 col-6 mx-auto">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={closeSelectDate}
+                >
+                  {/* {params.id ? "Save Changes" : "Add User"} */}
+                  Submit
+                </button>
+              </div>
             </Modal.Footer>
           </Modal>
-
         </div>
       </div>
     </div>
