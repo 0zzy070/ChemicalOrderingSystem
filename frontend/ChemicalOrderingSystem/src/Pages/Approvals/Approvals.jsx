@@ -7,9 +7,6 @@ import {
   OverlayTrigger,
 } from "react-bootstrap";
 import axios from "axios";
-import IconUserPlus from "../../Assets/Icon/IconUserPlus.tsx";
-import IconListCheck from "../../Assets/Icon/IconListCheck.tsx";
-import IconLayoutGrid from "../../Assets/Icon/IconLayoutGrid.tsx";
 import IconSearch from "../../Assets/Icon/IconSearch.tsx";
 import NavigationBar from "../../Components/Layouts/NavigationBar.jsx";
 import SideBar from "../../Components/Layouts/SideBar.jsx";
@@ -27,103 +24,207 @@ const Approvals = () => {
     role: "",
     id: null,
   });
-  const [users, setUsers] = useState([]); // State to hold users data
+  const [requests, setRequests] = useState([]); // State to hold requests data
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const token = JSON.parse(localStorage.getItem("auth"));
   const accessToken = token.accessToken;
   const [showDisapprovalModal, setShowDisapprovalModal] = useState(false);
+  const [ShowSupervisorModal, setShowSupervisorModal] = useState(false);
+  const [requestToUpdate, setRequestToUpdate] = useState(null);
+  const [chemicalData, setChemicalData] = useState(null); // 存储化学品数据
+  const [loading, setLoading] = useState(false); // 控制加载状态
+  const [error, setError] = useState(null); // 错误状态
+  // const [comment, setComment] = useState('');
+
+  const data = [
+    {
+      id: "47b7b712-7a8b-469b-b617-d4ba040be7ac",
+      name: "Chemical testing experiment1",
+      riskAssessment:
+        "The risk assessment for this chemical experiment identifies high potential hazards, including exposure to toxic fumes and fire risks, requiring stringent safety protocols and protective equipment to mitigate potential health and safety impacts.",
+      staffSubmitTime: 1723751717601,
+      supervisorApproveStatus: null,
+      supervisorComment: null,
+      supervisorApproveTime: 1723799375387,
+      higherApproveStatus: null,
+      higherApproveComment: null,
+      higherApproveTime: 1723804124915,
+      status: 0,
+      orderApproveStatus: null,
+      orderComment: null,
+      orderApproveTime: 1723804135756,
+      orderReceiveTime: 1723804160000,
+      orderPlacedTime: 1723804190000,
+      chemicalId: "6931239f-631e-44ae-bd36-58b7654d52f3",
+      amount: 10,
+      unit: "bucket          ",
+    },
+    {
+      id: "47b7b712-7a8b-469b-b617-d4ba040be7af",
+      name: "Chemical testing experiment2",
+      riskAssessment:
+        "The risk assessment for this chemical experiment identifies high potential hazards, including exposure to toxic fumes and fire risks, requiring stringent safety protocols and protective equipment to mitigate potential health and safety impacts.",
+      staffSubmitTime: 1723751717601,
+      supervisorApproveStatus: null,
+      supervisorComment: null,
+      supervisorApproveTime: 1723799375387,
+      higherApproveStatus: null,
+      higherApproveComment: null,
+      higherApproveTime: 1723804124915,
+      status: 0,
+      orderApproveStatus: null,
+      orderComment: null,
+      orderApproveTime: 1723804135756,
+      orderReceiveTime: 1723804160000,
+      orderPlacedTime: 1723804190000,
+      chemicalId: "e5bcefa3-50a8-440e-a4e6-cb5e3de3ef2d",
+      amount: 5,
+      unit: "bucket          ",
+    },
+    {
+      id: "47b7b712-7a8b-469b-b617-d4ba040be7ag",
+      name: "Chemical testing experiment3",
+      riskAssessment:
+        "The risk assessment for this chemical experiment identifies high potential hazards, including exposure to toxic fumes and fire risks, requiring stringent safety protocols and protective equipment to mitigate potential health and safety impacts.",
+      staffSubmitTime: 1723751717601,
+      supervisorApproveStatus: false,
+      supervisorComment: "Not safe",
+      supervisorApproveTime: 1723799375387,
+      higherApproveStatus: null,
+      higherApproveComment: null,
+      higherApproveTime: 1723804124915,
+      status: 0,
+      orderApproveStatus: null,
+      orderComment: null,
+      orderApproveTime: 1723804135756,
+      orderReceiveTime: 1723804160000,
+      orderPlacedTime: 1723804190000,
+      chemicalId: "e5bcefa3-50a8-440e-a4e6-cb5e3de3ef2d",
+      amount: 10,
+      unit: "bucket          ",
+    },
+    {
+      id: "47b7b712-7a8b-469b-b617-d4ba040be7ab",
+      name: "Chemical testing experiment4",
+      riskAssessment:
+        "The risk assessment for this chemical experiment identifies high potential hazards, including exposure to toxic fumes and fire risks, requiring stringent safety protocols and protective equipment to mitigate potential health and safety impacts.",
+      staffSubmitTime: 1723751717601,
+      supervisorApproveStatus: true,
+      supervisorComment: null,
+      supervisorApproveTime: 1723799375387,
+      higherApproveStatus: true,
+      higherApproveComment: null,
+      higherApproveTime: 1723804124915,
+      status: 5,
+      orderApproveStatus: true,
+      orderComment: null,
+      orderApproveTime: 1723804135756,
+      orderReceiveTime: 1723804160000,
+      orderPlacedTime: 1723804190000,
+      chemicalId: "e5bcefa3-50a8-440e-a4e6-cb5e3de3ef2d",
+      amount: 15,
+      unit: "bucket          ",
+    },
+  ];
 
   useEffect(() => {
     document.title = "Approvals";
-    // console.log(users);
-    // fetchUsers();
-    // console.log("users", users);
+    // console.log(requests);
+    fetchRequests();
+    // console.log("requests", requests);
   }, []);
 
-  // Function to fetch users
-  const fetchUsers = async () => {
+  // Function to fetch requests
+  const fetchRequests = async () => {
     try {
-      const response = await axios.get("/api/users", {
+      const response = await axios.get("/api/experiments", {
         headers: {
           Authorization: `Bearer ${accessToken}`, // Set the token in the Authorization header
         },
       });
-      setUsers(response.data.data);
+      // console.log("response", response);
+      // setRequests(response.data.data);
+      setRequests(data);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("Error fetching requests:", error);
     }
   };
+
+  // console.log("requests", requests);
 
   const handleShow = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
 
-  const handleDisapprovalShow = () => setShowDisapprovalModal(true);
-  const handleDisapprovalClose = () => setShowDisapprovalModal(false);
+  const handleSupervisorShow = () => setShowSupervisorModal(true);
+  const handleSupervisorClose = () => setShowSupervisorModal(false);
 
-  // Add a new user
-  const addUser = (user) => {
-    setParams(user);
-    handleShow();
+  const handleDisapprovalShow = (request) => {
+    setRequestToUpdate(request);
+    setShowDisapprovalModal(true);
+    console.log("open one request", request);
+  };
+  const handleDisapprovalClose = () => {
+    setShowDisapprovalModal(false);
+    setRequestToUpdate(null);
   };
 
-  // const saveUser = async () => {
-  //   try {
-  //     // Construct the API URL
-  //     const url = "/api/users";
+  const handleDisapprovalSubmit = async (event) => {
+    event.preventDefault();
+    const comment = document.getElementById("comment").value || "";
+    console.log("submit comment:", comment);
 
-  //     // Make the POST request with the user data and access token
-  //     await axios.post(url, params, {
-  //       headers: {
-  //         Authorization: `Bearer ${accessToken}`,
-  //         "Content-Type": "application/json",
-  //       },
-  //     });
+    const updatedRequest = {
+      ...requestToUpdate,
+      supervisorComment: comment,
+      supervisorApproveStatus: false,
+    };
 
-  //     // Optionally, update the UI or state after successful save
-  //     console.log("User saved successfully");
-  //     setToastMessage("User added successfully!");
-  //     setShowToast(true); // Show the toast notification
-
-  //     // Refresh the user list or update the state
-  //     fetchUsers(); // Fetch the latest user list
-  //     handleClose(); // Close the modal
-  //   } catch (error) {
-  //     console.error("Error saving user:", error);
-  //   }
-  // };
-  const closeApprovalRequest = () => {
-    handleClose();
-  };
-  const closeDisapprovalRequest = () => {
-    handleDisapprovalClose();
-  };
-
-  const deleteUser = async (user) => {
     try {
-      // Construct the API URL with the user ID
-      const url = `api/users/${user.id}`;
-
-      // Make the DELETE request with the access token
-      await axios.delete(url, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      // Optionally, update the UI or state after successful deletion
-      console.log("User deleted successfully");
-      setToastMessage("User deleted successfully!");
-      setShowToast(true); // Show the toast notification
-
-      // Refresh the user list or update the state
-      fetchUsers(); // Fetch the latest user list
+      await updateRequest(updatedRequest);
+      setRequests((prevRequests) =>
+        prevRequests.map((req) =>
+          req.id === updatedRequest.id ? updatedRequest : req
+        )
+      );
+      handleDisapprovalClose();
     } catch (error) {
-      console.error("Error deleting user:", error);
+      console.error("Error processing the request:", error);
     }
   };
 
-  const totalUsers = users.filter((user) => {
+  // Add a new user
+  // const addUser = (user) => {
+  //   setParams(user);
+  //   handleShow();
+  // };
+
+  const updateRequest = async (requestToUpdate) => {
+    console.log("Updating request status:", requestToUpdate);
+    // const updateApiUrl = `http://13.238.27.37:8080/api/experiments/${requestToUpdate.id}`;
+    //   const updateResponse = await fetch(updateApiUrl, {
+    //     method: 'PATCH',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({ ...requestToUpdate, status: requestToUpdate.status, supervisorApproveStatus: requestToUpdate.supervisorApproveStatus, supervisorComment: requestToUpdate.supervisorComment}),
+    //   });
+
+    //   if (updateResponse.ok) {
+    //     console.log('Request status updated successfully.');
+    //   } else {
+    //     console.error('Failed to update request status.');
+    //   }
+  };
+
+  const closeApprovalRequest = () => {
+    handleClose();
+  };
+  // const closeDisapprovalRequest=()=>{
+  //   handleDisapprovalClose()
+  // }
+
+  const totalUsers = requests.filter((user) => {
     const userName = user.userName || "";
     return userName.toLowerCase().includes(search.toLowerCase());
   });
@@ -137,61 +238,81 @@ const Approvals = () => {
       setCurrentPage(newPage);
     }
   };
-  const data = [
-    {
-      id: "47b7b712-7a8b-469b-b617-d4ba040be7af",
-      name: "Chemical testing experiment",
-      riskAssessment:
-        "The risk assessment for this chemical experiment identifies high potential hazards, including exposure to toxic fumes and fire risks, requiring stringent safety protocols and protective equipment to mitigate potential health and safety impacts.",
-      staffSubmitTime: 1723751717601,
-      supervisorApproveStatus: true,
-      supervisorComment: null,
-      supervisorApproveTime: 1723799375387,
-      higherApproveStatus: true,
-      higherApproveComment: null,
-      higherApproveTime: 1723804124915,
-      status: 5,
-      orderApproveStatus: true,
-      orderComment: null,
-      orderApproveTime: 1723804135756,
-      orderReceiveTime: 1723804160000,
-      orderPlacedTime: 1723804190000,
-      chemicalId: "7758-99-8",
-      amount: 10,
-      unit: "bucket          ",
-    },
-    {
-      id: "47b7b712-7a8b-469b-b617-d4ba040be7af",
-      name: "Chemical testing experiment",
-      riskAssessment:
-        "The risk assessment for this chemical experiment identifies high potential hazards, including exposure to toxic fumes and fire risks, requiring stringent safety protocols and protective equipment to mitigate potential health and safety impacts.",
-      staffSubmitTime: 1723751717601,
-      supervisorApproveStatus: true,
-      supervisorComment: null,
-      supervisorApproveTime: 1723799375387,
-      higherApproveStatus: true,
-      higherApproveComment: null,
-      higherApproveTime: 1723804124915,
-      status: 5,
-      orderApproveStatus: true,
-      orderComment: null,
-      orderApproveTime: 1723804135756,
-      orderReceiveTime: 1723804160000,
-      orderPlacedTime: 1723804190000,
-      chemicalId: "7758-99-8",
-      amount: 10,
-      unit: "bucket          ",
-    },
-  ];
 
-  const ApprovalRequest = () => {
+  const ApprovalRequest = async (id) => {
     // setParams(approval);
-    handleShow();
+    try {
+      const requestToUpdate = requests.find((req) => req.id === id);
+
+      if (!requestToUpdate) {
+        console.error("Request not found");
+        return;
+      }
+
+      const chemicalApiUrl = `/api/chemicals/${requestToUpdate.chemicalId}`;
+
+      const response = await axios.get(chemicalApiUrl, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`, // Set the token in the Authorization header
+        },
+      });
+
+      const chemicalData = response.data.data;
+
+      let updatedStatus = requestToUpdate.status;
+      console.log("Chemical data:", chemicalData);
+      if (chemicalData.riskCategory === 2) {
+        updatedStatus = 1;
+      } else {
+        updatedStatus = 2;
+      }
+      requestToUpdate.status = updatedStatus;
+      requestToUpdate.supervisorApproveStatus = true;
+
+      const updatedRequests = requests.map((req) =>
+        req.id === id
+          ? {
+              ...req,
+              status: requestToUpdate.status,
+              supervisorApproveStatus: requestToUpdate.supervisorApproveStatus,
+            }
+          : req
+      );
+
+      setRequests(updatedRequests);
+      if (updatedStatus === 1) {
+        handleShow();
+      } else if (updatedStatus === 2) {
+        handleSupervisorShow();
+      }
+      // console.log('Request status updated:', requests);
+
+      // update request status in the backend
+      updateRequest(requestToUpdate);
+    } catch (error) {
+      console.error(
+        "Error fetching chemical data or updating request status:",
+        error
+      );
+    }
   };
 
-  const DisapprovalRequest = () => {
-    // setParams(approval);
-    handleDisapprovalShow();
+  const fetchChemicalData = async (chemicalId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const chemicalApiUrl = `/api/chemicals/${chemicalId}`;
+      const response = await axios.get(chemicalApiUrl, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`, // Set the token in the Authorization header
+        },
+      });
+      setChemicalData(response.data.data);
+    } catch (error) {
+      setError("Failed to load chemical data");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const StyledPopover = styled(Popover)`
@@ -212,15 +333,93 @@ const Approvals = () => {
             </tr>
           </thead>
           <tbody>
-            <td>Chemical1</td>
-            <td>Chemical1</td>
-            <td>High</td>
-            <td>3</td>
+            {/* <td>Chemical1</td>       
+              <td>Chemical1</td>
+              <td>High</td>
+              <td>3</td> */}
+            {loading ? (
+              <tr>
+                <td colSpan="4">Loading...</td>
+              </tr>
+            ) : error ? (
+              <tr>
+                <td colSpan="4">{error}</td>
+              </tr>
+            ) : chemicalData ? (
+              <tr>
+                <td>{chemicalData.commonName}</td>
+                <td>{chemicalData.systematicName}</td>
+                <td>{chemicalData.riskCategory}</td>
+                <td>{chemicalData.amount}</td>
+              </tr>
+            ) : (
+              <tr>
+                <td colSpan="4">No data available</td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
     </StyledPopover>
   );
+
+  const getTableStatus = (data) => {
+    // Check supervisor approval status
+    if (data.status === 0) {
+      if (data.supervisorApproveStatus === null) {
+        return "processing";
+      }
+      if (data.supervisorApproveStatus === false) {
+        return "supervisor disapprove";
+      }
+      if (data.supervisorApproveStatus === true) {
+        return "supervisor approve";
+      }
+    }
+
+    // Check higher approver status
+    if (data.status === 1) {
+      if (data.higherApproveStatus === null) {
+        return "processing(higher approver)";
+      }
+      if (data.higherApproveStatus === false) {
+        return "higher approver disapprove";
+      }
+      if (data.higherApproveStatus === true) {
+        return "higher approver approve";
+      }
+    }
+
+    // Check order manager status
+    if (data.status === 2) {
+      if (data.orderApproveStatus === null) {
+        return "processing(order)";
+      }
+      if (data.orderApproveStatus === false) {
+        return "order manager disapprove";
+      }
+      if (data.orderApproveStatus === true) {
+        return "order manager approve";
+      }
+    }
+
+    // Check order manager ordered, received, and placed
+    if (data.status === 3) {
+      return "order manager ordered";
+    }
+    if (data.status === 4) {
+      return "order manager received";
+    }
+    if (data.status === 5) {
+      return "order manager placed";
+    }
+
+    return "Unknown status"; // Fallback case if nothing matches
+  };
+  // const handleCommentChange = (event) => {
+  //   setComment(event.target.value);
+  //   console.log('comment:', event.target.value);
+  // };
 
   return (
     <div className="container-fluid">
@@ -286,7 +485,8 @@ const Approvals = () => {
                   <tr>
                     {/* <th>Image</th> */}
                     <th>Experiment Name</th>
-                    <th>Chemical ID</th>
+                    <th>Chemical</th>
+                    <th>Chemical Amount</th>
                     <th>Supervisor Comment</th>
                     <th>Higher approver Comment</th>
                     <th>Order Comment</th>
@@ -296,7 +496,7 @@ const Approvals = () => {
                 </thead>
                 <tbody>
                   {/* {totalUsers.map((data) => ( */}
-                  {data.map((request) => (
+                  {requests.map((request) => (
                     <tr key={request.id}>
                       {/* <td>
                         <div className="d-flex align-items-center">
@@ -316,28 +516,27 @@ const Approvals = () => {
                         trigger="click"
                         placement="right"
                         overlay={popover}
+                        onEnter={() => fetchChemicalData(request.chemicalId)}
                       >
-                        <td style={{ color: "#0d6efd" }}>
-                          {request.chemicalId}
-                        </td>
+                        <td style={{ color: "#0d6efd" }}>View</td>
                       </OverlayTrigger>
-
+                      <td>{request.amount}</td>
                       <td>{request.supervisorComment}</td>
                       <td>{request.higherApproveComment}</td>
                       <td>{request.orderComment}</td>
-                      <td>status</td>
+                      <td>{getTableStatus(request)}</td>
                       <td className="text-center ">
                         <button
                           type="button"
                           className="btn btn-sm btn-outline-primary me-2"
-                          onClick={() => ApprovalRequest()}
+                          onClick={() => ApprovalRequest(request.id)}
                         >
                           Approval
                         </button>
                         <button
                           type="button"
                           className="btn btn-sm btn-outline-danger"
-                          onClick={() => DisapprovalRequest()}
+                          onClick={() => handleDisapprovalShow(request)}
                         >
                           Disapproval
                         </button>
@@ -428,6 +627,45 @@ const Approvals = () => {
           </ToastContainer>
 
           {/* Modal for Approval */}
+          <Modal show={ShowSupervisorModal} onHide={handleSupervisorClose}>
+            <Modal.Header closeButton>
+              <Modal.Title>{"Approval Windows"}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <form>
+                <div className="mb-3">
+                  {/* <label htmlFor="userName" className="form-label">
+                    Comment:
+                  </label>
+                  <textarea
+                    type="text"
+                    className="form-control"
+                    id="username"
+                    value={params.userName || ""}
+                    style={{ height: "200px" }}
+                    onChange={(e) =>
+                      setParams({ ...params, userName: e.target.value })
+                    }
+                  /> */}
+                  Approval successfully!
+                </div>
+              </form>
+            </Modal.Body>
+            <Modal.Footer>
+              <div class="d-grid gap-2 col-6 mx-auto">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleSupervisorClose}
+                >
+                  {/* {params.id ? "Save Changes" : "Add User"} */}
+                  OK
+                </button>
+              </div>
+            </Modal.Footer>
+          </Modal>
+
+          {/* Modal for Higher Approval */}
           <Modal show={showModal} onHide={handleClose}>
             <Modal.Header closeButton>
               <Modal.Title>{"Approval Windows"}</Modal.Title>
@@ -474,7 +712,7 @@ const Approvals = () => {
               <Modal.Title>{"Disapproval Comment"}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <form>
+              <form onSubmit={handleDisapprovalSubmit}>
                 <div className="mb-3">
                   <label htmlFor="userName" className="form-label">
                     Comment:
@@ -482,26 +720,23 @@ const Approvals = () => {
                   <textarea
                     type="text"
                     className="form-control"
-                    id="username"
-                    value={params.userName || ""}
+                    id="comment"
                     style={{ height: "200px" }}
-                    onChange={(e) =>
-                      setParams({ ...params, userName: e.target.value })
-                    }
+                    // value={comment}
+                    // onChange={handleCommentChange}
                   />
                 </div>
+                <button
+                  type="submit"
+                  className="btn btn-primary "
+                  // onClick={closeDisapprovalRequest}
+                  id="disapproval-submit"
+                >
+                  {/* {params.id ? "Save Changes" : "Add User"} */}
+                  Submit
+                </button>
               </form>
             </Modal.Body>
-            <Modal.Footer>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={closeDisapprovalRequest}
-              >
-                {/* {params.id ? "Save Changes" : "Add User"} */}
-                Disapprove
-              </button>
-            </Modal.Footer>
           </Modal>
         </div>
       </div>
