@@ -329,7 +329,6 @@ const Approvals = () => {
               <th>Common Name</th>
               <th>Systematic Name</th>
               <th>Risk Category</th>
-              <th>Amount</th>
             </tr>
           </thead>
           <tbody>
@@ -349,8 +348,15 @@ const Approvals = () => {
               <tr>
                 <td>{chemicalData.commonName}</td>
                 <td>{chemicalData.systematicName}</td>
-                <td>{chemicalData.riskCategory}</td>
-                <td>{chemicalData.amount}</td>
+                <td>
+                  {chemicalData.riskCategory === 0
+                    ? 'Low'
+                    : chemicalData.riskCategory === 1
+                    ? 'Medium'
+                    : chemicalData.riskCategory === 2
+                    ? 'High'
+                    : chemicalData.riskCategory}
+                </td>
               </tr>
             ) : (
               <tr>

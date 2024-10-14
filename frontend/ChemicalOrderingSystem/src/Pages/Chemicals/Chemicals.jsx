@@ -193,7 +193,7 @@ const Chemicals = () => {
                 onClick={() => addChemical({})}
               >
                 <IconFlask className="me-2" />
-                Add a Chemcial
+                Add a Chemical
               </button>
               <div className="position-relative d-flex">
                 <input
@@ -236,7 +236,13 @@ const Chemicals = () => {
                         {chemical.systematicName}
                       </p>
                       <p>
-                        <strong>Risk Category:</strong> {chemical.riskCategory}
+                        <strong>Risk Category:</strong> {chemical.riskCategory === 0
+                                                          ? 'Low'
+                                                          : chemical.riskCategory === 1
+                                                          ? 'Medium'
+                                                          : chemical.riskCategory === 2
+                                                          ? 'High'
+                                                          : chemical.riskCategory}
                       </p>
                       <p>
                         <strong>Storage Period:</strong>{" "}
@@ -341,7 +347,7 @@ const Chemicals = () => {
                   <label htmlFor="riskCategory" className="form-label">
                     Risk Category
                   </label>
-                  <input
+                  {/* <input
                     id="riskCategory"
                     type="text"
                     className="form-control"
@@ -351,7 +357,20 @@ const Chemicals = () => {
                       setParams({ ...params, riskCategory: isNaN(intValue) ? '' : intValue  });
                       }
                     }
-                  />
+                  /> */}
+                  <select
+                    id="riskCategory"
+                    className="form-control"
+                    value={params.riskCategory}
+                    onChange={(e) => {
+                      setParams({ ...params, riskCategory: parseInt(e.target.value, 10) });
+                    }}
+                  >
+                    <option value="">Please select</option>
+                    <option value={0}>Low</option>
+                    <option value={1}>Medium</option>
+                    <option value={2}>High</option>
+                  </select>
                 </div>
                 <div className="mb-3">
                   <label htmlFor="storagePeriod" className="form-label">
