@@ -60,7 +60,7 @@ public class Experiment {
     @Column(columnDefinition = "bigint")
     private Long orderPlacedTime;
 
-    @Column(columnDefinition = "character varying(16)")
+    @Column(columnDefinition = "character varying(64)")
     private String chemicalId;
 
     @Column(columnDefinition = "smallint")
