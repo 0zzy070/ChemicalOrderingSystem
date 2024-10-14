@@ -17,7 +17,7 @@ const Experiments = () => {
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 8;
   const [params, setParams] = useState({
     name: "",
     chemicalId: "",
@@ -26,8 +26,11 @@ const Experiments = () => {
   });
   const [experiments, setExperiments] = useState([]);
   const [showToast, setShowToast] = useState(false);
+  const [chemicals, setChemicals] = useState([]);
   const [toastMessage, setToastMessage] = useState("");
-  const [showPopover, setShowPopover] = useState(false);
+  const [activeChemicalId, setActiveChemicalId] = useState(null); // Track active popover
+  const [chemical, setChemical] = useState(null); // State for selected chemical
+
   const token = JSON.parse(localStorage.getItem("auth"));
   const accessToken = token.accessToken;
 
@@ -38,8 +41,13 @@ const Experiments = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (showPopover && !event.target.closest(".popover")) {
-        setShowPopover(false);
+      // Close the popover if clicked outside and there is an active popover
+      if (
+        activeChemicalId && // Check if any popover is active
+        !event.target.closest(".popover") && // Click outside the popover
+        !event.target.closest("td") // Click outside the <td> that triggers the popover
+      ) {
+        setActiveChemicalId(null); // Close the popover
       }
     };
 
@@ -48,7 +56,35 @@ const Experiments = () => {
     return () => {
       document.removeEventListener("click", handleClickOutside);
     };
-  }, [showPopover]);
+  }, [activeChemicalId]);
+
+  const handlePopoverToggle = async (chemicalId) => {
+    try {
+      const response = await axios.get("/api/chemicals", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`, // Set the token in the Authorization header
+        },
+      });
+      const chemicalsList = response.data.data;
+
+      // Find the chemical with the matching ID
+      const selectedChemical = chemicalsList.find(
+        (chemical) => chemical.id === chemicalId
+      );
+
+      if (selectedChemical) {
+        setChemical(selectedChemical); // Save the matched chemical data to state
+      } else {
+        setChemical(null); // Clear state if no match found
+      }
+      console.log(chemicals);
+    } catch (error) {
+      console.error("Error fetching chemicals:", error);
+    }
+    setActiveChemicalId((prevId) =>
+      prevId === chemicalId ? null : chemicalId
+    );
+  };
 
   // Fetch experiments from the API
   const fetchExperiments = async () => {
@@ -64,7 +100,20 @@ const Experiments = () => {
     }
   };
 
-  const handleShow = () => setShowModal(true);
+  const handleShow = async () => {
+    try {
+      const response = await axios.get("/api/chemicals", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`, // Set the token in the Authorization header
+        },
+      });
+      setChemicals(response.data.data);
+    } catch (error) {
+      console.error("Error fetching chemicals:", error);
+    }
+
+    setShowModal(true);
+  };
   const handleClose = () => {
     setShowModal(false);
     setParams({ name: "", chemicalId: "", amount: "", id: null }); // Reset params on close
@@ -163,11 +212,6 @@ const Experiments = () => {
     --bs-popover-max-width: none;
   `;
 
-  const handlePopoverToggle = (e) => {
-    e.stopPropagation(); // Prevent event from bubbling up to document
-    setShowPopover((prev) => !prev); // Toggle popover visibility
-  };
-
   const popover = (
     <StyledPopover id="popover-basic">
       <div className="p-3">
@@ -182,10 +226,18 @@ const Experiments = () => {
           </thead>
           <tbody>
             <tr>
-              <td>Chemical1</td>
-              <td>Chemical1</td>
-              <td>High</td>
-              <td>3</td>
+              <td>{chemical?.commonName || "N/A"}</td>
+              <td>{chemical?.systematicName || "N/A"}</td>
+              <td>
+                {chemical?.riskCategory === 0
+                  ? "Low"
+                  : chemical?.riskCategory === 1
+                  ? "Medium"
+                  : chemical?.riskCategory === 2
+                  ? "High"
+                  : "N/A"}
+              </td>
+              <td>{params.amount || "N/A"}</td>
             </tr>
           </tbody>
         </table>
@@ -257,11 +309,13 @@ const Experiments = () => {
                         trigger="click"
                         placement="right"
                         overlay={popover}
-                        show={showPopover}
+                        show={activeChemicalId === experiment.chemicalId} // Show popover only if this chemicalId is active
                       >
                         <td
-                          style={{ color: "#0d6efd" }}
-                          onClick={handlePopoverToggle}
+                          style={{ color: "#0d6efd", cursor: "pointer" }}
+                          onClick={() =>
+                            handlePopoverToggle(experiment.chemicalId)
+                          } // Pass the specific chemicalId to toggle
                         >
                           {experiment.chemicalId}
                         </td>
@@ -296,33 +350,104 @@ const Experiments = () => {
           </div>
 
           {/* Pagination */}
-          <div className="d-flex justify-content-end align-items-center mt-4">
-            <span className="me-3">
-              {`${(currentPage - 1) * itemsPerPage + 1}-${Math.min(
-                currentPage * itemsPerPage,
-                filteredExperiments.length
-              )} of ${filteredExperiments.length} items`}
-            </span>
+          <div className="d-flex justify-content-center align-items-center gap-3">
             <button
-              className="btn btn-sm btn-outline-primary me-2"
+              className="btn btn-primary"
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
             >
-              &larr; {/* Left arrow */}
+              Previous
             </button>
+            <span>{`Page ${currentPage} of ${totalPages}`}</span>
             <button
-              className="btn btn-sm btn-outline-primary"
+              className="btn btn-primary"
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
             >
-              &rarr; {/* Right arrow */}
+              Next
             </button>
           </div>
         </div>
       </div>
 
-      {/* Toast for messages */}
-      <ToastContainer position="top-end">
+      {/* Modal */}
+      <Modal show={showModal} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {params.id ? "Edit Experiment" : "New Experiment"}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="mb-3">
+            <label htmlFor="name" className="form-label">
+              Experiment Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              className="form-control"
+              value={params.name}
+              onChange={(e) =>
+                setParams((prevState) => ({
+                  ...prevState,
+                  name: e.target.value,
+                }))
+              }
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="chemicalId" className="form-label">
+              Chemical Name
+            </label>
+            <select
+              id="chemicalId"
+              className="form-control"
+              value={params.chemicalId}
+              onChange={(e) =>
+                setParams((prevState) => ({
+                  ...prevState,
+                  chemicalId: e.target.value,
+                }))
+              }
+            >
+              <option value="">Select a chemical</option>
+              {chemicals.map((chemical) => (
+                <option key={chemical.id} value={chemical.id}>
+                  {chemical.commonName}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="mb-3">
+            <label htmlFor="amount" className="form-label">
+              Amount
+            </label>
+            <input
+              type="number"
+              id="amount"
+              className="form-control"
+              value={params.amount}
+              onChange={(e) =>
+                setParams((prevState) => ({
+                  ...prevState,
+                  amount: e.target.value,
+                }))
+              }
+            />
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <button className="btn btn-secondary" onClick={handleClose}>
+            Cancel
+          </button>
+          <button className="btn btn-primary" onClick={saveExperiment}>
+            Save Experiment
+          </button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Toast */}
+      <ToastContainer position="top-end" className="p-3">
         <Toast
           onClose={() => setShowToast(false)}
           show={showToast}
@@ -332,67 +457,6 @@ const Experiments = () => {
           <Toast.Body>{toastMessage}</Toast.Body>
         </Toast>
       </ToastContainer>
-
-      {/* Modal for adding/editing experiments */}
-      <Modal show={showModal} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>
-            {params.id ? "Edit Experiment" : "Add Experiment"}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <form>
-            <div className="mb-3">
-              <label htmlFor="experimentName" className="form-label">
-                Experiment Name
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="experimentName"
-                value={params.name}
-                onChange={(e) => setParams({ ...params, name: e.target.value })}
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="chemicalId" className="form-label">
-                Chemical ID
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="chemicalId"
-                value={params.chemicalId}
-                onChange={(e) =>
-                  setParams({ ...params, chemicalId: e.target.value })
-                }
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="amount" className="form-label">
-                Amount
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="amount"
-                value={params.amount}
-                onChange={(e) =>
-                  setParams({ ...params, amount: e.target.value })
-                }
-              />
-            </div>
-          </form>
-        </Modal.Body>
-        <Modal.Footer>
-          <button className="btn btn-secondary" onClick={handleClose}>
-            Close
-          </button>
-          <button className="btn btn-primary" onClick={saveExperiment}>
-            Save Changes
-          </button>
-        </Modal.Footer>
-      </Modal>
     </div>
   );
 };

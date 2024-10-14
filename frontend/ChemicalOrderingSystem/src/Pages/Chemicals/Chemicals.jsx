@@ -1,9 +1,7 @@
-import { useState,useEffect } from "react";
-import { Modal,Toast, ToastContainer } from "react-bootstrap";
+import { useState, useEffect } from "react";
+import { Modal, Toast, ToastContainer } from "react-bootstrap";
 import React from "react";
 import IconFlask from "../../Assets/Icon/IconChemicalFlaskPlus.tsx";
-// import IconListCheck from "../../Assets/Icon/IconListCheck.tsx";
-// import IconLayoutGrid from "../../Assets/Icon/IconLayoutGrid.tsx";
 import IconSearch from "../../Assets/Icon/IconSearch.tsx";
 import NavigationBar from "../../Components/Layouts/NavigationBar.jsx";
 import SideBar from "../../Components/Layouts/SideBar.jsx";
@@ -14,7 +12,7 @@ const Chemicals = () => {
   const [search, setSearch] = useState("");
   const [chemicals, setChemicals] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const itemsPerPage = 10;
+  const itemsPerPage = 4; // Show 4 items per page
   const [currentPage, setCurrentPage] = useState(1);
   const [params, setParams] = useState({
     commonName: "",
@@ -31,9 +29,7 @@ const Chemicals = () => {
 
   useEffect(() => {
     document.title = "Chemicals";
-    console.log(chemicals);
-    fetchChemicals(); // Fetch users when the component mounts
-    console.log("chemicals", chemicals);
+    fetchChemicals(); // Fetch chemicals when the component mounts
   }, []);
 
   // Function to fetch chemicals
@@ -44,57 +40,30 @@ const Chemicals = () => {
           Authorization: `Bearer ${accessToken}`, // Set the token in the Authorization header
         },
       });
-      console.log("Chemicals:", response.data.data);
       setChemicals(response.data.data);
     } catch (error) {
       console.error("Error fetching chemicals:", error);
     }
   };
 
-  // const Chemicals = [
-  //   {
-  //     id: 1,
-  //     commonName: "Acetone",
-  //     systematicName: "Propan-2-one",
-  //     riskCategory: 2,
-  //     storagePeriod: 3,
-  //     path: "blank-profile.png",
-  //   },
-  //   {
-  //     id: 2,
-  //     commonName: "Hydrochloric Acid",
-  //     systematicName: "Hydrogen chloride",
-  //     riskCategory: 1,
-  //     storagePeriod: 5,
-  //     path: "blank-profile.png",
-  //   },
-
-  //   // Add more contacts here
-  // ];
-
   const handleShow = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
-  // Add a new Chemical
+
   const addChemical = (chemical) => {
     setParams(chemical);
     handleShow();
   };
 
-  const saveChemical = async() => {
+  const saveChemical = async () => {
     try {
-      // Construct the API URL
       let url = "/api/chemicals";
       let method = "post";
 
-      console.log("params", params);
-      // Determine the HTTP method
       if (params.id) {
         url = `/api/chemicals/${params.id}`;
         method = "patch";
       }
-      console.log("url", url);
 
-      // Make the POST request with the user data and access token
       await axios({
         method: method,
         url: url,
@@ -105,66 +74,54 @@ const Chemicals = () => {
         },
       });
 
-      // Optionally, update the UI or state after successful save
-      console.log("Chemical saved successfully");
-      setToastMessage(params.id ? "Chemical updated successfully!" : "Chemical added successfully!");
-      setShowToast(true); // Show the toast notification
-
-      // Refresh the user list or update the state
-      fetchChemicals(); // Fetch the latest user list
+      setToastMessage(
+        params.id
+          ? "Chemical updated successfully!"
+          : "Chemical added successfully!"
+      );
+      setShowToast(true);
+      fetchChemicals(); // Fetch the latest chemical list
       handleClose(); // Close the modal
     } catch (error) {
       console.error("Error saving user:", error);
     }
   };
-  
+
   const editChemical = (chemical) => {
     setParams(chemical);
     handleShow();
   };
 
-  
-
-  const deleteChemical = async (chemical) =>{
+  const deleteChemical = async (chemical) => {
     try {
-      // Construct the API URL with the user ID
       const url = `api/chemicals/${chemical.id}`;
-
-      // Make the DELETE request with the access token
       await axios.delete(url, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
 
-      // Optionally, update the UI or state after successful deletion
-      console.log("Chemical deleted successfully");
-      setToastMessage("chemicals deleted successfully!");
-      setShowToast(true); // Show the toast notification
-
-      // Refresh the Chemical list or update the state
+      setToastMessage("Chemical deleted successfully!");
+      setShowToast(true);
       fetchChemicals(); // Fetch the latest Chemical list
     } catch (error) {
       console.error("Error deleting Chemical:", error);
     }
   };
 
-  const totalChemicals = chemicals.filter((chemical) =>{
+  // Filter and paginate chemicals based on the search term
+  const totalChemicals = chemicals.filter((chemical) => {
     const chemicalName = chemical.commonName || "";
     return chemicalName.toLowerCase().includes(search.toLowerCase());
-    }
+  });
+
+  // Calculate pagination
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedChemicals = totalChemicals.slice(
+    startIndex,
+    startIndex + itemsPerPage
   );
 
-  const searchChemical = () => {
-    if (search === "") {
-      fetchChemicals();
-    }
-    console.log("search", search);
-    console.log("totalChemicals", totalChemicals);
-    setChemicals(totalChemicals);
-  }
-
-  // Calculate the total number of pages
   const totalPages = Math.ceil(totalChemicals.length / itemsPerPage);
 
   // Handle page change
@@ -172,6 +129,10 @@ const Chemicals = () => {
     if (newPage > 0 && newPage <= totalPages) {
       setCurrentPage(newPage);
     }
+  };
+
+  const searchChemical = () => {
+    setCurrentPage(1); // Reset to first page on search
   };
 
   return (
@@ -206,7 +167,7 @@ const Chemicals = () => {
                 <button
                   type="button"
                   className="btn position-absolute end-0 top-50 translate-middle-y"
-                  onClick={() => searchChemical({})}
+                  onClick={searchChemical}
                 >
                   <IconSearch />
                 </button>
@@ -215,7 +176,7 @@ const Chemicals = () => {
           </div>
 
           <div className="row mt-5">
-            {chemicals.map((chemical) => (
+            {paginatedChemicals.map((chemical) => (
               <div
                 className="col-xl-3 col-lg-4 col-md-6 mb-4"
                 key={chemical.id}
@@ -229,20 +190,20 @@ const Chemicals = () => {
                       style={{ width: "70%", height: "150px" }}
                     />
                     <h5 className="card-title mt-4">{chemical.commonName}</h5>
-                    {/* <p className="card-text">{chemical.riskCategory}</p> */}
                     <div className="mt-4 text-start">
                       <p>
                         <strong>Systematic Name:</strong>{" "}
                         {chemical.systematicName}
                       </p>
                       <p>
-                        <strong>Risk Category:</strong> {chemical.riskCategory === 0
-                                                          ? 'Low'
-                                                          : chemical.riskCategory === 1
-                                                          ? 'Medium'
-                                                          : chemical.riskCategory === 2
-                                                          ? 'High'
-                                                          : chemical.riskCategory}
+                        <strong>Risk Category:</strong>{" "}
+                        {chemical.riskCategory === 0
+                          ? "Low"
+                          : chemical.riskCategory === 1
+                          ? "Medium"
+                          : chemical.riskCategory === 2
+                          ? "High"
+                          : chemical.riskCategory}
                       </p>
                       <p>
                         <strong>Storage Period:</strong>{" "}
@@ -276,8 +237,8 @@ const Chemicals = () => {
             <span className="me-3">
               {`${(currentPage - 1) * itemsPerPage + 1}-${Math.min(
                 currentPage * itemsPerPage,
-                chemicals.length
-              )} of ${chemicals.length} items`}
+                totalChemicals.length
+              )} of ${totalChemicals.length} items`}
             </span>
             <button
               className="btn btn-sm btn-outline-primary me-2"
@@ -307,10 +268,11 @@ const Chemicals = () => {
             </Toast>
           </ToastContainer>
 
+          {/* Modal for Add/Edit */}
           <Modal show={showModal} onHide={handleClose} centered>
             <Modal.Header closeButton>
               <Modal.Title>
-                {params.id ? "Edit Chemical" : "Add Chemical"}
+                {params.id ? "Edit Chemical" : "Add a New Chemical"}
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>
@@ -320,9 +282,9 @@ const Chemicals = () => {
                     Common Name
                   </label>
                   <input
-                    id="commonName"
                     type="text"
                     className="form-control"
+                    id="commonName"
                     value={params.commonName}
                     onChange={(e) =>
                       setParams({ ...params, commonName: e.target.value })
@@ -334,9 +296,9 @@ const Chemicals = () => {
                     Systematic Name
                   </label>
                   <input
-                    id="systematicName"
                     type="text"
                     className="form-control"
+                    id="systematicName"
                     value={params.systematicName}
                     onChange={(e) =>
                       setParams({ ...params, systematicName: e.target.value })
@@ -347,26 +309,18 @@ const Chemicals = () => {
                   <label htmlFor="riskCategory" className="form-label">
                     Risk Category
                   </label>
-                  {/* <input
-                    id="riskCategory"
-                    type="text"
-                    className="form-control"
-                    value={params.riskCategory}
-                    onChange={(e) =>{
-                      const intValue = parseInt(e.target.value, 10);
-                      setParams({ ...params, riskCategory: isNaN(intValue) ? '' : intValue  });
-                      }
-                    }
-                  /> */}
                   <select
                     id="riskCategory"
-                    className="form-control"
-                    value={params.riskCategory}
-                    onChange={(e) => {
-                      setParams({ ...params, riskCategory: parseInt(e.target.value, 10) });
-                    }}
+                    className="form-select"
+                    value={params.riskCategory || ""}
+                    onChange={(e) =>
+                      setParams({
+                        ...params,
+                        riskCategory: Number(e.target.value),
+                      })
+                    }
                   >
-                    <option value="">Please select</option>
+                    <option value="">Select Category</option>
                     <option value={0}>Low</option>
                     <option value={1}>Medium</option>
                     <option value={2}>High</option>
@@ -377,14 +331,15 @@ const Chemicals = () => {
                     Storage Period
                   </label>
                   <input
-                    id="storagePeriod"
-                    type="text"
+                    type="number"
                     className="form-control"
+                    id="storagePeriod"
                     value={params.storagePeriod}
-                    onChange={(e) =>{
-                      const intValue = parseInt(e.target.value, 10);
-                      setParams({ ...params, storagePeriod: isNaN(intValue) ? '' : intValue  });
-                      }
+                    onChange={(e) =>
+                      setParams({
+                        ...params,
+                        storagePeriod: Number(e.target.value),
+                      })
                     }
                   />
                 </div>
@@ -393,17 +348,17 @@ const Chemicals = () => {
             <Modal.Footer>
               <button
                 type="button"
-                className="btn btn-outline-danger"
+                className="btn btn-secondary"
                 onClick={handleClose}
               >
-                Cancel
+                Close
               </button>
               <button
                 type="button"
                 className="btn btn-primary"
                 onClick={saveChemical}
               >
-                {params.id ? "Update" : "Add"}
+                {params.id ? "Update Chemical" : "Save Chemical"}
               </button>
             </Modal.Footer>
           </Modal>
