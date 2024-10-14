@@ -24,32 +24,31 @@ const Orders = () => {
     role: "",
     id: null,
   });
-  const [users, setUsers] = useState([]); // State to hold users data
   const [showToast, setShowToast] = useState(false);
+  const [orders, setOrders] = useState([]); // State to hold orders data
   const [toastMessage, setToastMessage] = useState("");
   const token = JSON.parse(localStorage.getItem("auth"));
   const accessToken = token.accessToken;
   const [showDisapprovalModal, setShowDisapprovalModal] = useState(false);
   const [showDateModal, setShowDateModal] = useState(false);
+  const [locations, setLocations] = useState([]);
 
   useEffect(() => {
     document.title = "Orders";
-    // console.log(users);
-    // fetchUsers();
-    // console.log("users", users);
+    fetchOrders();
   }, []);
 
-  // Function to fetch users
-  const fetchUsers = async () => {
+  // Function to fetch orders
+  const fetchOrders = async () => {
     try {
-      const response = await axios.get("/api/users", {
+      const response = await axios.get("/api/experiments", {
         headers: {
-          Authorization: `Bearer ${accessToken}`, // Set the token in the Authorization header
+          Authorization: `Bearer ${accessToken}`,
         },
       });
-      setUsers(response.data.data);
+      setOrders(response.data.data);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("Error fetching experiments:", error);
     }
   };
 
@@ -61,10 +60,10 @@ const Orders = () => {
   const handleDateShow = () => setShowDateModal(true);
   const handleDateClose = () => setShowDateModal(false);
 
-  const deleteUser = async (user) => {
+  const deleteOrder = async (order) => {
     try {
-      // Construct the API URL with the user ID
-      const url = `api/users/${user.id}`;
+      // Construct the API URL with the order ID
+      const url = `api/orders/${order.id}`;
 
       // Make the DELETE request with the access token
       await axios.delete(url, {
@@ -74,24 +73,24 @@ const Orders = () => {
       });
 
       // Optionally, update the UI or state after successful deletion
-      console.log("User deleted successfully");
-      setToastMessage("User deleted successfully!");
+      console.log("order deleted successfully");
+      setToastMessage("order deleted successfully!");
       setShowToast(true); // Show the toast notification
 
-      // Refresh the user list or update the state
-      fetchUsers(); // Fetch the latest user list
+      // Refresh the order list or update the state
+      fetchOrders(); // Fetch the latest order list
     } catch (error) {
-      console.error("Error deleting user:", error);
+      console.error("Error deleting order:", error);
     }
   };
 
-  const totalUsers = users.filter((user) => {
-    const userName = user.userName || "";
-    return userName.toLowerCase().includes(search.toLowerCase());
+  const totalorders = orders.filter((order) => {
+    const name = order.name || "";
+    return name.toLowerCase().includes(search.toLowerCase());
   });
 
   // Calculate the total number of pages
-  const totalPages = Math.ceil(totalUsers.length / itemsPerPage);
+  const totalPages = Math.ceil(totalorders.length / itemsPerPage);
 
   // Handle page change
   const handlePageChange = (newPage) => {
@@ -99,10 +98,28 @@ const Orders = () => {
       setCurrentPage(newPage);
     }
   };
-  const data = [];
 
-  const ApprovalRequest = () => {
-    // setParams(approval);
+  const ApprovalRequest = async () => {
+    try {
+      const response = await axios.get(
+        `/api/organizational-units/listByOrgType/2`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      const data = response.data.data;
+
+      if (Array.isArray(data)) {
+        setLocations(data);
+      } else {
+        console.error("Expected an array but received:", data);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
     handleShow();
   };
 
@@ -183,82 +200,77 @@ const Orders = () => {
             </div>
           </div>
 
-          {value === "list" && (
-            <div className="mt-5">
-              <table className="table table-striped table-hover">
-                <thead>
-                  <tr>
-                    {/* <th>Image</th> */}
-                    <th>Experiment Name</th>
-                    <th>Chemical ID</th>
-                    <th>Supervisor Comment</th>
-                    <th>Higher approver Comment</th>
-                    <th>Order Comment</th>
-                    <th>Status</th>
-                    <th className="text-center">Actions</th>
+          <div className="mt-5">
+            <table className="table table-striped table-hover">
+              <thead>
+                <tr>
+                  {/* <th>Image</th> */}
+                  <th>Experiment Name</th>
+                  <th>Chemical ID</th>
+                  <th>Supervisor Comment</th>
+                  <th>Higher approver Comment</th>
+                  <th>Order Comment</th>
+                  <th>Status</th>
+                  <th className="text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {totalorders.map((order) => (
+                  <tr key={order.id}>
+                    <td>{order.name}</td>
+
+                    <OverlayTrigger
+                      trigger="click"
+                      placement="right"
+                      overlay={popover}
+                    >
+                      <td style={{ color: "#0d6efd" }}>{order.chemicalId}</td>
+                    </OverlayTrigger>
+
+                    <td>{order.supervisorComment}</td>
+                    <td>{order.higherApproveComment}</td>
+                    <td>{order.orderComment}</td>
+                    <td>status</td>
+                    <td className="text-center ">
+                      <div className="d-flex justify-content-center mb-2">
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-primary me-2"
+                          onClick={() => ApprovalRequest()}
+                        >
+                          Approve
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => DisapprovalRequest()}
+                        >
+                          Reject
+                        </button>
+                      </div>
+                      <div className="d-flex justify-content-center">
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-primary"
+                          onClick={() => SelectDate()}
+                        >
+                          Disposal Date
+                        </button>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {/* {totalUsers.map((data) => ( */}
-                  {data.map((request) => (
-                    <tr key={request.id}>
-                      <td>{request.name}</td>
-
-                      <OverlayTrigger
-                        trigger="click"
-                        placement="right"
-                        overlay={popover}
-                      >
-                        <td style={{ color: "#0d6efd" }}>
-                          {request.chemicalId}
-                        </td>
-                      </OverlayTrigger>
-
-                      <td>{request.supervisorComment}</td>
-                      <td>{request.higherApproveComment}</td>
-                      <td>{request.orderComment}</td>
-                      <td>status</td>
-                      <td className="text-center ">
-                        <div className="d-flex justify-content-center mb-2">
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-primary me-2"
-                            onClick={() => ApprovalRequest()}
-                          >
-                            Approved
-                          </button>
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() => DisapprovalRequest()}
-                          >
-                            Rejected
-                          </button>
-                        </div>
-                        <div className="d-flex justify-content-center">
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={() => SelectDate()}
-                          >
-                            Disposal Date
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           {/* Pagination */}
           <div className="d-flex justify-content-end align-items-center mt-4">
             <span className="me-3">
               {`${(currentPage - 1) * itemsPerPage + 1}-${Math.min(
                 currentPage * itemsPerPage,
-                totalUsers.length
-              )} of ${totalUsers.length} items`}
+                totalorders.length
+              )} of ${totalorders.length} items`}
             </span>
             <button
               className="btn btn-sm btn-outline-primary me-2"
@@ -276,7 +288,7 @@ const Orders = () => {
             </button>
           </div>
 
-          {/* Toast Message for Adding & Deleting User */}
+          {/* Toast Message for Adding & Deleting order */}
           <ToastContainer position="top-end" className="p-3">
             <Toast
               onClose={() => setShowToast(false)}
@@ -303,10 +315,16 @@ const Orders = () => {
                     name="location"
                     id="location"
                     className="form-control"
+                    defaultValue=""
                   >
-                    <option value="location1">Location1</option>
-                    <option value="location2">Location2</option>
-                    <option value="location3">Location3</option>
+                    <option value="" disabled>
+                      Select a location
+                    </option>
+                    {locations.map((location) => (
+                      <option key={location.id} value={location.id}>
+                        {location.orgName}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </form>
@@ -318,8 +336,8 @@ const Orders = () => {
                   className="btn btn-primary"
                   onClick={closeApprovalRequest}
                 >
-                  {/* {params.id ? "Save Changes" : "Add User"} */}
-                  Approval
+                  {/* {params.id ? "Save Changes" : "Add order"} */}
+                  Approve
                 </button>
               </div>
             </Modal.Footer>
@@ -333,17 +351,17 @@ const Orders = () => {
             <Modal.Body>
               <form>
                 <div className="mb-3">
-                  <label htmlFor="userName" className="form-label">
+                  <label htmlFor="orderName" className="form-label">
                     Comment:
                   </label>
                   <textarea
                     type="text"
                     className="form-control"
-                    id="username"
-                    value={params.userName || ""}
+                    id="ordername"
+                    value={params.orderName || ""}
                     style={{ height: "200px" }}
                     onChange={(e) =>
-                      setParams({ ...params, userName: e.target.value })
+                      setParams({ ...params, orderName: e.target.value })
                     }
                   />
                 </div>
@@ -355,7 +373,7 @@ const Orders = () => {
                 className="btn btn-primary"
                 onClick={closeDisapprovalRequest}
               >
-                {/* {params.id ? "Save Changes" : "Add User"} */}
+                {/* {params.id ? "Save Changes" : "Add order"} */}
                 Disapprove
               </button>
             </Modal.Footer>
@@ -391,7 +409,7 @@ const Orders = () => {
                   className="btn btn-primary"
                   onClick={closeSelectDate}
                 >
-                  {/* {params.id ? "Save Changes" : "Add User"} */}
+                  {/* {params.id ? "Save Changes" : "Add order"} */}
                   Submit
                 </button>
               </div>

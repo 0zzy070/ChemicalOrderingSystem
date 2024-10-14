@@ -99,10 +99,10 @@ const Experiments = () => {
           }
         : {
             name: params.name,
-            //riskAssessment: "hello",
+            riskAssessment: "hello",
             chemicalId: params.chemicalId,
             amount: Number(params.amount),
-            //unit: "bucket",
+            unit: "bucket",
           };
 
       await axios({
