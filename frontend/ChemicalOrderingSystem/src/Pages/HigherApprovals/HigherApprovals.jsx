@@ -52,7 +52,7 @@ const HigherApprovals = () => {
         },
       });
       const filteredRequests = response.data.data.filter(
-        (request) => request.status === 1
+        (request) => request.status === 2
       );
       setRequests(filteredRequests);
     } catch (error) {
@@ -132,6 +132,7 @@ const HigherApprovals = () => {
     } else {
       console.error("Failed to update request status.");
     }
+    fetchRequests();
   };
 
   const closeApprovalRequest = () => {
@@ -162,7 +163,7 @@ const HigherApprovals = () => {
         return;
       }
 
-      requestToUpdate.status = 2;
+      requestToUpdate.status = 3;
       requestToUpdate.higherApproveStatus = true;
 
       const updatedRequests = requests.map((req) =>
@@ -216,7 +217,6 @@ const HigherApprovals = () => {
 
   const popover = (
     <StyledPopover id="popover-basic">
-      {/* <Popover.Header as="h3">Popover right</Popover.Header> */}
       <div className="p-3">
         <table className="table">
           <thead>

@@ -13,7 +13,6 @@ import SideBar from "../../Components/Layouts/SideBar.jsx";
 import styled from "styled-components";
 
 const Orders = () => {
-  const [value, setValue] = useState("list");
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,11 +26,16 @@ const Orders = () => {
   const [showToast, setShowToast] = useState(false);
   const [orders, setOrders] = useState([]); // State to hold orders data
   const [toastMessage, setToastMessage] = useState("");
+  const [activeChemicalId, setActiveChemicalId] = useState(null);
+  const [chemicalData, setChemicalData] = useState(null);
   const token = JSON.parse(localStorage.getItem("auth"));
   const accessToken = token.accessToken;
   const [showDisapprovalModal, setShowDisapprovalModal] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [showDateModal, setShowDateModal] = useState(false);
   const [locations, setLocations] = useState([]);
+  const [selectedLocationId, setSelectedLocationId] = useState(""); // Add this line to define selectedLocationId state
+  const [orderToUpdate, setOrderToUpdate] = useState(null); // Add this line to define orderToUpdate state
 
   useEffect(() => {
     document.title = "Orders";
@@ -43,20 +47,68 @@ const Orders = () => {
     try {
       const response = await axios.get("/api/experiments", {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`, // Set the token in the Authorization header
         },
       });
-      setOrders(response.data.data);
+      const filteredRequests = response.data.data.filter(
+        (request) => request.status === 3
+      );
+      setOrders(filteredRequests);
     } catch (error) {
-      console.error("Error fetching experiments:", error);
+      console.error("Error fetching requests:", error);
     }
   };
 
-  const handleShow = () => setShowModal(true);
+  const ApprovalRequestFetch = async () => {
+    try {
+      const response = await axios.get(
+        `/api/organizational-units/listByOrgType/2`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      const data = response.data.data;
+      if (Array.isArray(data)) {
+        setLocations(data);
+      } else {
+        console.error("Expected an array but received:", data);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
   const handleClose = () => setShowModal(false);
 
-  const handleDisapprovalShow = () => setShowDisapprovalModal(true);
-  const handleDisapprovalClose = () => setShowDisapprovalModal(false);
+  const handleApprovalShow = (orderId) => {
+    setSelectedOrderId(orderId);
+    setShowModal(true);
+    ApprovalRequestFetch();
+  };
+
+  const handleApprovalClose = () => {
+    setShowModal(false);
+    setSelectedOrderId(null);
+    setSelectedLocationId(""); // Clear selected location ID on modal close
+  };
+
+  const confirmApproval = () => {
+    if (selectedOrderId) {
+      ApprovalRequest(selectedOrderId, selectedLocationId); // Pass selected location ID to API call
+    }
+    setShowModal(false);
+  };
+
+  const handleDisapprovalShow = (order) => {
+    setShowDisapprovalModal(true);
+    setOrderToUpdate(order);
+  };
+  const handleDisapprovalClose = () => {
+    setShowDisapprovalModal(false);
+    setOrderToUpdate(null);
+  };
   const handleDateShow = () => setShowDateModal(true);
   const handleDateClose = () => setShowDateModal(false);
 
@@ -84,6 +136,36 @@ const Orders = () => {
     }
   };
 
+  const handleDisapprovalSubmit = async (event) => {
+    event.preventDefault();
+    const comment = document.getElementById("comment").value || "";
+    console.log("submit comment:", comment);
+    if (!orderToUpdate) {
+      console.error("No order to update.");
+      return;
+    }
+    const updatedOrder = {
+      ...orderToUpdate,
+      orderApproveComment: comment,
+      orderApproveStatus: false,
+      status: 1,
+    };
+
+    try {
+      await updateOrder(updatedOrder);
+      setOrders((prevOrders) =>
+        prevOrders.map((req) =>
+          req.id === updatedOrder.id ? updatedOrder : req
+        )
+      );
+      console.log(updatedOrder.id);
+      console.log(Orders.id);
+      handleDisapprovalClose();
+    } catch (error) {
+      console.error("Error processing the request:", error);
+    }
+  };
+
   const totalorders = orders.filter((order) => {
     const name = order.name || "";
     return name.toLowerCase().includes(search.toLowerCase());
@@ -99,34 +181,61 @@ const Orders = () => {
     }
   };
 
-  const ApprovalRequest = async () => {
+  const ApprovalRequest = async (id, locationId) => {
     try {
-      const response = await axios.get(
-        `/api/organizational-units/listByOrgType/2`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
+      const requestToUpdate = orders.find((req) => req.id === id);
+
+      if (!requestToUpdate) {
+        console.error("Request not found");
+        return;
+      }
+
+      requestToUpdate.status = 3;
+      requestToUpdate.orderApproveStatus = true;
+      //requestToUpdate.locationId = locationId; // Add selected location ID to the request
+
+      const updatedRequests = orders.map((req) =>
+        req.id === id
+          ? {
+              ...req,
+              status: requestToUpdate.status,
+              orderApproveStatus: requestToUpdate.orderApproveStatus,
+              //locationId: requestToUpdate.locationId,
+            }
+          : req
       );
 
-      const data = response.data.data;
-
-      if (Array.isArray(data)) {
-        setLocations(data);
-      } else {
-        console.error("Expected an array but received:", data);
-      }
+      setOrders(updatedRequests);
+      updateOrder(requestToUpdate);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error updating request status with location ID:", error);
     }
-    handleShow();
   };
 
-  const DisapprovalRequest = () => {
-    // setParams(approval);
-    handleDisapprovalShow();
+  const updateOrder = async (requestToUpdate) => {
+    const updateApiUrl = `http://13.238.27.37:8080/api/experiments/${requestToUpdate.id}`;
+    const updateResponse = await fetch(updateApiUrl, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...requestToUpdate,
+        status: requestToUpdate.status,
+        orderApproveStatus: requestToUpdate.orderApproveStatus,
+        //locationId: requestToUpdate.locationId,
+      }),
+    });
+    fetchOrders();
+
+    if (updateResponse.ok) {
+      console.log("Request status updated successfully.");
+    } else {
+      console.error("Failed to update request status.");
+    }
   };
+
   const closeApprovalRequest = () => {
     handleClose();
   };
@@ -141,13 +250,36 @@ const Orders = () => {
     handleDateClose();
   };
 
+  const handlePopoverToggle = async (chemicalId) => {
+    if (activeChemicalId === chemicalId) {
+      setActiveChemicalId(null);
+    } else {
+      try {
+        const response = await axios.get("/api/chemicals", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        const chemicalsList = response.data.data;
+
+        const selectedChemical = chemicalsList.find(
+          (chemical) => chemical.id === chemicalId
+        );
+
+        setChemicalData(selectedChemical || null);
+      } catch (error) {
+        console.error("Error fetching chemicals:", error);
+      }
+      setActiveChemicalId(chemicalId); // Set the clicked chemicalId
+    }
+  };
+
   const StyledPopover = styled(Popover)`
     --bs-popover-max-width: none;
   `;
 
   const popover = (
     <StyledPopover id="popover-basic">
-      {/* <Popover.Header as="h3">Popover right</Popover.Header> */}
       <div className="p-3">
         <table className="table">
           <thead>
@@ -159,10 +291,17 @@ const Orders = () => {
             </tr>
           </thead>
           <tbody>
-            <td>Chemical1</td>
-            <td>Chemical1</td>
-            <td>High</td>
-            <td>3</td>
+            <td>{chemicalData?.commonName || "N/A"}</td>
+            <td>{chemicalData?.systematicName || "N/A"}</td>
+            <td>
+              {chemicalData?.riskCategory === 0
+                ? "Low"
+                : chemicalData?.riskCategory === 1
+                ? "Medium"
+                : chemicalData?.riskCategory === 2
+                ? "High"
+                : "N/A"}
+            </td>
           </tbody>
         </table>
       </div>
@@ -223,8 +362,14 @@ const Orders = () => {
                       trigger="click"
                       placement="right"
                       overlay={popover}
+                      show={activeChemicalId === order.chemicalId} //
                     >
-                      <td style={{ color: "#0d6efd" }}>{order.chemicalId}</td>
+                      <td
+                        style={{ color: "#0d6efd" }}
+                        onClick={() => handlePopoverToggle(order.chemicalId)}
+                      >
+                        {order.chemicalId}
+                      </td>
                     </OverlayTrigger>
 
                     <td>{order.supervisorComment}</td>
@@ -236,14 +381,14 @@ const Orders = () => {
                         <button
                           type="button"
                           className="btn btn-sm btn-outline-primary me-2"
-                          onClick={() => ApprovalRequest()}
+                          onClick={() => handleApprovalShow(order.id)}
                         >
                           Approve
                         </button>
                         <button
                           type="button"
                           className="btn btn-sm btn-outline-danger"
-                          onClick={() => DisapprovalRequest()}
+                          onClick={() => handleDisapprovalShow(order)}
                         >
                           Reject
                         </button>
@@ -301,7 +446,7 @@ const Orders = () => {
           </ToastContainer>
 
           {/* Modal for Approval */}
-          <Modal show={showModal} onHide={handleClose}>
+          <Modal show={showModal} onHide={handleApprovalClose}>
             <Modal.Header closeButton>
               <Modal.Title>{"Approval Windows"}</Modal.Title>
             </Modal.Header>
@@ -315,7 +460,8 @@ const Orders = () => {
                     name="location"
                     id="location"
                     className="form-control"
-                    defaultValue=""
+                    value={selectedLocationId} // Bind the selected location ID
+                    onChange={(e) => setSelectedLocationId(e.target.value)} // Update state when a location is selected
                   >
                     <option value="" disabled>
                       Select a location
@@ -334,7 +480,8 @@ const Orders = () => {
                 <button
                   type="button"
                   className="btn btn-primary"
-                  onClick={closeApprovalRequest}
+                  onClick={confirmApproval}
+                  onToggle={closeApprovalRequest}
                 >
                   {/* {params.id ? "Save Changes" : "Add order"} */}
                   Approve
@@ -349,7 +496,7 @@ const Orders = () => {
               <Modal.Title>{"Disapproval Comment"}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <form>
+              <form onSubmit={handleDisapprovalSubmit}>
                 <div className="mb-3">
                   <label htmlFor="orderName" className="form-label">
                     Comment:
@@ -357,26 +504,27 @@ const Orders = () => {
                   <textarea
                     type="text"
                     className="form-control"
-                    id="ordername"
-                    value={params.orderName || ""}
+                    id="comment"
+                    //value={params.orderApproveComment || ""}
                     style={{ height: "200px" }}
                     onChange={(e) =>
-                      setParams({ ...params, orderName: e.target.value })
+                      setParams({
+                        ...params,
+                        orderApproveComment: e.target.value,
+                      })
                     }
                   />
                 </div>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  id="disapproval-submit"
+                >
+                  {/* {params.id ? "Save Changes" : "Add order"} */}
+                  Disapprove
+                </button>
               </form>
             </Modal.Body>
-            <Modal.Footer>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={closeDisapprovalRequest}
-              >
-                {/* {params.id ? "Save Changes" : "Add order"} */}
-                Disapprove
-              </button>
-            </Modal.Footer>
           </Modal>
 
           {/* Modal for Disposal Date */}
