@@ -110,7 +110,7 @@ const Location = () => {
     if (params.orgType == 2) {
       fetchInstitutes();
     } else if (params.orgType == 3) {
-      fetchStorageLocations();
+      fetchInstitutes();
     }
   }, [params.orgType]);
 
@@ -154,13 +154,6 @@ const Location = () => {
       console.error("Error saving location:", error);
     }
   };
-
-  /* We Do not use Cleanup Needed
-  const editLocation = (location) => {
-    setParams(location);
-    handleShow();
-  };
-  */
 
   const deleteLocation = async (location) => {
     try {
@@ -388,7 +381,6 @@ const Location = () => {
                 onChange={handleOrgTypeChange}
               >
                 <option value="">Select Location Type</option>
-                <option value={1}>Institute</option>
                 <option value={2}>Storage Location</option>
                 <option value={3}>Research Centre</option>
                 <option value={4}>Laboratory</option>
@@ -432,11 +424,11 @@ const Location = () => {
                     setParams({ ...params, researchCentreId: e.target.value })
                   }
                 >
-                  <option value="">Select Research Centre</option>
-                  {Array.isArray(researchCentres) &&
-                    researchCentres.map((centre) => (
-                      <option key={centre.id} value={centre.id}>
-                        {centre.orgName}
+                  <option value="">Select Institute</option>
+                  {Array.isArray(institutes) &&
+                    institutes.map((institute) => (
+                      <option key={institute.id} value={institute.id}>
+                        {institute.orgName}
                       </option>
                     ))}
                 </select>
