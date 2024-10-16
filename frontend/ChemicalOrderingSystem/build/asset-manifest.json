@@ -1,15 +1,16 @@
 {
   "files": {
-    "main.css": "/static/css/main.97ac5cf2.css",
-    "main.js": "/static/js/main.6389f0a2.js",
+    "main.css": "/static/css/main.0078a972.css",
+    "main.js": "/static/js/main.a2359a33.js",
+    "static/media/default-chemical.jpg": "/static/media/default-chemical.3433615958ab0d43ffa4.jpg",
     "static/media/login-background.jpeg": "/static/media/login-background.a89e6e8942107a1539bb.jpeg",
     "static/media/flinders-logo.png": "/static/media/flinders-logo.fdc4f934e9d88a8dfd8b.png",
     "index.html": "/index.html",
-    "main.97ac5cf2.css.map": "/static/css/main.97ac5cf2.css.map",
-    "main.6389f0a2.js.map": "/static/js/main.6389f0a2.js.map"
+    "main.0078a972.css.map": "/static/css/main.0078a972.css.map",
+    "main.a2359a33.js.map": "/static/js/main.a2359a33.js.map"
   },
   "entrypoints": [
-    "static/css/main.97ac5cf2.css",
-    "static/js/main.6389f0a2.js"
+    "static/css/main.0078a972.css",
+    "static/js/main.a2359a33.js"
   ]
 }
