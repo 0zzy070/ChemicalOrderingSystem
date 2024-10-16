@@ -1,50 +1,49 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Modal } from "react-bootstrap";
 import axios from "axios";
 import IconUserPlus from "../../Assets/Icon/IconUserPlus.tsx";
-import IconListCheck from "../../Assets/Icon/IconListCheck.tsx";
-import IconLayoutGrid from "../../Assets/Icon/IconLayoutGrid.tsx";
 import IconSearch from "../../Assets/Icon/IconSearch.tsx";
 import NavigationBar from "../../Components/Layouts/NavigationBar.jsx";
 import SideBar from "../../Components/Layouts/SideBar.jsx";
+import LocationTypeModal from "./LocationTypeModal.jsx";
 
 const Location = () => {
-  const [value, setValue] = useState("list");
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [showLocationTypeModal, setShowLocationTypeModal] = useState(false);
   const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
   const [params, setParams] = useState({
-    name: "",
-    email: "",
-    role: "",
-    location: "",
+    pid: "",
+    orgName: "",
+    orgType: "",
+    instituteId: "",
     id: null,
+    researchCentreId: null,
   });
   const [locations, setLocations] = useState([]);
+  const [institutes, setInstitutes] = useState([]);
+  const [researchCentres, setResearchCentres] = useState([]);
   const token = JSON.parse(localStorage.getItem("auth"));
   const accessToken = token.accessToken;
-  const orgType = -1;
 
   useEffect(() => {
     document.title = "Locations";
     fetchLocations();
-  });
+  }, [search, currentPage]);
 
   const fetchLocations = async () => {
     try {
       const response = await axios.get(
-        `/api/organizational-units/listByOrgType/${orgType}`,
+        `/api/organizational-units/listByOrgType/1`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         }
       );
-      // Access the 'data' property of the response object
       const data = response.data.data;
-
-      // If the response.data is an object containing the array
       if (Array.isArray(data)) {
         setLocations(data);
       } else {
@@ -55,58 +54,160 @@ const Location = () => {
     }
   };
 
+  const fetchInstitutes = async () => {
+    try {
+      const response = await axios.get(
+        `/api/organizational-units/listByOrgType/1`,
+
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      setInstitutes(response.data.data);
+    } catch (error) {
+      console.error("Error fetching institutes:", error);
+    }
+  };
+
+  const fetchStorageLocations = async () => {
+    try {
+      const response = await axios.get(
+        `/api/organizational-units/listByOrgType/2`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      setResearchCentres(response.data);
+    } catch (error) {
+      console.error("Error fetching research centres:", error);
+    }
+  };
+
   const handleShow = () => setShowModal(true);
-  const handleClose = () => setShowModal(false);
+  const handleClose = () => {
+    setShowModal(false);
+    setParams({
+      orgName: "",
+      orgType: null,
+      instituteId: null,
+      researchCentreId: null,
+    });
+  };
+
+  const handleOrgTypeChange = (e) => {
+    const selectedOrgType = e.target.value;
+    setParams((prevParams) => ({
+      ...prevParams,
+      orgType: selectedOrgType,
+    }));
+  };
+
+  useEffect(() => {
+    if (params.orgType == 2) {
+      fetchInstitutes();
+    } else if (params.orgType == 3) {
+      fetchStorageLocations();
+    }
+  }, [params.orgType]);
 
   const saveLocation = async () => {
     try {
-      if (params.id) {
-        await axios.put(
-          `https://your-api-endpoint.com/locations/${params.id}`,
-          params
-        );
-      } else {
-        await axios.post("https://your-api-endpoint.com/locations", params);
+      const apiUrl = `/api/organizational-units/createOrganizationalUnit`;
+
+      if (params.orgType == "2") {
+        const payload = {
+          pid: params.instituteId || null,
+          orgName: params.orgName,
+          orgType: params.orgType,
+          hasSpecialEquipment:
+            params.orgType === 2 ? params.hasSpecialEquipment : 0,
+        };
+
+        await axios.post(apiUrl, payload, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+      } else if (params.orgType == "3") {
+        const payload = {
+          pid: params.researchCentreId || null,
+          orgName: params.orgName,
+          orgType: params.orgType,
+          hasSpecialEquipment:
+            params.orgType === 2 ? params.hasSpecialEquipment : 0,
+        };
+
+        await axios.post(apiUrl, payload, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
       }
-      //fetchLocations();
+
+      fetchLocations();
       handleClose();
     } catch (error) {
       console.error("Error saving location:", error);
     }
   };
 
+  /* We Do not use Cleanup Needed
   const editLocation = (location) => {
     setParams(location);
     handleShow();
   };
-
-  const addLocation = (location) => {
-    setParams(location);
-    handleShow();
-  };
+  */
 
   const deleteLocation = async (location) => {
     try {
-      await axios.delete(
-        `https://your-api-endpoint.com/locations/${location.id}`
-      );
-      //fetchLocations();
+      await axios.post(`/api/organizational-units/deleteById/${location.id}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      fetchLocations();
     } catch (error) {
       console.error("Error deleting location:", error);
     }
   };
 
   const totalLocations = locations.filter((location) =>
-    location.orgName.toLowerCase().includes(search.toLowerCase())
+    location.id.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Calculate the total number of pages
   const totalPages = Math.ceil(totalLocations.length / itemsPerPage);
 
-  // Handle page change
   const handlePageChange = (newPage) => {
     if (newPage > 0 && newPage <= totalPages) {
       setCurrentPage(newPage);
+    }
+  };
+
+  const handleShowLocationTypeModal = () => setShowLocationTypeModal(true);
+  const handleCloseLocationTypeModal = () => setShowLocationTypeModal(false);
+  const [selectedLocationId, setSelectedLocationId] = useState(null);
+
+  const openLocationTypeModal = (locationId) => {
+    setSelectedLocationId(locationId);
+    setShowLocationTypeModal(true);
+  };
+
+  const handleOptionSelect = (type) => {
+    setShowLocationTypeModal(false);
+
+    switch (type) {
+      case "locationStorage":
+        window.location.href = `/storagelocations/${selectedLocationId}`;
+        break;
+      case "research":
+        window.location.href = `/researchcentre/${selectedLocationId}`;
+        break;
+      default:
+        break;
     }
   };
 
@@ -126,28 +227,10 @@ const Location = () => {
               <button
                 type="button"
                 className="btn btn-primary d-flex align-items-center px-4"
-                onClick={() => addLocation({})}
+                onClick={handleShow}
               >
                 <IconUserPlus className="me-2" />
                 Add Location
-              </button>
-              <button
-                type="button"
-                className={`btn btn-outline-primary d-flex align-items-center ${
-                  value === "list" && "bg-primary text-white"
-                }`}
-                onClick={() => setValue("list")}
-              >
-                <IconListCheck />
-              </button>
-              <button
-                type="button"
-                className={`btn btn-outline-primary d-flex align-items-center ${
-                  value === "grid" && "bg-primary text-white"
-                }`}
-                onClick={() => setValue("grid")}
-              >
-                <IconLayoutGrid />
               </button>
               <div className="position-relative d-flex">
                 <input
@@ -167,177 +250,240 @@ const Location = () => {
             </div>
           </div>
 
-          {value === "list" && (
-            <div className="mt-5">
-              <table className="table table-striped table-hover">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Organization Name</th>
-                    <th className="text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {locations.map((location) => (
-                    <tr key={location.id}>
-                      <td>
-                        <div className="d-flex align-items-center">
-                          <img
-                            src={require("../../Assets/Images/blank-profile.png")}
-                            className="rounded-circle me-2"
-                            alt="profilepic"
-                            style={{ width: "36px", height: "36px" }}
-                          />
-                          <div>{location.id}</div>
-                        </div>
-                      </td>
-                      <td>{location.orgName}</td>
-                      <td className="text-center">
-                        <button
-                          className="btn btn-sm btn-outline-secondary me-2"
-                          onClick={() => editLocation(location)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => deleteLocation(location)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {value === "grid" && (
-            <div className="row">
-              {locations.map((location) => (
-                <div key={location.id} className="col-md-4 mb-4">
-                  <div className="card">
-                    <div className="card-body">
-                      <h5 className="card-title">{location.name}</h5>
-                      <p className="card-text">{location.email}</p>
-                      <p className="card-text">{location.role}</p>
-                      <p className="card-text">{location.location}</p>
+          <div className="mt-5">
+            <table className="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>ID</th>
+                  <th>Organization Name</th>
+                  <th className="text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {totalLocations.map((location) => (
+                  <tr key={location.id}>
+                    <td>
+                      <div className="d-flex align-items-center">
+                        <img
+                          src={require("../../Assets/Images/blank-profile.png")}
+                          className="rounded-circle me-2"
+                          alt="profilepic"
+                          style={{ width: "36px", height: "36px" }}
+                        />
+                      </div>
+                    </td>
+                    <td>
+                      <span
+                        role="button"
+                        onClick={() => openLocationTypeModal(location.id)}
+                        style={{
+                          cursor: "pointer",
+                          textDecoration: "none",
+                        }}
+                      >
+                        {location.id}
+                      </span>
+                    </td>
+                    <td>{location.orgName}</td>
+                    <td className="text-center">
+                      {/*
                       <button
-                        className="btn btn-outline-secondary me-2"
+                        className="btn btn-sm btn-outline-secondary me-2"
                         onClick={() => editLocation(location)}
                       >
                         Edit
                       </button>
+                      */}
                       <button
-                        className="btn btn-outline-danger"
+                        type="button"
+                        className="btn btn-sm btn-outline-danger"
                         onClick={() => deleteLocation(location)}
                       >
                         Delete
                       </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-        {/* Pagination */}
-        <div className="d-flex justify-content-end align-items-center mt-4">
-          <span className="me-3">
-            {`${(currentPage - 1) * itemsPerPage + 1}-${Math.min(
-              currentPage * itemsPerPage,
-              totalLocations.length
-            )} of ${totalLocations.length} items`}
-          </span>
-          <button
-            className="btn btn-sm btn-outline-primary me-2"
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            &larr; {/* Left arrow */}
-          </button>
-          <button
-            className="btn btn-sm btn-outline-primary"
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          >
-            &rarr; {/* Right arrow */}
-          </button>
+          {/* Pagination */}
+          <div className="d-flex justify-content-center">
+            <nav>
+              <ul className="pagination">
+                <li
+                  className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
+                >
+                  <button
+                    className="page-link"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                  >
+                    Previous
+                  </button>
+                </li>
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <li
+                    key={i}
+                    className={`page-item ${
+                      currentPage === i + 1 ? "active" : ""
+                    }`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => handlePageChange(i + 1)}
+                    >
+                      {i + 1}
+                    </button>
+                  </li>
+                ))}
+                <li
+                  className={`page-item ${
+                    currentPage === totalPages ? "disabled" : ""
+                  }`}
+                >
+                  <button
+                    className="page-link"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                  >
+                    Next
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          </div>
         </div>
-
-        <Modal show={showModal} onHide={handleClose} centered>
-          <Modal.Header closeButton>
-            <Modal.Title>
-              {params.id ? "Edit Location" : "Add Location"}
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <form>
-              <div className="mb-3">
-                <label htmlFor="name" className="form-label">
-                  Oragnization Name
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  className="form-control"
-                  value={params.orgName}
-                  onChange={(e) =>
-                    setParams({ ...params, orgName: e.target.value })
-                  }
-                />
-              </div>
-              <div className="mb-3">
-                <label htmlFor="email" className="form-label">
-                  Organization Type
-                </label>
-                <input
-                  id="type"
-                  type="text"
-                  className="form-control"
-                  value={params.orgType}
-                  onChange={(e) =>
-                    setParams({ ...params, orgType: e.target.value })
-                  }
-                />
-              </div>
-              <div className="mb-3">
-                <label htmlFor="role" className="form-label">
-                  Role
-                </label>
-                <input
-                  id="role"
-                  type="text"
-                  className="form-control"
-                  value={params.role}
-                  onChange={(e) =>
-                    setParams({ ...params, role: e.target.value })
-                  }
-                />
-              </div>
-            </form>
-          </Modal.Body>
-          <Modal.Footer>
-            <button
-              type="button"
-              className="btn btn-outline-danger"
-              onClick={handleClose}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={saveLocation}
-            >
-              {params.id ? "Update" : "Add"}
-            </button>
-          </Modal.Footer>
-        </Modal>
       </div>
+
+      <Modal show={showModal} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>"Add Location"</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <form>
+            <div className="mb-3">
+              <label htmlFor="orgName" className="form-label">
+                Organization Name
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                id="orgName"
+                value={params.orgName}
+                onChange={(e) =>
+                  setParams({ ...params, orgName: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="orgType" className="form-label">
+                Location Type
+              </label>
+              <select
+                className="form-control"
+                id="orgType"
+                value={params.orgType}
+                onChange={handleOrgTypeChange}
+              >
+                <option value="">Select Location Type</option>
+                <option value={1}>Institute</option>
+                <option value={2}>Storage Location</option>
+                <option value={3}>Research Centre</option>
+                <option value={4}>Laboratory</option>
+              </select>
+            </div>
+
+            {params.orgType == "2" && (
+              <div className="mb-3">
+                <label htmlFor="instituteId" className="form-label">
+                  Select Institute
+                </label>
+                <select
+                  className="form-control"
+                  id="instituteId"
+                  value={params.instituteId}
+                  onChange={(e) =>
+                    setParams({ ...params, instituteId: e.target.value })
+                  }
+                >
+                  <option value="">Select Institute</option>
+                  {Array.isArray(institutes) &&
+                    institutes.map((institute) => (
+                      <option key={institute.id} value={institute.id}>
+                        {institute.orgName}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            )}
+
+            {params.orgType == "3" && (
+              <div className="mb-3">
+                <label htmlFor="researchCentreId" className="form-label">
+                  Select Research Centre
+                </label>
+                <select
+                  className="form-control"
+                  id="researchCentreId"
+                  value={params.researchCentreId}
+                  onChange={(e) =>
+                    setParams({ ...params, researchCentreId: e.target.value })
+                  }
+                >
+                  <option value="">Select Research Centre</option>
+                  {Array.isArray(researchCentres) &&
+                    researchCentres.map((centre) => (
+                      <option key={centre.id} value={centre.id}>
+                        {centre.orgName}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            )}
+
+            {/*
+            <div className="mb-3">
+              <label htmlFor="hasSpecialEquipment" className="form-label">
+                Special Equipment Available
+              </label>
+              <select
+                className="form-control"
+                id="hasSpecialEquipment"
+                value={params.hasSpecialEquipment}
+                onChange={(e) =>
+                  setParams({
+                    ...params,
+                    hasSpecialEquipment: e.target.value,
+                  })
+                }
+              >
+                <option value="">Select</option>
+                <option value={true}>Yes</option>
+                <option value={false}>No</option>
+              </select>
+            </div>
+            */}
+          </form>
+        </Modal.Body>
+        <Modal.Footer>
+          <button className="btn btn-secondary" onClick={handleClose}>
+            Cancel
+          </button>
+          <button className="btn btn-primary" onClick={saveLocation}>
+            "Add Location"
+          </button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal for selecting location type */}
+      <LocationTypeModal
+        show={showLocationTypeModal}
+        handleClose={handleCloseLocationTypeModal}
+        handleOptionSelect={handleOptionSelect}
+        value={1}
+      />
     </div>
   );
 };

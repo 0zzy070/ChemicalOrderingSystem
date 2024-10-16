@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { Modal } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Modal, Button, Form } from "react-bootstrap";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import IconUserPlus from "../../Assets/Icon/IconUserPlus.tsx";
 import IconSearch from "../../Assets/Icon/IconSearch.tsx";
@@ -9,39 +10,40 @@ import SideBar from "../../Components/Layouts/SideBar.jsx";
 const StorageLocations = () => {
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const itemsPerPage = 10;
-  const [currentPage, setCurrentPage] = useState(1);
   const [params, setParams] = useState({
-    name: "",
-    email: "",
-    role: "",
-    location: "",
+    orgName: "",
+    hasSpecialEquipment: "",
     id: null,
   });
   const [storages, setStorages] = useState([]);
+  const [formValues, setFormValues] = useState({
+    orgName: "",
+  });
+  const itemsPerPage = 10;
+  const [currentPage, setCurrentPage] = useState(1);
   const token = JSON.parse(localStorage.getItem("auth"));
   const accessToken = token.accessToken;
   const orgType = 2;
+  const { id } = useParams();
 
   useEffect(() => {
-    document.title = "Storage Locations";
-    fetchStorages();
-  }, []);
+    if (id) {
+      document.title = "Storage Locations";
+      fetchStorages(id);
+    }
+  }, [id]);
 
-  const fetchStorages = async () => {
+  const fetchStorages = async (id) => {
     try {
       const response = await axios.get(
-        `/api/organizational-units/listByOrgType/${orgType}`,
+        `/api/organizational-units/listDirectChildrenUnit/${id}/${orgType}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         }
       );
-      // Access the 'data' property of the response object
       const data = response.data.data;
-
-      // If the response.data is an object containing the array
       if (Array.isArray(data)) {
         setStorages(data);
       } else {
@@ -52,61 +54,98 @@ const StorageLocations = () => {
     }
   };
 
-  const handleShow = () => setShowModal(true);
-  const handleClose = () => setShowModal(false);
+  const handleShow = () => {
+    setShowModal(true);
+    setFormValues({
+      orgName: "",
+    });
+  };
 
   const saveStorage = async () => {
     try {
-      if (params.id) {
-        await axios.put(
-          `https://your-api-endpoint.com/locations/${params.id}`,
-          params
-        );
-      } else {
-        await axios.post("https://your-api-endpoint.com/locations", params);
-      }
-      //fetchLocations();
-      handleClose();
+      const url = params.id
+        ? `/api/organizational-units/updateUnitById`
+        : `/api/organizational-units/createOrganizationalUnit`;
+
+      const method = params.id ? "post" : "post";
+
+      const data = params.id
+        ? {
+            orgName: params.orgName,
+            hasSpecialEquipment: params.hasSpecialEquipment,
+            id: id,
+          }
+        : {
+            orgName: params.orgName,
+            hasSpecialEquipment: params.hasSpecialEquipment,
+            orgType: 2,
+            pid: id,
+          };
+
+      const response = await axios({
+        method: method,
+        url: url,
+        data: data,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      console.log("API Response:", response.data);
+      fetchStorages(id); // Refresh the list after saving
+      handleClose(); // Close the modal after save
     } catch (error) {
       console.error("Error saving location:", error);
     }
   };
+
+  const handleClose = () => setShowModal(false);
 
   const editStorage = (storage) => {
     setParams(storage);
     handleShow();
   };
 
-  const addStorage = (storage) => {
-    setParams(storage);
+  const addStorage = () => {
     handleShow();
   };
 
   const deleteStorage = async (storage) => {
     try {
-      await axios.delete(
-        `https://your-api-endpoint.com/locations/${storage.id}`
-      );
-      //fetchLocations();
+      await axios.delete(`/api/organizational-units/deleteById/${storage.id}`);
+      fetchStorages();
     } catch (error) {
       console.error("Error deleting location:", error);
     }
   };
 
-  const totalStorages = storages.filter((storages) =>
-    storages.orgName.toLowerCase().includes(search.toLowerCase())
+  const totalStorages = storages.filter((storage) =>
+    storage.orgName.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Calculate the total number of pages
   const totalPages = Math.ceil(totalStorages.length / itemsPerPage);
-
-  // Handle page change
   const handlePageChange = (newPage) => {
     if (newPage > 0 && newPage <= totalPages) {
       setCurrentPage(newPage);
     }
   };
 
+  // Handle input changes in the form
+  /*
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      [name]: value,
+    }));
+  };
+  
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    saveStorage(formValues); // Save the form data
+  };
+*/
   return (
     <div className="container-fluid">
       <NavigationBar />
@@ -123,15 +162,15 @@ const StorageLocations = () => {
               <button
                 type="button"
                 className="btn btn-primary d-flex align-items-center px-4"
-                onClick={() => addStorage({})}
+                onClick={handleShow}
               >
                 <IconUserPlus className="me-2" />
-                Add new Storage Location
+                Add Storage Location
               </button>
               <div className="position-relative d-flex">
                 <input
                   type="text"
-                  placeholder="Search Storages"
+                  placeholder="Search Stroages"
                   className="form-control"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -152,24 +191,18 @@ const StorageLocations = () => {
                 <tr>
                   <th>ID</th>
                   <th>Organization Name</th>
+                  <th>Has Special Equipment</th>
                   <th className="text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {totalStorages.map((storage) => (
                   <tr key={storage.id}>
-                    <td>
-                      <div className="d-flex align-items-center">
-                        <img
-                          src={require("../../Assets/Images/blank-profile.png")}
-                          className="rounded-circle me-2"
-                          alt="profilepic"
-                          style={{ width: "36px", height: "36px" }}
-                        />
-                        <div>{storage.id}</div>
-                      </div>
-                    </td>
+                    <td>{storage.id}</td>
                     <td>{storage.orgName}</td>
+                    <td>
+                      {storage.hasSpecialEquipment === "1" ? "Yes" : "No"}
+                    </td>
                     <td className="text-center">
                       <button
                         className="btn btn-sm btn-outline-secondary me-2"
@@ -189,98 +222,105 @@ const StorageLocations = () => {
                 ))}
               </tbody>
             </table>
+            <div className="d-flex justify-content-center">
+              <nav>
+                <ul className="pagination">
+                  <li
+                    className={`page-item ${
+                      currentPage === 1 ? "disabled" : ""
+                    }`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => handlePageChange(currentPage - 1)}
+                    >
+                      Previous
+                    </button>
+                  </li>
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <li
+                      key={i}
+                      className={`page-item ${
+                        currentPage === i + 1 ? "active" : ""
+                      }`}
+                    >
+                      <button
+                        className="page-link"
+                        onClick={() => handlePageChange(i + 1)}
+                      >
+                        {i + 1}
+                      </button>
+                    </li>
+                  ))}
+                  <li
+                    className={`page-item ${
+                      currentPage === totalPages ? "disabled" : ""
+                    }`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => handlePageChange(currentPage + 1)}
+                    >
+                      Next
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
           </div>
 
-          {/* Pagination */}
-          <div className="d-flex justify-content-end align-items-center mt-4">
-            <span className="me-3">
-              {`${(currentPage - 1) * itemsPerPage + 1}-${Math.min(
-                currentPage * itemsPerPage,
-                totalStorages.length
-              )} of ${totalStorages.length} items`}
-            </span>
-            <button
-              className="btn btn-sm btn-outline-primary me-2"
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              &larr; {/* Left arrow */}
-            </button>
-            <button
-              className="btn btn-sm btn-outline-primary"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              &rarr; {/* Right arrow */}
-            </button>
-          </div>
-
-          <Modal show={showModal} onHide={handleClose} centered>
+          <Modal show={showModal} onHide={handleClose}>
             <Modal.Header closeButton>
               <Modal.Title>
-                {params.id ? "Edit Location" : "Add Location"}
+                {params.id ? "Edit Storage Location" : "Add Storage Location"}
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>
               <form>
                 <div className="mb-3">
-                  <label htmlFor="name" className="form-label">
-                    Oragnization Name
+                  <label htmlFor="storageLocationName" className="form-label">
+                    Storage Location Name
                   </label>
                   <input
-                    id="name"
                     type="text"
                     className="form-control"
+                    id="storageLocationName"
                     value={params.orgName}
                     onChange={(e) =>
                       setParams({ ...params, orgName: e.target.value })
                     }
+                    required
                   />
                 </div>
+
                 <div className="mb-3">
-                  <label htmlFor="email" className="form-label">
-                    Organization Type
+                  <label htmlFor="hasSpecialEquipment" className="form-label">
+                    Special Equipment Available
                   </label>
-                  <input
-                    id="type"
-                    type="text"
+                  <select
                     className="form-control"
-                    value={params.orgType}
-                    onChange={(e) =>
-                      setParams({ ...params, orgType: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="role" className="form-label">
-                    Role
-                  </label>
-                  <input
-                    id="role"
-                    type="text"
-                    className="form-control"
-                    value={params.role}
-                    onChange={(e) =>
-                      setParams({ ...params, role: e.target.value })
-                    }
-                  />
+                    id="hasSpecialEquipment"
+                    value={params.hasSpecialEquipment || ""}
+                    onChange={(e) => {
+                      setParams({
+                        ...params,
+                        hasSpecialEquipment: e.target.value,
+                      });
+                    }}
+                  >
+                    <option value="">Select</option>
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                  </select>
                 </div>
               </form>
             </Modal.Body>
             <Modal.Footer>
-              <button
-                type="button"
-                className="btn btn-outline-danger"
-                onClick={handleClose}
-              >
+              <button className="btn btn-secondary" onClick={handleClose}>
                 Cancel
               </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={saveStorage}
-              >
-                {params.id ? "Update" : "Add"}
+              <button className="btn btn-primary" onClick={saveStorage}>
+                {params.id ? "Save Changes" : "Add Location"}
               </button>
             </Modal.Footer>
           </Modal>
