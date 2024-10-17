@@ -434,6 +434,24 @@ const Experiments = () => {
               }
             />
           </div>
+          <div className="mb-3">
+            <label htmlFor="name" className="form-label">
+              Risk Assessment
+            </label>
+            <textarea
+              type="text"
+              id="risk-assessment"
+              className="form-control"
+              style={{ height: "150px" }}
+              placeholder="Please enter your comment of risk assessment"
+              // onChange={(e) =>
+              //   setParams((prevState) => ({
+              //     ...prevState,
+              //     name: e.target.value,
+              //   }))
+              // }
+            />
+          </div>
         </Modal.Body>
         <Modal.Footer>
           <button className="btn btn-secondary" onClick={handleClose}>
