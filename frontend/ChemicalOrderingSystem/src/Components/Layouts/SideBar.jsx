@@ -10,6 +10,10 @@ import IconListCheck from "../../Assets/Icon/IconFa6SolidListCheck.tsx";
 import IconUserCheck from "../../Assets/Icon/IconTablerUserCheck.tsx";
 import IconRiShoppingCartLine from "../../Assets/Icon/IconRiShoppingCartLine.tsx";
 import IconLucideListTodo from "../../Assets/Icon/IconLucideListTodo.tsx";
+
+const user = JSON.parse(localStorage.getItem("auth"));
+const Role = user.userRole;
+
 const SideBar = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -24,34 +28,54 @@ const SideBar = () => {
     <div className="">
       <div className="bg-light side-bar">
         <Nav defaultActiveKey="/users" className="flex-column">
-          <Nav.Link href="/users" className="d-flex align-items-center">
-            <IconUsers />
-            <span>Users</span>
-          </Nav.Link>
-          <Nav.Link href="/location" className="d-flex align-items-center">
-            <IconBuilding />
-            <span>Locations</span>
-          </Nav.Link>
-          <Nav.Link href="/chemicals" className="d-flex align-items-center">
-            <IconFlask />
-            <span>Chemicals</span>
-          </Nav.Link>
-          <Nav.Link href="/approvals" className="d-flex align-items-center">
-            <IconListCheck />
-            <span>Approvals</span>
-          </Nav.Link>
-          <Nav.Link href="/higherApprovals" className="d-flex align-items-center">
-            <IconUserCheck />
-            <span>Higher Approvals</span>
-          </Nav.Link>
-          <Nav.Link href="/orders" className="d-flex align-items-center">
-            <IconRiShoppingCartLine />
-            <span>Orders</span>
-          </Nav.Link>
-          <Nav.Link href="/experiments" className="d-flex align-items-center">
-            <IconLucideListTodo />
-            <span>Experiments</span>
-          </Nav.Link>
+          {Role === "ROLE_ADMIN" && (
+            <>
+              <Nav.Link href="/users" className="d-flex align-items-center">
+                <IconUsers />
+                <span>Users</span>
+              </Nav.Link>
+              <Nav.Link href="/location" className="d-flex align-items-center">
+                <IconBuilding />
+                <span>Locations</span>
+              </Nav.Link>
+              <Nav.Link href="/chemicals" className="d-flex align-items-center">
+                <IconFlask />
+                <span>Chemicals</span>
+              </Nav.Link>
+            </>
+          )}
+
+          {Role === "ROLE_SUPERVISOR" && (
+            <Nav.Link href="/approvals" className="d-flex align-items-center">
+              <IconListCheck />
+              <span>Approvals</span>
+            </Nav.Link>
+          )}
+
+          {Role === "ROLE_APPROVE" && (
+            <Nav.Link
+              href="/higherApprovals"
+              className="d-flex align-items-center"
+            >
+              <IconUserCheck />
+              <span>Higher Approvals</span>
+            </Nav.Link>
+          )}
+
+          {Role === "ROLE_RESEARCH" && (
+            <Nav.Link href="/experiments" className="d-flex align-items-center">
+              <IconLucideListTodo />
+              <span>Experiments</span>
+            </Nav.Link>
+          )}
+
+          {Role === "ROLE_ORDER" && (
+            <Nav.Link href="/orders" className="d-flex align-items-center">
+              <IconRiShoppingCartLine />
+              <span>Orders</span>
+            </Nav.Link>
+          )}
+
           <Nav.Link
             onClick={handleDrawerToggle}
             className="d-flex align-items-center"

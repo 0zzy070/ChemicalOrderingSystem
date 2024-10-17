@@ -207,7 +207,20 @@ const Users = () => {
                       <td>{user.userName}</td>
                       <td>{user.employeeNumber}</td>
                       <td>{user.email}</td>
-                      <td>{user.authority}</td>
+                      <td>
+                        {/* Mapping user authority to display names */}
+                        {(() => {
+                          const roleNames = {
+                            ROLE_ADMIN: "Admin",
+                            ROLE_APPROVE: "Higher Approver",
+                            ROLE_SUPERVISOR: "Supervisor",
+                            ROLE_ORDER: "Order Manager",
+                            ROLE_RESEARCH: "Research Staff",
+                          };
+
+                          return roleNames[user.authority] || user.authority; // Display mapped name or original role
+                        })()}
+                      </td>
                       <td className="text-center">
                         <button
                           type="button"
@@ -355,15 +368,22 @@ const Users = () => {
                   <label htmlFor="authority" className="form-label">
                     Role
                   </label>
-                  <input
-                    type="text"
+                  <select
                     className="form-control"
                     id="authority"
                     value={params.authority || ""}
                     onChange={(e) =>
                       setParams({ ...params, authority: e.target.value })
                     }
-                  />
+                  >
+                    <option value="">Select Role</option>{" "}
+                    {/* Placeholder option */}
+                    <option value="ROLE_ADMIN">Admin</option>
+                    <option value="ROLE_APPROVE">Higher Approver</option>
+                    <option value="ROLE_SUPERVISOR">Supervisor</option>
+                    <option value="ROLE_ORDER">Order Manager</option>
+                    <option value="ROLE_RESEARCH">Research Staff</option>
+                  </select>
                 </div>
               </form>
             </Modal.Body>

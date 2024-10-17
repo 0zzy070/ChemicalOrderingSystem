@@ -17,11 +17,17 @@ import Experiments from "../Pages/Experiments/Experiments";
 import Orders from "../Pages/Orders/Orders";
 
 // ProtectedRoute to ensure only authenticated users can access certain routes
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, allowedRoles }) => {
   const { auth } = useContext(AuthContext);
-
+  const user = JSON.parse(localStorage.getItem("auth"));
+  const userRoles = user?.userRole || [];
   if (!auth?.isAuthenticated) {
     return <Navigate to="/" replace />;
+  }
+  const hasAccess = allowedRoles.some((role) => userRoles.includes(role));
+
+  if (!hasAccess) {
+    return <Navigate to="/not-authorized" replace />; // Redirect to a "Not Authorized" page
   }
 
   return children;
@@ -52,7 +58,15 @@ export const routes = [
   {
     path: "/dashboard",
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute
+        allowedRoles={[
+          "ROLE_ADMIN",
+          "ROLE_SUPERVISOR",
+          "ROLE_APPROVE",
+          "ROLE_ORDER",
+          "ROLE_RESEARCH",
+        ]}
+      >
         <Dashboard />
       </ProtectedRoute>
     ),
@@ -61,7 +75,7 @@ export const routes = [
   {
     path: "/users",
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
         <Users />
       </ProtectedRoute>
     ),
@@ -70,7 +84,7 @@ export const routes = [
   {
     path: "/location",
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
         <Location />
       </ProtectedRoute>
     ),
@@ -79,7 +93,7 @@ export const routes = [
   {
     path: "/institutes",
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
         <Institutes />
       </ProtectedRoute>
     ),
@@ -88,7 +102,7 @@ export const routes = [
   {
     path: "/storagelocations/:id",
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
         <StorageLocations />
       </ProtectedRoute>
     ),
@@ -97,7 +111,7 @@ export const routes = [
   {
     path: "/researchcentre/:id",
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute allowedRoles={["ROLE_RESEARCH"]}>
         <ResearchCentres />
       </ProtectedRoute>
     ),
@@ -106,7 +120,7 @@ export const routes = [
   {
     path: "/laboratory/:id",
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
         <Laboratories />
       </ProtectedRoute>
     ),
@@ -115,7 +129,7 @@ export const routes = [
   {
     path: "/chemicals",
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
         <Chemicals />
       </ProtectedRoute>
     ),
@@ -124,7 +138,7 @@ export const routes = [
   {
     path: "/approvals",
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute allowedRoles={["ROLE_SUPERVISOR"]}>
         <Approvals />
       </ProtectedRoute>
     ),
@@ -133,7 +147,7 @@ export const routes = [
   {
     path: "/higherApprovals",
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute allowedRoles={["ROLE_APPROVE"]}>
         <HigherApprovals />
       </ProtectedRoute>
     ),
@@ -142,7 +156,7 @@ export const routes = [
   {
     path: "/orders",
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute allowedRoles={["ROLE_ORDER"]}>
         <Orders />
       </ProtectedRoute>
     ),
@@ -151,7 +165,7 @@ export const routes = [
   {
     path: "/experiments",
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute allowedRoles={["ROLE_RESEARCH"]}>
         <Experiments />
       </ProtectedRoute>
     ),
