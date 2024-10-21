@@ -54,7 +54,8 @@ const Login = () => {
             console.log("Login successful:", response.data);
             navigate("/dashboard");
             const accessToken = response.data.data.jwtToken;
-            setAuth({ formData, accessToken, isAuthenticated: true });
+            const userRole = response.data.data.roles[0];
+            setAuth({ accessToken, userRole, isAuthenticated: true });
           })
           .catch((error) => {
             // Handle error response

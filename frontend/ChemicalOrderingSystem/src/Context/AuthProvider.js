@@ -15,8 +15,11 @@ export const AuthProvider = ({ children }) => {
   }, [auth]);
 
   // Method to log in
-  const login = (authData) => {
+  const login = (authData, userRole) => {
     setAuth({ ...authData, isAuthenticated: true });
+    if (userRole) {
+      localStorage.setItem("userRole", userRole); // Store entire userRole array
+    }
   };
 
   // Method to log out

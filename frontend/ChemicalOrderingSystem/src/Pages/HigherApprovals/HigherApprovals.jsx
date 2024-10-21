@@ -34,9 +34,6 @@ const HigherApprovals = () => {
   const [requestToUpdate, setRequestToUpdate] = useState(null);
   const [chemicalData, setChemicalData] = useState(null); // 存储化学品数据
   const [activeChemicalId, setActiveChemicalId] = useState(null); // State to track active chemical ID
-  const [loading, setLoading] = useState(false); // 控制加载状态
-  const [error, setError] = useState(null); // 错误状态
-  // const [comment, setComment] = useState('');
 
   useEffect(() => {
     document.title = "Higher Approvals";
@@ -376,6 +373,7 @@ const HigherApprovals = () => {
                         type="button"
                         className="btn btn-sm btn-outline-primary btn-custom"
                         style={{ width: "100px", margin: "2px 0" }}
+                        disabled={request.orderApproverStatus === true}
                         onClick={() => ApprovalRequest(request.id)}
                       >
                         Approve
