@@ -322,7 +322,26 @@ const Experiments = () => {
                       <td>{experiment.supervisorComment || "N/A"}</td>
                       <td>{experiment.higherApproveComment || "N/A"}</td>
                       <td>{experiment.orderComment || "N/A"}</td>
-                      <td>{experiment.status}</td>
+                      <td>
+                        {(() => {
+                          switch (experiment.status) {
+                            case 0:
+                              return "Awaiting supervisor approval";
+                            case 1:
+                              return "Sent to higher approver";
+                            case 2:
+                              return "Checking chemical in stock";
+                            case 3:
+                              return "Chemical is ordered";
+                            case 4:
+                              return "Chemical received; awaits transfer to storage";
+                            case 5:
+                              return "Chemical has been stored";
+                            default:
+                              return "Unknown status"; // Optional: handle unexpected statuses
+                          }
+                        })()}
+                      </td>
                       <td>{experiment.disposalDate || "N/A"}</td>
                       <td className="text-center">
                         <div className="d-flex justify-content-center mb-2">
