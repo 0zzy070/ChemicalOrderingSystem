@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Nav } from "react-bootstrap";
 import IconUsers from "../../Assets/Icon/IconUsersGroup.tsx";
 import IconFlask from "../../Assets/Icon/IconChemicalFlask.tsx";
@@ -11,11 +11,14 @@ import IconUserCheck from "../../Assets/Icon/IconTablerUserCheck.tsx";
 import IconRiShoppingCartLine from "../../Assets/Icon/IconRiShoppingCartLine.tsx";
 import IconLucideListTodo from "../../Assets/Icon/IconLucideListTodo.tsx";
 
-const user = JSON.parse(localStorage.getItem("auth"));
-const Role = user.userRole;
-
 const SideBar = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [role, setRole] = useState(null);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("auth"));
+    setRole(user?.userRole); // Safe access to userRole
+  }, []);
 
   const handleDrawerToggle = () => {
     setIsDrawerOpen(!isDrawerOpen);
@@ -28,7 +31,7 @@ const SideBar = () => {
     <div className="">
       <div className="bg-light side-bar">
         <Nav defaultActiveKey="/users" className="flex-column">
-          {Role === "ROLE_ADMIN" && (
+          {role === "ROLE_ADMIN" && (
             <>
               <Nav.Link href="/users" className="d-flex align-items-center">
                 <IconUsers />
@@ -45,14 +48,14 @@ const SideBar = () => {
             </>
           )}
 
-          {Role === "ROLE_SUPERVISOR" && (
+          {role === "ROLE_SUPERVISOR" && (
             <Nav.Link href="/approvals" className="d-flex align-items-center">
               <IconListCheck />
               <span>Approvals</span>
             </Nav.Link>
           )}
 
-          {Role === "ROLE_APPROVE" && (
+          {role === "ROLE_APPROVE" && (
             <Nav.Link
               href="/higherApprovals"
               className="d-flex align-items-center"
@@ -62,14 +65,14 @@ const SideBar = () => {
             </Nav.Link>
           )}
 
-          {Role === "ROLE_RESEARCH" && (
+          {role === "ROLE_RESEARCH" && (
             <Nav.Link href="/experiments" className="d-flex align-items-center">
               <IconLucideListTodo />
               <span>Experiments</span>
             </Nav.Link>
           )}
 
-          {Role === "ROLE_ORDER" && (
+          {role === "ROLE_ORDER" && (
             <Nav.Link href="/orders" className="d-flex align-items-center">
               <IconRiShoppingCartLine />
               <span>Orders</span>
