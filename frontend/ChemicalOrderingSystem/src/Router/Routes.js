@@ -24,10 +24,15 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   if (!auth?.isAuthenticated) {
     return <Navigate to="/" replace />;
   }
+
+  if (!allowedRoles || allowedRoles.length === 0) {
+    return children;
+  }
+
   const hasAccess = allowedRoles.some((role) => userRoles.includes(role));
 
   if (!hasAccess) {
-    return <Navigate to="/not-authorized" replace />; // Redirect to a "Not Authorized" page
+    return <Navigate to="/dashboard" replace />; // Redirect to a "Not Authorized" page
   }
 
   return children;
@@ -58,15 +63,7 @@ export const routes = [
   {
     path: "/dashboard",
     element: (
-      <ProtectedRoute
-        allowedRoles={[
-          "ROLE_ADMIN",
-          "ROLE_SUPERVISOR",
-          "ROLE_APPROVE",
-          "ROLE_ORDER",
-          "ROLE_RESEARCH",
-        ]}
-      >
+      <ProtectedRoute>
         <Dashboard />
       </ProtectedRoute>
     ),
