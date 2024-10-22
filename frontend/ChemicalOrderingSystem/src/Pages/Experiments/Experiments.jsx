@@ -23,6 +23,7 @@ const Experiments = () => {
     chemicalId: "",
     amount: "",
     id: null,
+    riskAssess: "",
   });
   const [experiments, setExperiments] = useState([]);
   const [showToast, setShowToast] = useState(false);
@@ -120,7 +121,13 @@ const Experiments = () => {
 
   // Add or edit an experiment
   const addExperiment = () => {
-    setParams({ name: "", chemicalId: "", amount: "", id: null }); // Reset params for new experiment
+    setParams({
+      name: "",
+      chemicalId: "",
+      amount: "",
+      id: null,
+      riskAssess: "",
+    }); // Reset params for new experiment
     handleShow();
   };
 
@@ -139,15 +146,15 @@ const Experiments = () => {
       const data = params.id
         ? {
             name: params.name,
-            riskAssessment: "hello",
             chemicalId: params.chemicalId,
             amount: Number(params.amount),
             unit: "bucket",
             status: 0,
+            riskAssessment: params.riskAssess,
           }
         : {
             name: params.name,
-            riskAssessment: "hello",
+            riskAssessment: params.riskAssess,
             chemicalId: params.chemicalId,
             amount: Number(params.amount),
             unit: "bucket",
@@ -462,13 +469,14 @@ const Experiments = () => {
               id="risk-assessment"
               className="form-control"
               style={{ height: "150px" }}
+              value={params.riskAssessment}
               placeholder="Please enter your comment of risk assessment"
-              // onChange={(e) =>
-              //   setParams((prevState) => ({
-              //     ...prevState,
-              //     name: e.target.value,
-              //   }))
-              // }
+              onChange={(e) =>
+                setParams((prevState) => ({
+                  ...prevState,
+                  riskAssess: e.target.value,
+                }))
+              }
             />
           </div>
         </Modal.Body>

@@ -109,7 +109,7 @@ public class UserServiceImpl implements IUserService {
         Users users = new Users();
         users.setId(id);
         users.setUsername(userDTO.getUserName());
-        users.setPassword(passwordEncoder.encode(userDTO.getPassword())); // Ensure passwords are encoded
+        users.setPassword(userDTO.getPassword()); // Ensure passwords are encoded
         users.setEmail(userDTO.getEmail());
         String newEmployeeNumber = generateEmployeeNumber();
         users.setEmployeeNumber(newEmployeeNumber);
