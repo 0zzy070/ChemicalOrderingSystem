@@ -142,7 +142,7 @@ const Experiments = () => {
         ? `/api/experiments/${params.id}`
         : `/api/experiments`;
 
-      const method = params.id ? "patch" : "post"; // Use PUT for updates
+      const method = params.id ? "patch" : "post";
       const data = params.id
         ? {
             name: params.name,
@@ -159,6 +159,9 @@ const Experiments = () => {
             amount: Number(params.amount),
             unit: "bucket",
           };
+      if (params.id) {
+        console.log(data);
+      }
 
       await axios({
         method,
@@ -243,7 +246,11 @@ const Experiments = () => {
                   ? "High"
                   : "N/A"}
               </td>
-              <td>{params.amount || "N/A"}</td>
+              <td>
+                {filteredExperiments.find(
+                  (experiment) => experiment.chemicalId === chemical.id
+                )?.amount || "N/A"}
+              </td>
             </tr>
           </tbody>
         </table>

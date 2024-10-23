@@ -108,7 +108,7 @@ export const routes = [
   {
     path: "/researchcentre/:id",
     element: (
-      <ProtectedRoute allowedRoles={["ROLE_RESEARCH"]}>
+      <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
         <ResearchCentres />
       </ProtectedRoute>
     ),
@@ -135,7 +135,7 @@ export const routes = [
   {
     path: "/approvals",
     element: (
-      <ProtectedRoute allowedRoles={["ROLE_SUPERVISOR"]}>
+      <ProtectedRoute allowedRoles={["ROLE_SUPERVISOR", "ROLE_ADMIN"]}>
         <Approvals />
       </ProtectedRoute>
     ),
@@ -144,7 +144,7 @@ export const routes = [
   {
     path: "/higherApprovals",
     element: (
-      <ProtectedRoute allowedRoles={["ROLE_APPROVE"]}>
+      <ProtectedRoute allowedRoles={["ROLE_APPROVE", "ROLE_ADMIN"]}>
         <HigherApprovals />
       </ProtectedRoute>
     ),
@@ -153,7 +153,7 @@ export const routes = [
   {
     path: "/orders",
     element: (
-      <ProtectedRoute allowedRoles={["ROLE_ORDER"]}>
+      <ProtectedRoute allowedRoles={["ROLE_ORDER", "ROLE_ADMIN"]}>
         <Orders />
       </ProtectedRoute>
     ),
@@ -162,7 +162,7 @@ export const routes = [
   {
     path: "/experiments",
     element: (
-      <ProtectedRoute allowedRoles={["ROLE_RESEARCH"]}>
+      <ProtectedRoute allowedRoles={["ROLE_RESEARCH", "ROLE_ADMIN"]}>
         <Experiments />
       </ProtectedRoute>
     ),

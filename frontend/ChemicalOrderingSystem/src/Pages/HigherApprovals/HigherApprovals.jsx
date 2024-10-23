@@ -49,7 +49,7 @@ const HigherApprovals = () => {
         },
       });
       const filteredRequests = response.data.data.filter(
-        (request) => request.status === 2
+        (request) => request.status === 1
       );
       setRequests(filteredRequests);
     } catch (error) {
@@ -119,13 +119,14 @@ const HigherApprovals = () => {
       body: JSON.stringify({
         ...requestToUpdate,
         status: requestToUpdate.status,
-        supervisorApproveStatus: requestToUpdate.supervisorApproveStatus,
-        supervisorComment: requestToUpdate.supervisorComment,
+        higherApproveStatus: requestToUpdate.higherApproveStatus,
+        higherApproveComment: requestToUpdate.higherApproveComment,
       }),
     });
 
     if (updateResponse.ok) {
       console.log("Request status updated successfully.");
+      handleSupervisorShow();
     } else {
       console.error("Failed to update request status.");
     }
@@ -160,27 +161,24 @@ const HigherApprovals = () => {
         return;
       }
 
-      requestToUpdate.status = 3;
-      requestToUpdate.higherApproveStatus = true;
+      // Prepare the new request data
+      const updatedData = {
+        ...requestToUpdate,
+        status: 3,
+        higherApproveStatus: true,
+      };
 
+      // Update the local state
       const updatedRequests = requests.map((req) =>
-        req.id === id
-          ? {
-              ...req,
-              status: requestToUpdate.status,
-              higherApproveStatus: requestToUpdate.higherApproveStatus,
-            }
-          : req
+        req.id === id ? updatedData : req
       );
 
       setRequests(updatedRequests);
-      handleSupervisorShow();
-      updateRequest(requestToUpdate);
+
+      // Call the update function
+      await updateRequest(updatedData); // Ensure you await the request
     } catch (error) {
-      console.error(
-        "Error fetching chemical data or updating request status:",
-        error
-      );
+      console.error("Error updating request status:", error);
     }
   };
 
