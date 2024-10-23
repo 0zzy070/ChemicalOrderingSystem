@@ -57,7 +57,7 @@ public class ExperimentController {
      * @param requestBody the request body containing updated experiment details
      * @return ApiResponse containing the updated experiment details
      */
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'HIGHER_APPROVER', 'ORDER_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'APPROVE', 'ORDER')")
     @PatchMapping("/{id}")
     public ApiResponse<Experiment> updateExperiment(
             Authentication authentication,
