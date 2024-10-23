@@ -73,7 +73,6 @@ public class ExperimentServiceImpl implements IExperimentService {
                         .findFirst() // Assuming one role, if more logic is needed for multiple
                         // roles, adjust accordingly
                         .orElse("UNKNOWN");
-
         if (!experimentRepository.existsById(id)) {
             return new ApiResponse<>(404, "Experiment with ID " + id + " not found", null);
         }
@@ -125,9 +124,9 @@ public class ExperimentServiceImpl implements IExperimentService {
                     }
                 }
                 break;
-            case "ROLE_HIGHER_APPROVER": // Higher approver: Can only modify fields starting with
+            case "ROLE_APPROVE": // Higher approver: Can only modify fields starting with
                 // higher_approve_
-                System.out.println("ROLE_HIGHER_APPROVER");
+                System.out.println("ROLE_APPROVE");
                 if (originalExperiment.getStatus() != 1) {
                     return new ApiResponse<>(
                             400, "Invalid status, please follow the approval steps", null);
@@ -146,8 +145,8 @@ public class ExperimentServiceImpl implements IExperimentService {
                     }
                 }
                 break;
-            case "ROLE_ORDER_MANAGER": // Order manager: Can only modify fields starting with order_
-                System.out.println("ROLE_ORDER_MANAGER");
+            case "ROLE_ORDER": // Order manager: Can only modify fields starting with order_
+                System.out.println("ROLE_ORDER");
                 if (originalExperiment.getOrderApproveTime() == null) {
                     if (originalExperiment.getStatus() != 2) {
                         return new ApiResponse<>(
