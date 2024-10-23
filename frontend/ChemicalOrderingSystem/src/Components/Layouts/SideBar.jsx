@@ -17,8 +17,19 @@ const SideBar = () => {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("auth"));
-    setRole(user?.userRole); // Safe access to userRole
+    setRole(user?.userRole || null);
   }, []);
+
+  useEffect(() => {
+    const checkRoleAfterLogin = () => {
+      const user = JSON.parse(localStorage.getItem("auth"));
+      if (user?.userRole && user.userRole !== role) {
+        setRole(user.userRole);
+      }
+    };
+
+    setTimeout(checkRoleAfterLogin, 0);
+  }, [role]);
 
   const handleDrawerToggle = () => {
     setIsDrawerOpen(!isDrawerOpen);
