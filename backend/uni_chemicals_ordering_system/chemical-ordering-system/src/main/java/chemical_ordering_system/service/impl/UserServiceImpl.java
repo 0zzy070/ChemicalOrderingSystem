@@ -12,6 +12,7 @@ import chemical_ordering_system.model.Users;
 import chemical_ordering_system.repository.AuthorityRepository;
 import chemical_ordering_system.repository.UserRepository;
 import chemical_ordering_system.service.IUserService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,36 +31,34 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements IUserService {
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    @Autowired private AuthenticationManager authenticationManager;
 
-    @Autowired
-    private JwtUtils jwtUtils;
+    @Autowired private JwtUtils jwtUtils;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @Autowired private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private UserRepository userRepository;
+    @Autowired private UserRepository userRepository;
 
-    @Autowired
-    private AuthorityRepository authorityRepository;
+    @Autowired private AuthorityRepository authorityRepository;
 
     @Override
     public List<UserDTO> findUserByEmployeeNumber(String employeeNumber) {
-        List<Object[]> results = userRepository.findUserByEmployeeNumberWithAuthority(employeeNumber);
-        return results.stream().map(r -> {
-            UserDTO userDTO = new UserDTO();
-            userDTO.setId((String) r[0]);
-            userDTO.setUserName((String) r[1]);
-            userDTO.setPassword((String) r[2]);
-            userDTO.setEmail((String) r[3]);
-            userDTO.setAuthority((String) r[4]);
-            userDTO.setEmployeeNumber((String) r[5]);
-            return userDTO;
-        }).collect(Collectors.toList());
+        List<Object[]> results =
+                userRepository.findUserByEmployeeNumberWithAuthority(employeeNumber);
+        return results.stream()
+                .map(
+                        r -> {
+                            UserDTO userDTO = new UserDTO();
+                            userDTO.setId((String) r[0]);
+                            userDTO.setUserName((String) r[1]);
+                            userDTO.setPassword((String) r[2]);
+                            userDTO.setEmail((String) r[3]);
+                            userDTO.setAuthority((String) r[4]);
+                            userDTO.setEmployeeNumber((String) r[5]);
+                            return userDTO;
+                        })
+                .collect(Collectors.toList());
     }
-
 
     @Override
     public List<Users> findUserByUsername(String userName) {
@@ -70,46 +69,53 @@ public class UserServiceImpl implements IUserService {
     public List<UserDTO> findAllUsers() {
         List<Object[]> results = userRepository.findAllUsersWithAuthority();
         return results.stream()
-                .map(result -> {
-                    UserDTO userDTO = new UserDTO();
-                    userDTO.setId((String) result[0]);
-                    userDTO.setUserName((String) result[1]);
-                    userDTO.setPassword((String) result[2]);
-                    userDTO.setAuthority((String) result[4]);
-                    userDTO.setEmail((String) result[3]);
-                    userDTO.setEmployeeNumber((String) result[5]);
-                    return userDTO;
-                })
+                .map(
+                        result -> {
+                            UserDTO userDTO = new UserDTO();
+                            userDTO.setId((String) result[0]);
+                            userDTO.setUserName((String) result[1]);
+                            userDTO.setPassword((String) result[2]);
+                            userDTO.setAuthority((String) result[4]);
+                            userDTO.setEmail((String) result[3]);
+                            userDTO.setEmployeeNumber((String) result[5]);
+                            return userDTO;
+                        })
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<UserDTO> findUserById(String id) {
         List<Object[]> results = userRepository.findUserByIdWithAuthority(id);
-        return results.stream().map(r -> {
-            UserDTO userDTO = new UserDTO();
-            // Assuming r[0] is an instance of a custom object or Map containing all the fields
-            userDTO.setId((String) r[0]);
-            userDTO.setUserName((String) r[1]);
-            userDTO.setPassword((String) r[2]);
-            userDTO.setEmail((String) r[3]);
-            userDTO.setAuthority((String) r[4]);
-            userDTO.setEmployeeNumber((String) r[5]);
-            return userDTO;
-        }).collect(Collectors.toList());
+        return results.stream()
+                .map(
+                        r -> {
+                            UserDTO userDTO = new UserDTO();
+                            // Assuming r[0] is an instance of a custom object or Map containing all
+                            // the fields
+                            userDTO.setId((String) r[0]);
+                            userDTO.setUserName((String) r[1]);
+                            userDTO.setPassword((String) r[2]);
+                            userDTO.setEmail((String) r[3]);
+                            userDTO.setAuthority((String) r[4]);
+                            userDTO.setEmployeeNumber((String) r[5]);
+                            return userDTO;
+                        })
+                .collect(Collectors.toList());
     }
 
     @Override
-    public ResponseEntity<ApiResponse<Users>> saveUser(UserDTO userDTO) throws BusinessException{
+    public ResponseEntity<ApiResponse<Users>> saveUser(UserDTO userDTO) throws BusinessException {
         if (userRepository.existsByUsername(userDTO.getUserName())) {
-            throw new BusinessException(ErrorEnum.INVALID_INPUT, "username: " + userDTO.getUserName() + " already exists");
+            throw new BusinessException(
+                    ErrorEnum.INVALID_INPUT,
+                    "username: " + userDTO.getUserName() + " already exists");
         }
 
         String id = UUID.randomUUID().toString();
         Users users = new Users();
         users.setId(id);
         users.setUsername(userDTO.getUserName());
-        users.setPassword(passwordEncoder.encode(userDTO.getPassword())); // Ensure passwords are encoded
+        users.setPassword(userDTO.getPassword()); // Ensure passwords are encoded
         users.setEmail(userDTO.getEmail());
         String newEmployeeNumber = generateEmployeeNumber();
         users.setEmployeeNumber(newEmployeeNumber);
@@ -126,7 +132,8 @@ public class UserServiceImpl implements IUserService {
         // Set the Authority in the Users entity
         users.setAuthority(authority);
 
-        Users savedUser = userRepository.save(users); // This will also save Authority due to cascade
+        Users savedUser =
+                userRepository.save(users); // This will also save Authority due to cascade
 
         return ResponseEntity.ok(new ApiResponse<>(200, "success", savedUser));
     }
@@ -156,7 +163,8 @@ public class UserServiceImpl implements IUserService {
                 updatedUserDTO.setUserName(existingUser.getUsername());
                 updatedUserDTO.setPassword(existingUser.getPassword());
                 updatedUserDTO.setEmail(existingUser.getEmail());
-                updatedUserDTO.setAuthority(existingAuthority != null ? existingAuthority.getAuthority() : null);
+                updatedUserDTO.setAuthority(
+                        existingAuthority != null ? existingAuthority.getAuthority() : null);
 
                 return Optional.of(updatedUserDTO);
             }
@@ -179,18 +187,29 @@ public class UserServiceImpl implements IUserService {
     @Override
     public LoginResponse login(UserLoginDTO user) throws BusinessException {
         Authentication authentication;
-        try{
-            authentication=authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUserName(),user.getPassword()));
-        }catch (AuthenticationException exception){
+        try {
+            authentication =
+                    authenticationManager.authenticate(
+                            new UsernamePasswordAuthenticationToken(
+                                    user.getUserName(), user.getPassword()));
+        } catch (AuthenticationException exception) {
             throw new BusinessException(ErrorEnum.AUTHENTICATION_FAILED);
         }
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserDetails userDetails=(UserDetails) authentication.getPrincipal();
-        String jwtToken=jwtUtils.generateJwtTokenFromUsername(userDetails);
-        List<String> roles=userDetails.getAuthorities().stream().map(item->item.getAuthority()).collect(Collectors.toList());
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String jwtToken = jwtUtils.generateJwtTokenFromUsername(userDetails);
+        List<String> roles =
+                userDetails.getAuthorities().stream()
+                        .map(item -> item.getAuthority())
+                        .collect(Collectors.toList());
 
         Users users = userRepository.findByUsername(userDetails.getUsername()).get(0);
-        return new LoginResponse(jwtToken,userDetails.getUsername(),roles,users.getId(),users.getEmployeeNumber());
+        return new LoginResponse(
+                jwtToken,
+                userDetails.getUsername(),
+                roles,
+                users.getId(),
+                users.getEmployeeNumber());
     }
 
     private String generateEmployeeNumber() {
@@ -207,4 +226,3 @@ public class UserServiceImpl implements IUserService {
         return String.format("empyNo%03d", newNumber);
     }
 }
-
