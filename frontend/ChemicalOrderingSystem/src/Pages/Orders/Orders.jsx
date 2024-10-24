@@ -51,7 +51,7 @@ const Orders = () => {
         },
       });
       const filteredRequests = response.data.data.filter(
-        (request) => request.status === 3
+        (request) => request.status === 2
       );
       setOrders(filteredRequests);
     } catch (error) {
