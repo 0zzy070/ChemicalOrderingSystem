@@ -57,7 +57,7 @@ public class OrganizationalUnitController {
      * @param childOrgType the orgType of direct sub-institutions.List all type of direct sub-institutions when childOrgType is -1
      * @return
      */
-    @PreAuthorize("hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('ADMIN')")
     @GetMapping("listDirectChildrenUnit/{id}/{childOrgType}")
     public ApiResponse<List<OrganizationalUnit>> listDirectChildren(@PathVariable String id, @PathVariable Integer childOrgType) throws BusinessException {
         List<OrganizationalUnit> units = organizationalUnitService.listDirectChildren(id, childOrgType);
@@ -71,7 +71,7 @@ public class OrganizationalUnitController {
      * @return
      * @throws BusinessException
      */
-    @PreAuthorize("hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('ADMIN')")
     @GetMapping("listByOrgType/{orgType}")
     public ApiResponse<List<OrganizationalUnit>> listByOrgType(@PathVariable Integer orgType) throws BusinessException {
         List<OrganizationalUnit> units = organizationalUnitService.listByType(orgType);
