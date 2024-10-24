@@ -248,7 +248,7 @@ const Experiments = () => {
               </td>
               <td>
                 {filteredExperiments.find(
-                  (experiment) => experiment.chemicalId === chemical.id
+                  (experiment) => experiment.chemicalId === chemical?.id
                 )?.amount || "N/A"}
               </td>
             </tr>
